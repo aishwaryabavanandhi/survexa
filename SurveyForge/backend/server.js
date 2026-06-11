@@ -73,13 +73,33 @@ async function startServer() {
     contentSecurityPolicy: false,
   }))
 
+  const allowedOrigins = [
+    process.env.FRONTEND_URL ?? 'http://localhost:5173',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    // Capacitor Android app (both schemes used depending on Android version)
+    'capacitor://localhost',
+    'http://localhost',
+    'ionic://localhost',
+    'https://localhost',
+    // Allow any Vercel preview/production deployment
+    ...(process.env.EXTRA_CORS_ORIGINS
+      ? process.env.EXTRA_CORS_ORIGINS.split(',').map(s => s.trim())
+      : []),
+  ]
+
   app.use(cors({
-    origin: [
-      process.env.FRONTEND_URL ?? 'http://localhost:5173',
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:5175',
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, Postman)
+      if (!origin) return callback(null, true)
+      if (allowedOrigins.includes(origin)) return callback(null, true)
+      // Allow any *.vercel.app and *.onrender.com domain dynamically
+      if (/\.vercel\.app$/.test(origin) || /\.onrender\.com$/.test(origin)) {
+        return callback(null, true)
+      }
+      return callback(null, true) // permissive in dev; tighten if needed
+    },
     credentials: true,
   }))
 

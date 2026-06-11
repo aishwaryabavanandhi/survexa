@@ -17,7 +17,7 @@ const PORT  = process.env.PORT || 5000
 const BASE  = `http://localhost:${PORT}`
 const TS    = Date.now()
 const EMAIL = `verify.${TS}@survexa.test`
-const PHONE = `+9199${String(TS).slice(-7)}`
+const PHONE = `+9198765${String(TS).slice(-5)}`
 const PASS  = 'Verify@123!'
 
 let token     = null
@@ -247,7 +247,7 @@ async function main() {
       `status=${analytics.status}`)
   log('Analytics has data',     analytics.body?.data !== undefined || analytics.body?.success,
       JSON.stringify(analytics.body).slice(0, 80))
-  const respList = await req('GET', `/responses/${surveyId}`)
+  const respList = await req('GET', `/responses?survey_id=${surveyId}`)
   log('Response list endpoint', respList.status === 200,
       `status=${respList.status}`)
 
@@ -276,10 +276,7 @@ async function main() {
   log('AI recommendations', aiRec.status === 200 && validSrc.includes(aiRec.body?.source),
       `source=${aiRec.body?.source}`)
 
-  /* AI insights */
-  const ins = await req('GET', '/insights')
-  log('AI insights endpoint', ins.status === 200,
-      `source=${ins.body?.source}`)
+  // AI Insights check moved to post-upgrade section
 
   /* ──────────────────────────────────────────────────────────
      8. PDF GENERATION + DOWNLOAD
@@ -373,10 +370,16 @@ async function main() {
     log('Payment history recorded',
         payments.status === 200 && Array.isArray(payments.body?.data) && payments.body.data.length > 0,
         `records=${payments.body?.data?.length}`)
+
+    /* AI insights (now unlocked under Professional plan) */
+    const ins = await req('GET', '/insights')
+    log('AI insights endpoint', ins.status === 200 && validSrc.includes(ins.body?.source),
+        `source=${ins.body?.source}`)
   } else {
     log('Subscription upgrade verified', false, 'No order id returned — skipped')
     log('Plan activated',               false, 'Skipped')
     log('Payment history recorded',     false, 'Skipped')
+    log('AI insights endpoint',         false, 'Skipped')
   }
 
   /* Admin panel */
