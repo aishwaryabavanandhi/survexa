@@ -1,0 +1,8 @@
+{
+  "appId": "com.survexa.app",
+  "appName": "Survexa",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

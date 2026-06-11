@@ -1,0 +1,165 @@
+/**
+ * Survexa Design System — Color & Layout Tokens
+ * AI-Powered Survey Platform · Premium Pastel SaaS
+ */
+
+:root {
+  --pastel-cyan: #b8f2f5;
+  --pastel-lavender: #d6c6ff;
+  --pastel-periwinkle: #c8d4ff;
+  --pastel-mint: #cff8e3;
+  --pastel-peach: #ffd7b8;
+  --pastel-pink: #f5c3e8;
+  --pastel-lemon: #fff6b3;
+
+  --chart-bar-1: var(--pastel-lavender);
+  --chart-bar-2: var(--pastel-cyan);
+  --chart-bar-3: var(--pastel-mint);
+  --chart-bar-4: var(--pastel-peach);
+  --chart-pie-1: var(--pastel-pink);
+  --chart-pie-2: var(--pastel-mint);
+  --chart-pie-3: var(--pastel-lavender);
+  --chart-pie-4: var(--pastel-lemon);
+  --chart-line-start: #8b9eff;
+  --chart-line-end: #b8a4ff;
+
+  --gradient-brand: linear-gradient(
+    135deg,
+    #b8f2f5 0%,
+    #d6c6ff 35%,
+    #f5c3e8 70%,
+    #ffd7b8 100%
+  );
+  --gradient-hero: linear-gradient(160deg, #c8d4ff 0%, #d6c6ff 40%, #b8f2f5 100%);
+  --gradient-button: linear-gradient(135deg, #9b8aff 0%, #6b9fff 50%, #5ecfc9 100%);
+  --gradient-glow: radial-gradient(
+    ellipse 80% 50% at 50% -20%,
+    rgba(214, 198, 255, 0.45),
+    transparent 70%
+  );
+  --gradient-line: linear-gradient(90deg, var(--chart-line-start), var(--chart-line-end));
+  --gradient-border: linear-gradient(
+    135deg,
+    rgba(184, 242, 245, 0.8),
+    rgba(214, 198, 255, 0.8),
+    rgba(245, 195, 232, 0.8)
+  );
+
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f4f7fb;
+  --bg-elevated: #fcfcfd;
+  --card-bg: #ffffff;
+  --card-bg-alt: #fcfcfd;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.9);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  --border-subtle: rgba(15, 23, 42, 0.06);
+  --border-default: rgba(15, 23, 42, 0.1);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.08);
+  --shadow-glow: 0 0 32px rgba(155, 138, 255, 0.2);
+
+  --accent-primary: #6b5ce7;
+  --accent-secondary: #4f9cf9;
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-danger: #ef4444;
+
+  --input-bg: #ffffff;
+  --input-border: rgba(15, 23, 42, 0.12);
+  --input-focus: rgba(107, 92, 231, 0.35);
+
+  --nav-bg: rgba(255, 255, 255, 0.88);
+  --status-bar: #0f172a;
+
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.75rem;
+  --text-4xl: 2rem;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  --phone-width: 390px;
+  --phone-height: 844px;
+  --safe-top: 54px;
+  --safe-bottom: 34px;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0b1020;
+  --bg-secondary: #111827;
+  --bg-tertiary: #161b2e;
+  --bg-elevated: #1b2238;
+  --card-bg: #1b2238;
+  --card-bg-alt: #202944;
+  --glass-bg: rgba(27, 34, 56, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-inverse: #0f172a;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 40px rgba(214, 198, 255, 0.15);
+
+  --accent-primary: #a78bfa;
+  --accent-secondary: #67b7f7;
+  --accent-success: #34d399;
+  --accent-warning: #fbbf24;
+  --accent-danger: #f87171;
+
+  --input-bg: #202944;
+  --input-border: rgba(255, 255, 255, 0.12);
+  --input-focus: rgba(167, 139, 250, 0.4);
+
+  --nav-bg: rgba(17, 24, 39, 0.92);
+  --status-bar: #ffffff;
+}
