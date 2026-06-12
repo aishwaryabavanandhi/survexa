@@ -1,0 +1,27 @@
+{
+  "name": "survexa-appium-framework",
+  "version": "1.0.0",
+  "description": "Enterprise Appium E2E Automation Framework for Android Application",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/**/*.test.js --timeout 300000 --exit",
+    "test:auth": "mocha tests/auth.test.js --timeout 300000 --exit",
+    "test:form": "mocha tests/form.test.js --timeout 300000 --exit",
+    "test:nav": "mocha tests/navigation.test.js --timeout 300000 --exit"
+  },
+  "dependencies": {
+    "webdriverio": "^8.32.0",
+    "exceljs": "^4.4.0",
+    "winston": "^3.11.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "mocha": "^10.3.0",
+    "chai": "^4.4.1",
+    "mochawesome": "^7.1.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "MIT"
+}

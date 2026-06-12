@@ -25,7 +25,7 @@ export default defineConfig({
       '/reports':            proxyTarget,
       '/generate-questions': proxyTarget,
       '/insights':           proxyTarget,
-      '/ai':                 proxyTarget,
+      '/ai/':                proxyTarget,
       '/public':             htmlBypass,
       '/health':             proxyTarget,
       '/admin':              htmlBypass,

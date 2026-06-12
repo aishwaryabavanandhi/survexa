@@ -1,0 +1,79 @@
+name: Android Appium E2E Automation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  appium-tests:
+    runs-on: macos-13  # macOS runners are required for hardware accelerated virtualization support of Android Emulator in CI
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './survexa-appium-framework/package.json'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android System Image & Create AVD
+        run: |
+          sdkmanager "system-images;android-34;google_apis;x86_64"
+          echo "no" | avdmanager create avd --force --name Medium_Phone_API_36.0 --device "pixel" --package "system-images;android-34;google_apis;x86_64"
+
+      - name: Start Android Emulator
+        run: |
+          ${ANDROID_HOME}/emulator/emulator -avd Medium_Phone_API_36.0 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
+          adb wait-for-device
+          adb shell 'while [[ "$(getprop sys.boot_completed)" != "1" ]]; do sleep 1; done'
+          echo "Emulator is fully booted and ready."
+
+      - name: Install Global Appium & Drivers
+        run: |
+          npm install -g appium@2.5.1
+          appium driver install uiautomator2
+
+      - name: Start Appium Server
+        run: |
+          appium --log ./appium.log &
+          sleep 5
+
+      - name: Install Framework Dependencies
+        working-directory: ./survexa-appium-framework
+        run: npm install
+
+      - name: Execute E2E Tests
+        working-directory: ./survexa-appium-framework
+        env:
+          USE_APK: 'true'
+          APK_PATH: '../SurveyForge/android/app/build/outputs/apk/release/app-release.apk'
+          ANDROID_PLATFORM_VERSION: '14.0'
+          ANDROID_DEVICE_NAME: 'Medium_Phone_API_36.0'
+        run: |
+          npm test -- --reporter mochawesome --reporter-options reportDir=reports,reportFilename=mochawesome-report
+
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-Results-Artifacts
+          path: |
+            survexa-appium-framework/excel/Mobile_E2E_Report.xlsx
+            survexa-appium-framework/reports/
+            survexa-appium-framework/reports/failures/
+            survexa-appium-framework/logs/
+            appium.log

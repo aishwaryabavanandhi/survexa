@@ -59,3 +59,25 @@ jdk17/
 **/jdk17/
 jdk21/
 **/jdk21/
+
+# Android APK & build outputs
+*.apk
+*.aab
+SurveyForge/android/app/build/
+SurveyForge/android/build/
+SurveyForge/android/.gradle/
+SurveyForge/android/.kotlin/
+SurveyForge/android/local.properties
+
+# Backend uploads & generated files
+SurveyForge/backend/uploads/
+SurveyForge/backend/error-screenshot.png
+SurveyForge/emulator-screenshot.png
+
+# Test framework reports & logs
+survexa-selenium-framework/reports/
+survexa-selenium-framework/excel/
+survexa-selenium-framework/logs/
+survexa-selenium-framework/mochawesome-report/
+survexa-appium-framework/reports/
+survexa-appium-framework/logs/

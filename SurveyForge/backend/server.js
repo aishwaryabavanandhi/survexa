@@ -19,11 +19,7 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders:   false,
   message: { success: false, error: 'Too many requests. Please try again in 15 minutes.' },
-  skip: (req) => {
-    if (process.env.NODE_ENV !== 'development') return false
-    const ip = req.ip || ''
-    return ip === '::1' || ip === '127.0.0.1' || ip.includes('127.0.0.1')
-  },
+  skip: (req) => process.env.NODE_ENV === 'development',
 })
 
 const apiLimiter = rateLimit({
