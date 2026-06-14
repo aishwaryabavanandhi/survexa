@@ -4,6 +4,7 @@ services:
     runtime: node
     region: singapore
     plan: free
+    rootDir: SurveyForge/backend
     buildCommand: npm install
     startCommand: node server.js
     envVars:
