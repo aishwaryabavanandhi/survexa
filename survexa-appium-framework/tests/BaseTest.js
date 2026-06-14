@@ -1,178 +1,154 @@
 /**
  * tests/BaseTest.js
- * Setup harness implementing lifecycle hooks, failure screenshots, logcat collection, and metrics tracking.
+ * Mocha lifecycle hooks for Appium test suite
+ * Handles: driver init, teardown, screenshots on failure, logcat, and Excel reporting
  */
-const fs = require('fs');
-const path = require('path');
-const DriverFactory = require('../drivers/driverFactory');
-const excelReporter = require('../utilities/excelReporter');
-const logger = require('../utilities/logger');
+require('dotenv').config()
+const DriverFactory = require('../drivers/DriverFactory')
+const excelReporter = require('../utilities/excelReporter')
+const logger = require('../utilities/logger')
+const apiHelper = require('../utilities/apiHelper')
 
-// Ensure reports directory exists
-const failureDir = path.join(__dirname, '../reports/failures');
-if (!fs.existsSync(failureDir)) {
-  fs.mkdirSync(failureDir, { recursive: true });
-}
+let _driver = null
+let _currentTestTitle = ''
+let _currentTestStart = null
 
-let driver = null;
-let currentTestStartTime = null;
-
+/**
+ * Global suite lifecycle
+ */
 const BaseTest = {
   /**
-   * Initializes the driver session before the suite.
+   * Called once before all tests in a suite
    */
   async beforeSuite() {
-    try {
-      driver = await DriverFactory.initDriver();
-      return driver;
-    } catch (err) {
-      logger.error(`Failed to boot Appium session in before hook: ${err.message}`);
-      throw err;
+    logger.info('════════════════════════════════════════')
+    logger.info('   Survexa Appium E2E Framework v2.0')
+    logger.info('════════════════════════════════════════')
+
+    // 1. Validate backend is reachable first
+    logger.info(`Checking backend connectivity: ${apiHelper.BACKEND_URL}`)
+    const health = await apiHelper.checkBackendHealth()
+    if (!health.ok) {
+      logger.warn(`⚠️  Backend not reachable. UI tests that need API will fail.`)
     }
+
+    // 2. Initialize Appium driver
+    _driver = await DriverFactory.createDriver()
+
+    // 3. Collect device info for report
+    let deviceName = 'Android Device'
+    let androidVersion = 'Unknown'
+
+    try {
+      deviceName = await _driver.execute('mobile: deviceInfo', {}).then((i) => i.deviceName).catch(() => 'Android Device')
+    } catch { }
+
+    try {
+      androidVersion = await _driver.execute('mobile: deviceInfo', {}).then((i) => i.androidVersion).catch(() => {
+        return _driver.capabilities?.['appium:platformVersion'] || 'Unknown'
+      })
+    } catch { }
+
+    excelReporter.setDeviceInfo(deviceName, androidVersion)
+    logger.info(`📱 Device: ${deviceName} | Android: ${androidVersion}`)
+
+    // 4. Wait for app to load
+    await _driver.pause(3000)
+
+    return _driver
   },
 
   /**
-   * Cleans up driver session after the suite and writes out the Excel report.
+   * Called once after all tests
    */
   async afterSuite() {
-    const caps = driver ? await driver.getCapabilities() : {};
-    const device = caps['deviceName'] || 'Emulator';
-    const version = caps['platformVersion'] || '14.0';
-
-    await DriverFactory.quitDriver();
-    
-    // Write out Excel E2E Report
-    logger.info('Writing Excel report...');
-    await excelReporter.generate(device, version);
-  },
-
-  /**
-   * Hooks into each test start to track durations.
-   */
-  beforeEachTest(testContext) {
-    currentTestStartTime = new Date();
-    logger.info(`Starting test scenario: "${testContext.currentTest.fullTitle()}"`);
-    excelReporter.recordStepLog(
-      testContext.currentTest.title,
-      'Test Init',
-      'Pass',
-      'Environment ready'
-    );
-  },
-
-  /**
-   * Captures screen screenshots and Android logcat log buffers on test failure.
-   */
-  async afterEachTest(testContext) {
-    const test = testContext.currentTest;
-    const endTime = new Date();
-    const duration = endTime - currentTestStartTime;
-    const caps = driver ? await driver.getCapabilities() : {};
-    const deviceName = caps['deviceName'] || 'Emulator';
-    const version = caps['platformVersion'] || '14.0';
-
-    if (test.state === 'failed') {
-      logger.error(`Test Scenario Failed: "${test.fullTitle()}"`);
-      logger.error(`Error stack: ${test.err.stack}`);
-
-      let screenshotPath = 'N/A';
-      let activityName = 'N/A';
-      let logcatFile = 'N/A';
-
-      if (driver) {
-        try {
-          // 1. Capture Screenshot
-          const b64Image = await driver.takeScreenshot();
-          const cleanTitle = test.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-          const screenshotName = `${cleanTitle}_failed.png`;
-          screenshotPath = path.join(failureDir, screenshotName);
-          fs.writeFileSync(screenshotPath, Buffer.from(b64Image, 'base64'));
-          logger.info(`Screenshot captured for failed test: ${screenshotPath}`);
-
-          // 2. Capture Active Activity
-          activityName = await driver.getCurrentActivity();
-          logger.info(`Failed at active Android activity: ${activityName}`);
-
-          // 3. Dump Logcat buffer
-          const logcat = await driver.getLogs('logcat');
-          const logcatName = `${cleanTitle}_logcat.log`;
-          const logcatPath = path.join(failureDir, logcatName);
-          const logText = logcat.map(l => `[${l.timestamp}] [${l.level}]: ${l.message}`).join('\n');
-          fs.writeFileSync(logcatPath, logText);
-          logcatFile = logcatPath;
-          logger.info(`Android logcat logs dumped to: ${logcatPath}`);
-
-        } catch (err) {
-          logger.warn(`Failure during test cleanup logging: ${err.message}`);
-        }
-      }
-
-      // Record test cases sheet
-      excelReporter.recordTestCase(
-        test.title.substring(0, 10),
-        test.parent.title,
-        test.title,
-        deviceName,
-        'Failed',
-        currentTestStartTime,
-        endTime,
-        duration
-      );
-
-      // Record failures sheet
-      excelReporter.recordFailure(
-        test.fullTitle(),
-        test.err.message,
-        screenshotPath,
-        deviceName,
-        version,
-        activityName
-      );
-
-      excelReporter.recordStepLog(
-        test.title,
-        'Test Cleanup',
-        'Fail',
-        `Failure details logged. Logcat file: ${logcatFile}`
-      );
-
-    } else if (test.state === 'passed') {
-      logger.info(`Test Scenario Passed: "${test.fullTitle()}"`);
-      
-      excelReporter.recordTestCase(
-        test.title.substring(0, 10),
-        test.parent.title,
-        test.title,
-        deviceName,
-        'Passed',
-        currentTestStartTime,
-        endTime,
-        duration
-      );
-
-      excelReporter.recordStepLog(
-        test.title,
-        'Test Cleanup',
-        'Pass',
-        `Completed successfully in ${(duration / 1000).toFixed(2)}s`
-      );
-    } else {
-      // Skipped
-      excelReporter.recordTestCase(
-        test.title.substring(0, 10),
-        test.parent.title,
-        test.title,
-        deviceName,
-        'Skipped',
-        currentTestStartTime,
-        endTime,
-        0
-      );
+    // Generate Excel report
+    try {
+      const reportPath = await excelReporter.generateReport()
+      logger.info(`📊 Excel report: ${reportPath}`)
+    } catch (err) {
+      logger.error(`Report generation failed: ${err.message}`)
     }
-  }
-};
 
-module.exports = {
-  BaseTest,
-  getDriver: () => driver
-};
+    // Close driver
+    await DriverFactory.quitDriver()
+    logger.info('════════ Test Suite Complete ════════')
+  },
+
+  /**
+   * Called before each individual test
+   * @param {Mocha.Context} ctx - Mocha test context
+   */
+  beforeEachTest(ctx) {
+    _currentTestTitle = ctx.currentTest?.title || 'Unknown Test'
+    _currentTestStart = Date.now()
+    logger.info(`\n▶  Starting: ${_currentTestTitle}`)
+    excelReporter.recordStepLog(_currentTestTitle, 'Test Started', 'Info', '')
+  },
+
+  /**
+   * Called after each individual test
+   * @param {Mocha.Context} ctx - Mocha test context
+   */
+  async afterEachTest(ctx) {
+    const endTime = Date.now()
+    const state = ctx.currentTest?.state || 'unknown'
+    const status = state === 'passed' ? 'Pass' : state === 'pending' ? 'Skip' : 'Fail'
+    const testTitle = ctx.currentTest?.title || _currentTestTitle
+    const errorMsg = ctx.currentTest?.err?.message || ''
+
+    let screenshotPath = null
+    let activityName = 'Unknown'
+
+    if (status === 'Fail' && _driver) {
+      // Capture screenshot on failure
+      screenshotPath = await DriverFactory.captureScreenshot(testTitle)
+
+      // Capture logcat on failure
+      await DriverFactory.captureLogcat(testTitle)
+
+      // Get current activity
+      activityName = await DriverFactory.getCurrentActivity()
+
+      // Record failure
+      excelReporter.recordFailure({
+        testName: testTitle,
+        reason: errorMsg || 'Test assertion failed',
+        screenshotPath,
+        activityName,
+      })
+
+      logger.error(`❌ FAILED: ${testTitle}`)
+      if (errorMsg) logger.error(`   Reason: ${errorMsg}`)
+    } else {
+      logger.info(`✅ ${status}: ${testTitle}`)
+    }
+
+    // Record test case result
+    excelReporter.recordTestCase({
+      testId: testTitle.split(':')[0]?.trim() || `TC-${Date.now()}`,
+      module: testTitle.split(' ')[1] || 'General',
+      scenario: testTitle,
+      status,
+      startTime: _currentTestStart,
+      endTime,
+      screenshotPath,
+    })
+
+    excelReporter.recordStepLog(
+      testTitle,
+      'Test Completed',
+      status,
+      errorMsg || ''
+    )
+  },
+}
+
+/**
+ * Get the current driver instance
+ */
+function getDriver() {
+  return _driver
+}
+
+module.exports = { BaseTest, getDriver }

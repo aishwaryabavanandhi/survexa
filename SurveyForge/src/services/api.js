@@ -13,8 +13,9 @@ import { getToken, clearToken } from './token'
 const getBaseURL = () => {
   const customUrl = localStorage.getItem('survexa_backend_url')
   if (customUrl) return customUrl
-  // In production builds VITE_API_URL will be set (e.g. https://survexa-backend.onrender.com)
-  // In development, leave blank so Vite proxy forwards /auth, /surveys, etc. to localhost:5000
+  if (typeof window !== 'undefined' && (window.Capacitor || (window.location.hostname === 'localhost' && !window.location.port))) {
+    return 'http://10.0.2.2:5000'
+  }
   return import.meta.env.VITE_API_URL ?? ''
 }
 

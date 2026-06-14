@@ -74,8 +74,12 @@ class SeleniumUtils {
    */
   static async typeWhenReady(driver, locator, text, timeout = config.explicitTimeout) {
     const element = await this.waitForElementVisible(driver, locator, timeout);
-    await element.clear();
-    await element.sendKeys(text);
+    await driver.executeScript((el, val) => {
+      const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+      nativeSetter.call(el, val);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, element, text || '');
   }
 
   /**

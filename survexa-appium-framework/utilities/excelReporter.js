@@ -1,183 +1,237 @@
 /**
  * utilities/excelReporter.js
- * Generates Mobile_E2E_Report.xlsx with 4 sheets (Summary, Test Cases, Failed Tests, Execution Logs).
+ * Enterprise Excel Report Generator using ExcelJS
+ *
+ * Generates Mobile_E2E_Report.xlsx with 4 sheets:
+ *   1. Summary — Execution metadata and pass/fail totals
+ *   2. Test Cases — All test case details
+ *   3. Failed Tests — Failures with screenshot paths and reasons
+ *   4. Execution Logs — Step-by-step logs
  */
-const ExcelJS = require('exceljs');
-const path = require('path');
-const fs = require('fs');
-const logger = require('./logger');
+const ExcelJS = require('exceljs')
+const path = require('path')
+const fs = require('fs')
+const os = require('os')
 
-class ExcelReporter {
-  constructor() {
-    this.testCases = [];
-    this.failedTests = [];
-    this.logs = [];
-    this.startTime = new Date();
-  }
+// ── In-memory stores ─────────────────────────────────────────────
+const _testCases = []
+const _failedTests = []
+const _executionLogs = []
+let _suiteStartTime = Date.now()
+let _deviceName = 'Unknown'
+let _androidVersion = 'Unknown'
 
-  /**
-   * Records a test case result.
-   */
-  recordTestCase(testId, module, scenario, device, status, startTime, endTime, duration) {
-    this.testCases.push({
-      testId,
-      module,
-      scenario,
-      device,
-      status,
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
-      duration: `${(duration / 1000).toFixed(2)}s`
-    });
-  }
+// ── Styling Helpers ──────────────────────────────────────────────
 
-  /**
-   * Records details of a failed test.
-   */
-  recordFailure(testName, failureReason, screenshotPath, device, androidVersion, activityName) {
-    this.failedTests.push({
-      testName,
-      failureReason,
-      screenshotPath,
-      device,
-      androidVersion,
-      activityName
-    });
-  }
-
-  /**
-   * Records a framework execution step log.
-   */
-  recordStepLog(testName, step, result, remarks = '') {
-    this.logs.push({
-      timestamp: new Date().toISOString(),
-      testName,
-      step,
-      result,
-      remarks
-    });
-  }
-
-  /**
-   * Compiles data and writes out the Excel workbook to file.
-   */
-  async generate(deviceName = 'Emulator', androidVersion = '14.0') {
-    const workbook = new ExcelJS.Workbook();
-    const endTime = new Date();
-    const totalDuration = `${((endTime - this.startTime) / 1000).toFixed(2)}s`;
-
-    // Counts
-    const totalTests = this.testCases.length;
-    const passed = this.testCases.filter(t => t.status === 'Passed').length;
-    const failed = this.testCases.filter(t => t.status === 'Failed').length;
-    const skipped = this.testCases.filter(t => t.status === 'Skipped').length;
-    const passPercentage = totalTests > 0 ? `${((passed / totalTests) * 100).toFixed(1)}%` : '0%';
-
-    // Create directories
-    const reportDir = path.join(__dirname, '../excel');
-    if (!fs.existsSync(reportDir)) {
-      fs.mkdirSync(reportDir, { recursive: true });
-    }
-    const outputPath = path.join(reportDir, 'Mobile_E2E_Report.xlsx');
-
-    // ==========================================
-    // SHEET 1: Summary
-    // ==========================================
-    const summarySheet = workbook.addWorksheet('Summary');
-    summarySheet.columns = [
-      { header: 'Execution Date', key: 'execDate', width: 25 },
-      { header: 'Device Name', key: 'device', width: 20 },
-      { header: 'Android Version', key: 'version', width: 18 },
-      { header: 'Total Tests', key: 'total', width: 15 },
-      { header: 'Passed', key: 'passed', width: 12 },
-      { header: 'Failed', key: 'failed', width: 12 },
-      { header: 'Skipped', key: 'skipped', width: 12 },
-      { header: 'Pass Percentage', key: 'passRate', width: 18 },
-      { header: 'Execution Duration', key: 'duration', width: 22 }
-    ];
-    summarySheet.addRow({
-      execDate: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
-      device: deviceName,
-      version: androidVersion,
-      total: totalTests,
-      passed,
-      failed,
-      skipped,
-      passRate: passPercentage,
-      duration: totalDuration
-    });
-    this.styleHeader(summarySheet);
-
-    // ==========================================
-    // SHEET 2: Test Cases
-    // ==========================================
-    const testsSheet = workbook.addWorksheet('Test Cases');
-    testsSheet.columns = [
-      { header: 'Test ID', key: 'testId', width: 15 },
-      { header: 'Module', key: 'module', width: 15 },
-      { header: 'Scenario', key: 'scenario', width: 35 },
-      { header: 'Device', key: 'device', width: 20 },
-      { header: 'Status', key: 'status', width: 15 },
-      { header: 'Start Time', key: 'startTime', width: 25 },
-      { header: 'End Time', key: 'endTime', width: 25 },
-      { header: 'Duration', key: 'duration', width: 15 }
-    ];
-    this.testCases.forEach(row => testsSheet.addRow(row));
-    this.styleHeader(testsSheet);
-
-    // ==========================================
-    // SHEET 3: Failed Tests
-    // ==========================================
-    const failedSheet = workbook.addWorksheet('Failed Tests');
-    failedSheet.columns = [
-      { header: 'Test Name', key: 'testName', width: 30 },
-      { header: 'Failure Reason', key: 'failureReason', width: 50 },
-      { header: 'Screenshot Path', key: 'screenshotPath', width: 40 },
-      { header: 'Device', key: 'device', width: 20 },
-      { header: 'Android Version', key: 'androidVersion', width: 18 },
-      { header: 'Activity Name', key: 'activityName', width: 30 }
-    ];
-    this.failedTests.forEach(row => failedSheet.addRow(row));
-    this.styleHeader(failedSheet);
-
-    // ==========================================
-    // SHEET 4: Execution Logs
-    // ==========================================
-    const logsSheet = workbook.addWorksheet('Execution Logs');
-    logsSheet.columns = [
-      { header: 'Timestamp', key: 'timestamp', width: 25 },
-      { header: 'Test Name', key: 'testName', width: 25 },
-      { header: 'Step', key: 'step', width: 30 },
-      { header: 'Result', key: 'result', width: 15 },
-      { header: 'Remarks', key: 'remarks', width: 40 }
-    ];
-    this.logs.forEach(row => logsSheet.addRow(row));
-    this.styleHeader(logsSheet);
-
-    // Write file
-    try {
-      await workbook.xlsx.writeFile(outputPath);
-      logger.info(`Excel E2E Report generated at: ${outputPath}`);
-    } catch (err) {
-      logger.error(`Failed to write Excel E2E Report: ${err.message}`);
-    }
-  }
-
-  /**
-   * Applies clean styles to sheet headers.
-   */
-  styleHeader(sheet) {
-    sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    sheet.getRow(1).fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FF1F497D' } // Premium Deep Blue
-    };
-    sheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
-  }
+const HEADER_FILL = {
+  type: 'pattern',
+  pattern: 'solid',
+  fgColor: { argb: 'FF4A3FA0' }, // Survexa purple
 }
 
-// Global Singleton Instance
-const globalExcelReporter = new ExcelReporter();
+const HEADER_FONT = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 }
+const PASS_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD4EDDA' } }
+const FAIL_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8D7DA' } }
 
-module.exports = globalExcelReporter;
+function styleHeader(row) {
+  row.eachCell((cell) => {
+    cell.fill = HEADER_FILL
+    cell.font = HEADER_FONT
+    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }
+    cell.border = {
+      top: { style: 'thin' },
+      bottom: { style: 'thin' },
+      left: { style: 'thin' },
+      right: { style: 'thin' },
+    }
+  })
+  row.height = 30
+}
+
+function styleDataRow(row, isPassed = null) {
+  row.eachCell((cell) => {
+    cell.alignment = { vertical: 'middle', wrapText: true }
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FFE0E0E0' } },
+      bottom: { style: 'thin', color: { argb: 'FFE0E0E0' } },
+      left: { style: 'thin', color: { argb: 'FFE0E0E0' } },
+      right: { style: 'thin', color: { argb: 'FFE0E0E0' } },
+    }
+    if (isPassed === true) cell.fill = PASS_FILL
+    if (isPassed === false) cell.fill = FAIL_FILL
+  })
+}
+
+// ── Public API ───────────────────────────────────────────────────
+
+/**
+ * Set device info (called from BaseTest before suite)
+ */
+function setDeviceInfo(name, version) {
+  _deviceName = name || 'Android Device'
+  _androidVersion = version || 'Unknown'
+  _suiteStartTime = Date.now()
+}
+
+/**
+ * Record a test case result
+ */
+function recordTestCase({ testId, module, scenario, status, startTime, endTime, screenshotPath }) {
+  const duration = endTime && startTime ? `${((endTime - startTime) / 1000).toFixed(1)}s` : '-'
+  _testCases.push({
+    testId: testId || `TC-${_testCases.length + 1}`,
+    module: module || 'General',
+    scenario,
+    device: _deviceName,
+    status: status || 'Unknown',
+    startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
+    endTime: endTime ? new Date(endTime).toISOString() : new Date().toISOString(),
+    duration,
+    screenshotPath: screenshotPath || '',
+  })
+}
+
+/**
+ * Record a failed test with details
+ */
+function recordFailure({ testName, reason, screenshotPath, activityName }) {
+  _failedTests.push({
+    testName,
+    reason: reason || 'Unknown failure',
+    screenshotPath: screenshotPath || '',
+    device: _deviceName,
+    androidVersion: _androidVersion,
+    activityName: activityName || 'Unknown',
+    timestamp: new Date().toISOString(),
+  })
+}
+
+/**
+ * Record a step log entry
+ */
+function recordStepLog(testName, step, result, remarks = '') {
+  _executionLogs.push({
+    timestamp: new Date().toISOString(),
+    testName,
+    step,
+    result,
+    remarks,
+  })
+}
+
+/**
+ * Generate the Excel report — call at end of test suite
+ */
+async function generateReport() {
+  const excelDir = path.resolve(__dirname, '../excel')
+  if (!fs.existsSync(excelDir)) fs.mkdirSync(excelDir, { recursive: true })
+
+  const reportPath = path.join(excelDir, `Mobile_E2E_Report_${Date.now()}.xlsx`)
+  const workbook = new ExcelJS.Workbook()
+  workbook.creator = 'Survexa Appium Framework'
+  workbook.created = new Date()
+
+  const totalTests = _testCases.length
+  const passed = _testCases.filter((t) => t.status === 'Pass').length
+  const failed = _testCases.filter((t) => t.status === 'Fail').length
+  const skipped = _testCases.filter((t) => t.status === 'Skip').length
+  const passPercentage = totalTests > 0 ? ((passed / totalTests) * 100).toFixed(1) + '%' : '0%'
+  const totalDuration = `${((Date.now() - _suiteStartTime) / 1000).toFixed(0)}s`
+
+  // ── Sheet 1: Summary ─────────────────────────────────────────
+  const summarySheet = workbook.addWorksheet('Summary', {
+    pageSetup: { orientation: 'landscape' },
+  })
+
+  summarySheet.mergeCells('A1:H1')
+  const titleCell = summarySheet.getCell('A1')
+  titleCell.value = '📱 Survexa Mobile E2E Test Execution Report'
+  titleCell.font = { bold: true, size: 16, color: { argb: 'FF4A3FA0' } }
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle' }
+  summarySheet.getRow(1).height = 40
+
+  summarySheet.addRow([]) // spacer
+
+  const summaryHeaders = [
+    'Execution Date', 'Device Name', 'Android Version',
+    'Total Tests', 'Passed', 'Failed', 'Skipped', 'Pass %', 'Duration',
+  ]
+  const summaryHeaderRow = summarySheet.addRow(summaryHeaders)
+  styleHeader(summaryHeaderRow)
+
+  const summaryDataRow = summarySheet.addRow([
+    new Date().toLocaleDateString(),
+    _deviceName,
+    _androidVersion,
+    totalTests,
+    passed,
+    failed,
+    skipped,
+    passPercentage,
+    totalDuration,
+  ])
+  styleDataRow(summaryDataRow)
+
+  summarySheet.columns = summaryHeaders.map(() => ({ width: 18 }))
+
+  // ── Sheet 2: Test Cases ───────────────────────────────────────
+  const tcSheet = workbook.addWorksheet('Test Cases')
+
+  const tcHeaders = ['Test ID', 'Module', 'Scenario', 'Device', 'Status', 'Start Time', 'End Time', 'Duration', 'Screenshot']
+  const tcHeaderRow = tcSheet.addRow(tcHeaders)
+  styleHeader(tcHeaderRow)
+
+  for (const tc of _testCases) {
+    const row = tcSheet.addRow([
+      tc.testId, tc.module, tc.scenario, tc.device,
+      tc.status, tc.startTime, tc.endTime, tc.duration, tc.screenshotPath,
+    ])
+    styleDataRow(row, tc.status === 'Pass')
+  }
+
+  tcSheet.columns = [12, 18, 50, 20, 10, 22, 22, 12, 50].map((w) => ({ width: w }))
+
+  // ── Sheet 3: Failed Tests ─────────────────────────────────────
+  const failSheet = workbook.addWorksheet('Failed Tests')
+
+  const failHeaders = ['Test Name', 'Failure Reason', 'Screenshot Path', 'Device', 'Android Version', 'Activity Name', 'Timestamp']
+  const failHeaderRow = failSheet.addRow(failHeaders)
+  styleHeader(failHeaderRow)
+
+  for (const f of _failedTests) {
+    const row = failSheet.addRow([
+      f.testName, f.reason, f.screenshotPath, f.device, f.androidVersion, f.activityName, f.timestamp,
+    ])
+    styleDataRow(row, false)
+  }
+
+  failSheet.columns = [40, 60, 50, 20, 16, 30, 22].map((w) => ({ width: w }))
+
+  // ── Sheet 4: Execution Logs ───────────────────────────────────
+  const logSheet = workbook.addWorksheet('Execution Logs')
+
+  const logHeaders = ['Timestamp', 'Test Name', 'Step', 'Result', 'Remarks']
+  const logHeaderRow = logSheet.addRow(logHeaders)
+  styleHeader(logHeaderRow)
+
+  for (const log of _executionLogs) {
+    const row = logSheet.addRow([log.timestamp, log.testName, log.step, log.result, log.remarks])
+    styleDataRow(row, log.result === 'Pass')
+  }
+
+  logSheet.columns = [22, 40, 40, 12, 60].map((w) => ({ width: w }))
+
+  await workbook.xlsx.writeFile(reportPath)
+  console.log(`\n📊 Excel Report Generated: ${reportPath}\n`)
+  return reportPath
+}
+
+module.exports = {
+  setDeviceInfo,
+  recordTestCase,
+  recordFailure,
+  recordStepLog,
+  generateReport,
+  getTestCases: () => _testCases,
+  getFailedTests: () => _failedTests,
+}

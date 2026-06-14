@@ -18,6 +18,16 @@ describe('Survexa React Application E2E Test Suite', function() {
 
   before(async function() {
     driver = await buildDriver();
+    
+    // Clear localStorage to prevent stale backend URL overrides
+    try {
+      await driver.get(config.baseUrl);
+      await driver.executeScript("window.localStorage.clear();");
+      await driver.navigate().refresh();
+    } catch (e) {
+      logger.warn(`Could not clear localStorage: ${e.message}`);
+    }
+
     loginPage = new LoginPage(driver);
     signupPage = new SignupPage(driver);
     dashboardPage = new DashboardPage(driver);

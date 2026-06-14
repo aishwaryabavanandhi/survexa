@@ -308,11 +308,14 @@ router.post('/send', async (req, res) => {
     if (isGmailConfigured) {
       try {
         const transporter = nodemailer.createTransport({
-          service: 'gmail',
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
           auth: { user: gmailUser, pass: gmailPass },
-          connectionTimeout: 1500,
-          greetingTimeout:   1500,
-          socketTimeout:     2000,
+          tls: { rejectUnauthorized: false },
+          connectionTimeout: 30000,
+          greetingTimeout:   30000,
+          socketTimeout:     45000,
         })
         await transporter.sendMail({
           from: `"Survexa" <${gmailUser}>`,

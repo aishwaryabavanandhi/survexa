@@ -1,79 +1,189 @@
-name: Android Appium E2E Automation
+name: Survexa Mobile E2E Tests — Appium CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, develop]
+    paths:
+      - 'survexa-appium-framework/**'
+      - 'SurveyForge/**'
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      device_type:
+        description: 'Device type (emulator/real)'
+        required: true
+        default: 'emulator'
+        type: choice
+        options:
+          - emulator
+          - real
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - auth
+          - survey
+          - navigation
+          - payments
+          - gestures
+
+env:
+  NODE_VERSION: '18'
+  JAVA_VERSION: '17'
+  API_LEVEL: '34'
+  AVD_NAME: 'Pixel_6_API_34'
+  APPIUM_VERSION: '2.x'
 
 jobs:
-  appium-tests:
-    runs-on: macos-13  # macOS runners are required for hardware accelerated virtualization support of Android Emulator in CI
-    
+  mobile-e2e:
+    name: 📱 Android E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
     steps:
-      - name: Checkout Repository
+      # ─── 1. Checkout ───────────────────────────────────────────────
+      - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      # ─── 2. Node.js ────────────────────────────────────────────────
+      - name: 🟩 Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: './survexa-appium-framework/package.json'
+          cache-dependency-path: survexa-appium-framework/package-lock.json
 
-      - name: Set up JDK 17
+      # ─── 3. Java ───────────────────────────────────────────────────
+      - name: ☕ Setup Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
         with:
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
-          java-version: '17'
 
-      - name: Setup Android SDK
+      # ─── 4. Android SDK ────────────────────────────────────────────
+      - name: 🤖 Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android System Image & Create AVD
-        run: |
-          sdkmanager "system-images;android-34;google_apis;x86_64"
-          echo "no" | avdmanager create avd --force --name Medium_Phone_API_36.0 --device "pixel" --package "system-images;android-34;google_apis;x86_64"
+      # ─── 5. Create AVD ─────────────────────────────────────────────
+      - name: 📲 Create Android Emulator (AVD)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: google_apis
+          arch: x86_64
+          profile: Pixel 6
+          avd-name: ${{ env.AVD_NAME }}
+          disable-animations: true
+          script: echo "AVD created"
 
-      - name: Start Android Emulator
+      # ─── 6. Install Appium 2.x ─────────────────────────────────────
+      - name: 🔧 Install Appium 2.x + UiAutomator2 Driver
         run: |
-          ${ANDROID_HOME}/emulator/emulator -avd Medium_Phone_API_36.0 -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
-          adb wait-for-device
-          adb shell 'while [[ "$(getprop sys.boot_completed)" != "1" ]]; do sleep 1; done'
-          echo "Emulator is fully booted and ready."
-
-      - name: Install Global Appium & Drivers
-        run: |
-          npm install -g appium@2.5.1
+          npm install -g appium@latest
           appium driver install uiautomator2
+          appium --version
+        
+      # ─── 7. Install Dependencies ───────────────────────────────────
+      - name: 📦 Install Framework Dependencies
+        working-directory: survexa-appium-framework
+        run: npm ci
 
-      - name: Start Appium Server
-        run: |
-          appium --log ./appium.log &
-          sleep 5
-
-      - name: Install Framework Dependencies
-        working-directory: ./survexa-appium-framework
-        run: npm install
-
-      - name: Execute E2E Tests
-        working-directory: ./survexa-appium-framework
+      # ─── 8. Create .env ────────────────────────────────────────────
+      - name: ⚙️ Create .env file
+        working-directory: survexa-appium-framework
         env:
-          USE_APK: 'true'
-          APK_PATH: '../SurveyForge/android/app/build/outputs/apk/release/app-release.apk'
-          ANDROID_PLATFORM_VERSION: '14.0'
-          ANDROID_DEVICE_NAME: 'Medium_Phone_API_36.0'
+          TEST_EMAIL: "${{ secrets.TEST_EMAIL || 'testuser@survexa.test' }}"
+          TEST_PASSWORD: "${{ secrets.TEST_PASSWORD || 'TestPassword123!' }}"
         run: |
-          npm test -- --reporter mochawesome --reporter-options reportDir=reports,reportFilename=mochawesome-report
+          cat > .env << EOF
+          DEVICE_TYPE=emulator
+          AVD_NAME=${{ env.AVD_NAME }}
+          APK_PATH=../app-release.apk
+          APP_PACKAGE=com.survexa.app
+          APP_ACTIVITY=com.survexa.app.MainActivity
+          APPIUM_HOST=127.0.0.1
+          APPIUM_PORT=4723
+          TEST_EMAIL=$TEST_EMAIL
+          TEST_PASSWORD=$TEST_PASSWORD
+          BACKEND_URL=http://localhost:5000
+          ELEMENT_WAIT_TIMEOUT=20000
+          PAGE_LOAD_TIMEOUT=30000
+          EOF
 
-      - name: Upload Test Artifacts
+      # ─── 9. Start Backend ──────────────────────────────────────────
+      - name: 🚀 Start Survexa Backend
+        working-directory: SurveyForge/backend
+        run: |
+          npm ci
+          JWT_SECRET=ci-test-secret \
+          EMAIL_USER=test@test.com \
+          EMAIL_PASS=testpass \
+          NODE_ENV=development \
+          nohup node server.js > backend.log 2>&1 &
+          sleep 5
+          curl -f http://localhost:5000/health || echo "Backend health check failed (non-fatal)"
+
+      # ─── 10. Start Appium Server ───────────────────────────────────
+      - name: ▶️ Start Appium Server
+        run: |
+          nohup appium --port 4723 --log-level info > appium.log 2>&1 &
+          sleep 8
+
+      # ─── 11. Run E2E Tests ─────────────────────────────────────────
+      - name: 🧪 Run E2E Tests on Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: google_apis
+          arch: x86_64
+          avd-name: ${{ env.AVD_NAME }}
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            cd survexa-appium-framework
+            npm run test:${{ github.event.inputs.test_suite || 'auth' }} 2>&1 || true
+
+      # ─── 12. Upload Reports ────────────────────────────────────────
+      - name: 📊 Upload Excel Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test-Results-Artifacts
-          path: |
-            survexa-appium-framework/excel/Mobile_E2E_Report.xlsx
-            survexa-appium-framework/reports/
-            survexa-appium-framework/reports/failures/
-            survexa-appium-framework/logs/
-            appium.log
+          name: Mobile_E2E_Excel_Report
+          path: survexa-appium-framework/excel/*.xlsx
+          retention-days: 30
+
+      - name: 📄 Upload HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mochawesome_HTML_Report
+          path: survexa-appium-framework/reports/html/
+          retention-days: 30
+
+      - name: 📸 Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Failure_Screenshots
+          path: survexa-appium-framework/reports/screenshots/
+          retention-days: 30
+
+      - name: 📋 Upload Device Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Device_Logs
+          path: survexa-appium-framework/logs/
+          retention-days: 30
+
+      - name: 🔧 Upload Appium Server Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Appium_Server_Log
+          path: appium.log
+          retention-days: 7

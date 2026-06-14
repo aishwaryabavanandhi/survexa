@@ -15,6 +15,15 @@ class BasePage {
    */
   async navigate(path = '') {
     const targetUrl = `${this.baseUrl}${path.startsWith('/') ? path : '/' + path}`;
+    try {
+      const currentUrl = await this.driver.getCurrentUrl();
+      if (currentUrl === targetUrl) {
+        logger.info(`Already on URL: ${targetUrl}. Skipping navigation.`);
+        return;
+      }
+    } catch (e) {
+      // Ignore errors when driver is not yet initialized with a page
+    }
     logger.info(`Navigating to URL: ${targetUrl}`);
     await this.driver.get(targetUrl);
   }

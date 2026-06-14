@@ -30,16 +30,17 @@ class LoginPage extends BasePage {
     await super.navigate('/login');
   }
 
-  /**
-   * Switch authentication modes
-   * @param {string} mode - 'email' or 'phone'
-   */
   async switchMode(mode) {
     logger.info(`Switching login mode to: ${mode}`);
+    const isEmailVisible = await this.driver.findElements(this.identifierInput).then(elems => elems.length > 0);
     if (mode === 'email') {
-      await SeleniumUtils.clickWhenReady(this.driver, this.emailModeBtn);
+      if (!isEmailVisible) {
+        await SeleniumUtils.clickWhenReady(this.driver, this.emailModeBtn);
+      }
     } else {
-      await SeleniumUtils.clickWhenReady(this.driver, this.phoneModeBtn);
+      if (isEmailVisible) {
+        await SeleniumUtils.clickWhenReady(this.driver, this.phoneModeBtn);
+      }
     }
   }
 
@@ -82,9 +83,6 @@ class LoginPage extends BasePage {
     }
   }
 
-  /**
-   * Extract field validation error messages
-   */
   async getFieldError(field) {
     try {
       const locator = field === 'identifier' || field === 'email' ? this.emailErrorMsg : this.passwordErrorMsg;
@@ -92,8 +90,19 @@ class LoginPage extends BasePage {
       const text = await errorEl.getText();
       return text.trim();
     } catch (e) {
-      // Fallback: check if error is shown in the global API error banner
-      return await this.getAuthError();
+      // Fallback 1: check if error is shown in the global API error banner
+      const bannerText = await this.getAuthError();
+      if (bannerText) return bannerText;
+
+      // Fallback 2: check HTML5 native validation message
+      try {
+        const inputLocator = field === 'identifier' || field === 'email' ? this.identifierInput : this.passwordInput;
+        const inputEl = await this.driver.findElement(inputLocator);
+        const html5Msg = await this.driver.executeScript("return arguments[0].validationMessage;", inputEl);
+        if (html5Msg) return html5Msg.trim();
+      } catch (err) {}
+      
+      return null;
     }
   }
 

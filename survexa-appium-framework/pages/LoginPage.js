@@ -1,49 +1,107 @@
 /**
  * pages/LoginPage.js
- * Login Page Object.
+ * Login screen page object for Survexa app
+ *
+ * NOTE: Survexa is a Capacitor WebView app. Elements are inside a WebView.
+ * We use UiAutomator2 selectors that work for WebView content.
+ * For complex selectors, we use WebView context switching.
  */
-const BasePage = require('./BasePage');
+const BasePage = require('./BasePage')
 
 class LoginPage extends BasePage {
   constructor(driver) {
-    super(driver);
-    
-    // Selectors
-    this.emailField = '//*[@resource-id="com.survexa.app:id/email"] | //*[@content-desc="email_input"]';
-    this.passwordField = '//*[@resource-id="com.survexa.app:id/password"] | //*[@content-desc="password_input"]';
-    this.loginButton = '//*[@resource-id="com.survexa.app:id/btn_login"] | //*[@content-desc="login_button"]';
-    this.validationErrorLabel = '//*[@resource-id="com.survexa.app:id/tv_error"] | //*[@content-desc="error_message"]';
-    this.signupLink = '//*[@resource-id="com.survexa.app:id/tv_signup"] | //*[@content-desc="signup_link"]';
+    super(driver)
+
+    // ── Selectors ─────────────────────────────────────────────
+    // These work for Capacitor WebView via UiAutomator2 text-based selectors
+    this.emailField        = `android=new UiSelector().className("android.widget.EditText").instance(0)`
+    this.passwordField     = `android=new UiSelector().className("android.widget.EditText").instance(1)`
+    this.loginButton       = `android=new UiSelector().textContains("Sign in")`
+    this.forgotPasswordBtn = `android=new UiSelector().textContains("Forgot")`
+    this.signupLink        = `android=new UiSelector().textContains("Sign up")`
+    this.errorMessage      = `android=new UiSelector().className("android.widget.TextView")`
+
+    // XPath-based fallbacks
+    this.emailFieldXPath    = '//android.widget.EditText[@hint="jane@company.com" or @text=""]'
+    this.loginButtonXPath   = '//*[contains(@text, "Sign in") or contains(@content-desc, "Sign in")]'
   }
 
   /**
-   * Log in action.
+   * Check if login page is displayed
+   */
+  async isLoaded() {
+    return this.isDisplayed(this.emailField, 20000)
+  }
+
+  /**
+   * Perform login with email and password
+   * @param {string} email
+   * @param {string} password
    */
   async login(email, password) {
-    if (email !== null) {
-      await this.sendKeys(this.emailField, email);
-    } else {
-      const el = await this.getElement(this.emailField);
-      await el.clearValue();
-    }
+    await this.waitForElement(this.emailField)
 
-    if (password !== null) {
-      await this.sendKeys(this.passwordField, password);
-    } else {
-      const el = await this.getElement(this.passwordField);
-      await el.clearValue();
-    }
+    await this.typeText(this.emailField, email)
+    await this.driver.pause(300)
 
-    await this.hideKeyboard();
-    await this.click(this.loginButton);
+    await this.typeText(this.passwordField, password)
+    await this.driver.pause(300)
+
+    await this.hideKeyboard()
+    await this.driver.pause(200)
+
+    await this.click(this.loginButton)
+    await this.driver.pause(2000)
   }
 
   /**
-   * Fetches displayed UI validation message.
+   * Get the error message text displayed after invalid login
    */
   async getErrorMessage() {
-    return await this.getText(this.validationErrorLabel);
+    // Look for toast / error text on screen
+    const errorSelectors = [
+      `android=new UiSelector().textContains("Invalid")`,
+      `android=new UiSelector().textContains("email")`,
+      `android=new UiSelector().textContains("password")`,
+      `android=new UiSelector().textContains("required")`,
+      `android=new UiSelector().textContains("error")`,
+    ]
+
+    for (const sel of errorSelectors) {
+      if (await this.isDisplayed(sel, 3000)) {
+        return await this.getText(sel)
+      }
+    }
+
+    // Fallback: read all text visible on screen
+    try {
+      const allText = await this.driver.$$('android=new UiSelector().className("android.widget.TextView")')
+      for (const el of allText) {
+        const text = await el.getText()
+        if (text && text.length > 5 && text.length < 200) {
+          return text
+        }
+      }
+    } catch { }
+
+    return ''
+  }
+
+  /**
+   * Navigate to Forgot Password screen
+   */
+  async goToForgotPassword() {
+    await this.click(this.forgotPasswordBtn)
+    await this.driver.pause(1500)
+  }
+
+  /**
+   * Navigate to Signup screen
+   */
+  async goToSignup() {
+    await this.click(this.signupLink)
+    await this.driver.pause(1500)
   }
 }
 
-module.exports = LoginPage;
+module.exports = LoginPage

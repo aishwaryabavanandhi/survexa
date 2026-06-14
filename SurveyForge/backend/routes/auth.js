@@ -71,9 +71,9 @@ function createTransporter() {
     secure: false,
     auth:   { user, pass },
     tls:    { rejectUnauthorized: false },
-    connectionTimeout: 1500,
-    greetingTimeout:   1500,
-    socketTimeout:     2000,
+    connectionTimeout: 30000,
+    greetingTimeout:   30000,
+    socketTimeout:     45000,
   })
 }
 

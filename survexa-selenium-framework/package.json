@@ -5,12 +5,12 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "test": "mocha tests/**/*.test.js --timeout 120000 --exit",
-    "test:chrome": "cross-env BROWSER=chrome mocha tests/**/*.test.js --timeout 120000 --exit",
-    "test:firefox": "cross-env BROWSER=firefox mocha tests/**/*.test.js --timeout 120000 --exit",
-    "test:edge": "cross-env BROWSER=edge mocha tests/**/*.test.js --timeout 120000 --exit",
-    "test:e2e": "mocha tests/e2e.test.js --timeout 120000 --exit",
-    "test:dynamic": "mocha tests/dynamic.test.js --timeout 120000 --exit"
+    "test": "mocha",
+    "test:chrome": "cross-env BROWSER=chrome mocha",
+    "test:firefox": "cross-env BROWSER=firefox mocha",
+    "test:edge": "cross-env BROWSER=msedge mocha",
+    "test:e2e": "mocha tests/e2e.test.js",
+    "test:dynamic": "mocha tests/dynamic.test.js"
   },
   "dependencies": {
     "cross-env": "^7.0.3",

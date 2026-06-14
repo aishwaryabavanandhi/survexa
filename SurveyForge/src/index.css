@@ -78,7 +78,7 @@ html.dark {
   --sf-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
-:root {
+@theme {
   --color-primary-50: #f5f3ff;
   --color-primary-100: #ede9fe;
   --color-primary-200: #ddd6fe;

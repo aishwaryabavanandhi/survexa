@@ -1,167 +1,140 @@
 /**
  * utilities/gestures.js
- * Reusable Android touch gestures implementation using W3C Actions API in WebdriverIO.
+ * Reusable mobile gesture automation utilities
+ * Supports: Tap, Double Tap, Long Press, Swipe, Scroll, Drag, Pinch, Zoom
  */
-const logger = require('./logger');
 
-class Gestures {
+const Gestures = {
   /**
-   * Performs a touch tap action at specific coordinates.
+   * Swipe up (scroll down)
    */
-  static async tap(driver, x, y) {
-    logger.debug(`Performing tap at: (${x}, ${y})`);
-    await driver.action('pointer', { pointerType: 'touch' })
-      .move({ x: Math.round(x), y: Math.round(y) })
+  async swipeUp(driver) {
+    const { width, height } = await driver.getWindowSize()
+    await driver.action('pointer', {
+      parameters: { pointerType: 'touch' }
+    })
+      .move({ x: Math.round(width * 0.5), y: Math.round(height * 0.7) })
+      .down()
+      .pause(100)
+      .move({ x: Math.round(width * 0.5), y: Math.round(height * 0.2) })
+      .up()
+      .perform()
+    await driver.pause(300)
+  },
+
+  /**
+   * Swipe down (scroll up)
+   */
+  async swipeDown(driver) {
+    const { width, height } = await driver.getWindowSize()
+    await driver.action('pointer', {
+      parameters: { pointerType: 'touch' }
+    })
+      .move({ x: Math.round(width * 0.5), y: Math.round(height * 0.2) })
+      .down()
+      .pause(100)
+      .move({ x: Math.round(width * 0.5), y: Math.round(height * 0.7) })
+      .up()
+      .perform()
+    await driver.pause(300)
+  },
+
+  /**
+   * Swipe left (next page / dismiss)
+   */
+  async swipeLeft(driver) {
+    const { width, height } = await driver.getWindowSize()
+    await driver.action('pointer', {
+      parameters: { pointerType: 'touch' }
+    })
+      .move({ x: Math.round(width * 0.8), y: Math.round(height * 0.5) })
+      .down()
+      .pause(100)
+      .move({ x: Math.round(width * 0.2), y: Math.round(height * 0.5) })
+      .up()
+      .perform()
+    await driver.pause(300)
+  },
+
+  /**
+   * Swipe right (previous page / back)
+   */
+  async swipeRight(driver) {
+    const { width, height } = await driver.getWindowSize()
+    await driver.action('pointer', {
+      parameters: { pointerType: 'touch' }
+    })
+      .move({ x: Math.round(width * 0.2), y: Math.round(height * 0.5) })
+      .down()
+      .pause(100)
+      .move({ x: Math.round(width * 0.8), y: Math.round(height * 0.5) })
+      .up()
+      .perform()
+    await driver.pause(300)
+  },
+
+  /**
+   * Tap at specific coordinates
+   */
+  async tapAt(driver, x, y) {
+    await driver.action('pointer', {
+      parameters: { pointerType: 'touch' }
+    })
+      .move({ x, y })
       .down()
       .pause(50)
       .up()
-      .perform();
-  }
+      .perform()
+  },
 
   /**
-   * Performs a double-tap action at specific coordinates.
+   * Double tap at coordinates
    */
-  static async doubleTap(driver, x, y) {
-    logger.debug(`Performing double tap at: (${x}, ${y})`);
-    await driver.action('pointer', { pointerType: 'touch' })
-      .move({ x: Math.round(x), y: Math.round(y) })
-      .down().pause(50).up().pause(50)
-      .down().pause(50).up()
-      .perform();
-  }
+  async doubleTapAt(driver, x, y) {
+    await Gestures.tapAt(driver, x, y)
+    await driver.pause(100)
+    await Gestures.tapAt(driver, x, y)
+  },
 
   /**
-   * Performs a long press action.
+   * Long press at coordinates
+   * @param {number} duration - milliseconds to hold
    */
-  static async longPress(driver, x, y, durationMs = 1500) {
-    logger.debug(`Performing long press at: (${x}, ${y}) for ${durationMs}ms`);
-    await driver.action('pointer', { pointerType: 'touch' })
-      .move({ x: Math.round(x), y: Math.round(y) })
+  async longPressAt(driver, x, y, duration = 1500) {
+    await driver.action('pointer', {
+      parameters: { pointerType: 'touch' }
+    })
+      .move({ x, y })
       .down()
-      .pause(durationMs)
+      .pause(duration)
       .up()
-      .perform();
-  }
+      .perform()
+  },
 
   /**
-   * General swipe helper.
+   * Drag from one point to another
    */
-  static async swipe(driver, startX, startY, endX, endY, durationMs = 600) {
-    logger.debug(`Performing swipe from (${startX}, ${startY}) to (${endX}, ${endY})`);
-    await driver.action('pointer', { pointerType: 'touch' })
-      .move({ x: Math.round(startX), y: Math.round(startY) })
+  async dragAndDrop(driver, fromX, fromY, toX, toY) {
+    await driver.action('pointer', {
+      parameters: { pointerType: 'touch' }
+    })
+      .move({ x: fromX, y: fromY })
       .down()
-      .move({ duration: durationMs, x: Math.round(endX), y: Math.round(endY) })
+      .pause(500)
+      .move({ x: toX, y: toY, duration: 800 })
       .up()
-      .perform();
-  }
+      .perform()
+  },
 
   /**
-   * Swipes screen upwards (scroll down).
+   * Pinch and zoom gesture (2-finger spread)
+   * @param {number} centerX - center X coordinate
+   * @param {number} centerY - center Y coordinate
+   * @param {number} scale - zoom scale factor (>1 zoom in, <1 zoom out)
    */
-  static async swipeUp(driver, ratio = 0.8) {
-    const size = await driver.getWindowSize();
-    const x = size.width / 2;
-    const startY = size.height * ratio;
-    const endY = size.height * (1 - ratio);
-    await this.swipe(driver, x, startY, x, endY);
-  }
-
-  /**
-   * Swipes screen downwards (scroll up).
-   */
-  static async swipeDown(driver, ratio = 0.8) {
-    const size = await driver.getWindowSize();
-    const x = size.width / 2;
-    const startY = size.height * (1 - ratio);
-    const endY = size.height * ratio;
-    await this.swipe(driver, x, startY, x, endY);
-  }
-
-  /**
-   * Swipes screen to the left.
-   */
-  static async swipeLeft(driver, ratio = 0.8) {
-    const size = await driver.getWindowSize();
-    const y = size.height / 2;
-    const startX = size.width * ratio;
-    const endX = size.width * (1 - ratio);
-    await this.swipe(driver, startX, y, endX, y);
-  }
-
-  /**
-   * Swipes screen to the right.
-   */
-  static async swipeRight(driver, ratio = 0.8) {
-    const size = await driver.getWindowSize();
-    const y = size.height / 2;
-    const startX = size.width * (1 - ratio);
-    const endX = size.width * ratio;
-    await this.swipe(driver, startX, y, endX, y);
-  }
-
-  /**
-   * Scrolls using swipes until target element is displayed or visible.
-   */
-  static async scrollUntilVisible(driver, elementLocator, direction = 'down', maxScrolls = 5) {
-    logger.debug(`Scrolling ${direction} until element is visible: ${elementLocator}`);
-    let isVisible = false;
-    let scrolls = 0;
-
-    while (!isVisible && scrolls < maxScrolls) {
-      try {
-        const el = await driver.$(elementLocator);
-        isVisible = await el.isDisplayed();
-        if (isVisible) break;
-      } catch (err) {
-        // Element not found in DOM yet, continue scrolling
-      }
-
-      if (direction === 'down') {
-        await this.swipeUp(driver);
-      } else {
-        await this.swipeDown(driver);
-      }
-      scrolls++;
-      await driver.pause(500);
-    }
-
-    if (!isVisible) {
-      throw new Error(`Element ${elementLocator} not visible after ${maxScrolls} scrolls`);
-    }
-  }
-
-  /**
-   * Drags element from source coordinates to destination coordinates.
-   */
-  static async dragAndDrop(driver, startX, startY, endX, endY) {
-    logger.debug(`Performing drag from (${startX}, ${startY}) to (${endX}, ${endY})`);
-    await driver.action('pointer', { pointerType: 'touch' })
-      .move({ x: Math.round(startX), y: Math.round(startY) })
-      .down()
-      .pause(800) // pause to engage long press drag activation
-      .move({ duration: 1000, x: Math.round(endX), y: Math.round(endY) })
-      .up()
-      .perform();
-  }
-
-  /**
-   * Performs a pinch/zoom operation using multi-touch.
-   */
-  static async pinchAndZoom(driver, x, y, scale = 1.5) {
-    logger.debug(`Performing zoom gesture at (${x}, ${y}) with scale: ${scale}`);
-    const size = await driver.getWindowSize();
-    const offset = 200; // px
-    
-    // Finger 1 actions (Left side)
-    const f1StartX = x - 50;
-    const f1StartY = y;
-    const f1EndX = scale > 1.0 ? x - offset : x - 50;
-
-    // Finger 2 actions (Right side)
-    const f2StartX = x + 50;
-    const f2StartY = y;
-    const f2EndX = scale > 1.0 ? x + offset : x + 50;
+  async pinchAndZoom(driver, centerX, centerY, scale = 1.5) {
+    const startOffset = 50
+    const endOffset = Math.round(startOffset * scale)
 
     await driver.performActions([
       {
@@ -169,27 +142,66 @@ class Gestures {
         id: 'finger1',
         parameters: { pointerType: 'touch' },
         actions: [
-          { type: 'pointerMove', duration: 0, x: Math.round(f1StartX), y: Math.round(f1StartY) },
+          { type: 'pointerMove', duration: 0, x: centerX - startOffset, y: centerY },
           { type: 'pointerDown', button: 0 },
           { type: 'pause', duration: 100 },
-          { type: 'pointerMove', duration: 800, x: Math.round(f1EndX), y: Math.round(f1StartY) },
-          { type: 'pointerUp', button: 0 }
-        ]
+          { type: 'pointerMove', duration: 600, x: centerX - endOffset, y: centerY },
+          { type: 'pointerUp', button: 0 },
+        ],
       },
       {
         type: 'pointer',
         id: 'finger2',
         parameters: { pointerType: 'touch' },
         actions: [
-          { type: 'pointerMove', duration: 0, x: Math.round(f2StartX), y: Math.round(f2StartY) },
+          { type: 'pointerMove', duration: 0, x: centerX + startOffset, y: centerY },
           { type: 'pointerDown', button: 0 },
           { type: 'pause', duration: 100 },
-          { type: 'pointerMove', duration: 800, x: Math.round(f2EndX), y: Math.round(f2StartY) },
-          { type: 'pointerUp', button: 0 }
-        ]
-      }
-    ]);
-  }
+          { type: 'pointerMove', duration: 600, x: centerX + endOffset, y: centerY },
+          { type: 'pointerUp', button: 0 },
+        ],
+      },
+    ])
+    await driver.pause(500)
+  },
+
+  /**
+   * Pinch to zoom out (2-finger pinch)
+   */
+  async pinchToZoomOut(driver, centerX, centerY, scale = 0.5) {
+    return Gestures.pinchAndZoom(driver, centerX, centerY, scale)
+  },
+
+  /**
+   * Scroll to find element using UiScrollable
+   */
+  async scrollToText(driver, text) {
+    try {
+      const selector = `android=new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains("${text}"))`
+      const el = await driver.$(selector)
+      await el.waitForDisplayed({ timeout: 10000 })
+      return el
+    } catch (err) {
+      throw new Error(`Could not scroll to element with text: "${text}" — ${err.message}`)
+    }
+  },
+
+  /**
+   * Pull-to-refresh gesture
+   */
+  async pullToRefresh(driver) {
+    const { width, height } = await driver.getWindowSize()
+    await driver.action('pointer', {
+      parameters: { pointerType: 'touch' }
+    })
+      .move({ x: Math.round(width * 0.5), y: Math.round(height * 0.2) })
+      .down()
+      .pause(200)
+      .move({ x: Math.round(width * 0.5), y: Math.round(height * 0.8), duration: 800 })
+      .up()
+      .perform()
+    await driver.pause(2000)
+  },
 }
 
-module.exports = Gestures;
+module.exports = Gestures

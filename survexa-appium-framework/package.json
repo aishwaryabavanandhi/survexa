@@ -1,27 +1,36 @@
 {
   "name": "survexa-appium-framework",
-  "version": "1.0.0",
-  "description": "Enterprise Appium E2E Automation Framework for Android Application",
+  "version": "2.0.0",
+  "description": "Enterprise Appium 2.x E2E Automation Framework for Survexa Android App — POM + Mocha + Chai + Excel Reports + GitHub Actions",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/**/*.test.js --timeout 300000 --exit",
-    "test:auth": "mocha tests/auth.test.js --timeout 300000 --exit",
-    "test:form": "mocha tests/form.test.js --timeout 300000 --exit",
-    "test:nav": "mocha tests/navigation.test.js --timeout 300000 --exit"
+    "test": "mocha 'tests/**/*.test.js' --timeout 120000 --exit --reporter mochawesome --reporter-options reportDir=reports/html,reportFilename=SurveyaE2EReport",
+    "test:auth": "mocha 'tests/auth.test.js' --timeout 120000 --exit",
+    "test:survey": "mocha 'tests/survey.test.js' --timeout 120000 --exit",
+    "test:payments": "mocha 'tests/payments.test.js' --timeout 120000 --exit",
+    "test:navigation": "mocha 'tests/navigation.test.js' --timeout 120000 --exit",
+    "test:gestures": "mocha 'tests/gestures.test.js' --timeout 120000 --exit",
+    "test:all": "mocha 'tests/**/*.test.js' --timeout 120000 --exit --reporter mochawesome --reporter-options reportDir=reports/html,reportFilename=SurveyaE2EReport",
+    "appium:start": "appium --port 4723 --log-level info",
+    "report:open": "start reports/html/SurveyaE2EReport.html"
   },
   "dependencies": {
     "webdriverio": "^8.32.0",
+    "@wdio/appium-service": "^8.32.0",
     "exceljs": "^4.4.0",
     "winston": "^3.11.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "mocha": "^10.3.0",
     "chai": "^4.4.1",
-    "mochawesome": "^7.1.3"
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.3.0",
+    "mochawesome-report-generator": "^6.2.0"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "license": "MIT"
 }

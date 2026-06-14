@@ -1,56 +1,73 @@
 /**
  * pages/FormPage.js
- * Page object for validation forms and profile fields.
+ * Generic form validation page object
  */
-const BasePage = require('./BasePage');
+const BasePage = require('./BasePage')
 
 class FormPage extends BasePage {
   constructor(driver) {
-    super(driver);
-    
-    // Form Selectors
-    this.nameInput = '//*[@resource-id="com.survexa.app:id/form_name"] | //*[@content-desc="form_name_input"]';
-    this.emailInput = '//*[@resource-id="com.survexa.app:id/form_email"] | //*[@content-desc="form_email_input"]';
-    this.phoneInput = '//*[@resource-id="com.survexa.app:id/form_phone"] | //*[@content-desc="form_phone_input"]';
-    this.passwordInput = '//*[@resource-id="com.survexa.app:id/form_password"] | //*[@content-desc="form_password_input"]';
-    this.dateInput = '//*[@resource-id="com.survexa.app:id/form_date"] | //*[@content-desc="form_date_input"]';
-    this.planDropdown = '//*[@resource-id="com.survexa.app:id/form_plan_dropdown"] | //*[@content-desc="form_plan_select"]';
-    this.dropdownOption = '//android.widget.TextView[@text="Professional"]';
-    this.termsCheckbox = '//*[@resource-id="com.survexa.app:id/checkbox_terms"] | //*[@content-desc="terms_checkbox"]';
-    this.submitButton = '//*[@resource-id="com.survexa.app:id/btn_submit_form"] | //*[@content-desc="submit_form_button"]';
-    this.validationText = '//*[@resource-id="com.survexa.app:id/tv_form_error"] | //*[@content-desc="form_error_message"]';
+    super(driver)
+
+    this.nameField      = `android=new UiSelector().className("android.widget.EditText").instance(0)`
+    this.emailField     = `android=new UiSelector().className("android.widget.EditText").instance(1)`
+    this.phoneField     = `android=new UiSelector().className("android.widget.EditText").instance(2)`
+    this.passwordField  = `android=new UiSelector().className("android.widget.EditText").instance(3)`
+    this.dateField      = `android=new UiSelector().className("android.widget.EditText").instance(4)`
+    this.checkbox1      = `android=new UiSelector().className("android.widget.CheckBox").instance(0)`
+    this.checkbox2      = `android=new UiSelector().className("android.widget.CheckBox").instance(1)`
+    this.submitButton   = `android=new UiSelector().textContains("Submit")`
+    this.validationMsg  = `android=new UiSelector().textContains("required")`
   }
 
   /**
-   * Fills and submits the form.
+   * Fill a generic form and submit
    */
-  async fillForm(name, email, phone, password, dateValue, selectDropdown = true, checkTerms = true) {
-    if (name !== null) await this.sendKeys(this.nameInput, name);
-    if (email !== null) await this.sendKeys(this.emailInput, email);
-    if (phone !== null) await this.sendKeys(this.phoneInput, phone);
-    if (password !== null) await this.sendKeys(this.passwordInput, password);
-    if (dateValue !== null) await this.sendKeys(this.dateInput, dateValue);
+  async fillForm(name, email, phone, password, date, check1 = false, check2 = false) {
+    const allInputs = await this.driver.$$(`android=new UiSelector().className("android.widget.EditText")`)
 
-    await this.hideKeyboard();
+    if (allInputs.length > 0 && name !== undefined) await allInputs[0].setValue(name)
+    if (allInputs.length > 1 && email !== undefined) await allInputs[1].setValue(email)
+    if (allInputs.length > 2 && phone !== undefined) await allInputs[2].setValue(phone)
+    if (allInputs.length > 3 && password !== undefined) await allInputs[3].setValue(password)
+    if (allInputs.length > 4 && date !== undefined) await allInputs[4].setValue(date)
 
-    if (selectDropdown) {
-      await this.click(this.planDropdown);
-      await this.click(this.dropdownOption);
+    await this.hideKeyboard()
+
+    if (check1) {
+      const cb1 = await this.isDisplayed(this.checkbox1, 2000)
+      if (cb1) await this.click(this.checkbox1)
+    }
+    if (check2) {
+      const cb2 = await this.isDisplayed(this.checkbox2, 2000)
+      if (cb2) await this.click(this.checkbox2)
     }
 
-    if (checkTerms) {
-      await this.click(this.termsCheckbox);
+    const submitVisible = await this.isDisplayed(this.submitButton, 3000)
+    if (submitVisible) {
+      await this.click(this.submitButton)
+      await this.driver.pause(2000)
     }
-
-    await this.click(this.submitButton);
   }
 
   /**
-   * Captures the validation message.
+   * Get validation message from the form
    */
   async getValidationMessage() {
-    return await this.getText(this.validationText);
+    const errorSelectors = [
+      `android=new UiSelector().textContains("required")`,
+      `android=new UiSelector().textContains("invalid")`,
+      `android=new UiSelector().textContains("email")`,
+      `android=new UiSelector().textContains("phone")`,
+      `android=new UiSelector().textContains("password")`,
+      `android=new UiSelector().textContains("error")`,
+    ]
+    for (const sel of errorSelectors) {
+      if (await this.isDisplayed(sel, 3000)) {
+        return await this.getText(sel)
+      }
+    }
+    return ''
   }
 }
 
-module.exports = FormPage;
+module.exports = FormPage

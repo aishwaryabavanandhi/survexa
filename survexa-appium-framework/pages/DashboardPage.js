@@ -1,70 +1,111 @@
 /**
  * pages/DashboardPage.js
- * Dashboard elements and bottom navigation page object.
+ * Dashboard / main app page object for Survexa
  */
-const BasePage = require('./BasePage');
+const BasePage = require('./BasePage')
 
 class DashboardPage extends BasePage {
   constructor(driver) {
-    super(driver);
-    
-    // Bottom Navigation Elements
-    this.dashboardTitle = '//*[@resource-id="com.survexa.app:id/tv_dashboard_title"] | //*[@content-desc="dashboard_title"]';
-    this.surveysTab = '//*[@resource-id="com.survexa.app:id/nav_surveys"] | //*[@content-desc="nav_surveys"]';
-    this.analyticsTab = '//*[@resource-id="com.survexa.app:id/nav_analytics"] | //*[@content-desc="nav_analytics"]';
-    this.billingTab = '//*[@resource-id="com.survexa.app:id/nav_billing"] | //*[@content-desc="nav_billing"]';
-    
-    // Navigation Drawer / Top bar
-    this.drawerToggle = '//*[@resource-id="com.survexa.app:id/btn_drawer_toggle"] | //*[@content-desc="drawer_toggle"]';
-    this.logoutMenuOption = '//*[@resource-id="com.survexa.app:id/menu_logout"] | //*[@content-desc="menu_logout"]';
-    
-    // Performance & metrics placeholders (RecyclerView cards)
-    this.surveyCards = '//*[@resource-id="com.survexa.app:id/rv_surveys"]/android.widget.FrameLayout';
-    this.upgradeBillingCard = '//*[@resource-id="com.survexa.app:id/card_upgrade"] | //*[@content-desc="upgrade_card"]';
+    super(driver)
+
+    // ── Navigation selectors ──────────────────────────────────
+    this.surveysNavBtn    = `android=new UiSelector().textContains("Surveys")`
+    this.analyticsNavBtn  = `android=new UiSelector().textContains("Analytics")`
+    this.billingNavBtn    = `android=new UiSelector().textContains("Billing")`
+    this.settingsNavBtn   = `android=new UiSelector().textContains("Settings")`
+    this.dashboardTitle   = `android=new UiSelector().textContains("Dashboard")`
+    this.createSurveyBtn  = `android=new UiSelector().textContains("Create")`
+    this.upgradeBillingCard = `android=new UiSelector().textContains("Upgrade")`
+    this.aiGeneratorBtn   = `android=new UiSelector().textContains("AI")`
+    this.logoutBtn        = `android=new UiSelector().textContains("Logout")`
+    this.profileAvatar    = `android=new UiSelector().description("Profile")`
+
+    // Survey list item
+    this.surveyListItem   = `android=new UiSelector().className("android.widget.TextView")`
   }
 
   /**
-   * Navigates to the Surveys tab.
-   */
-  async goToSurveys() {
-    await this.click(this.surveysTab);
-  }
-
-  /**
-   * Navigates to the Analytics tab.
-   */
-  async goToAnalytics() {
-    await this.click(this.analyticsTab);
-  }
-
-  /**
-   * Navigates to the Billing/Settings tab.
-   */
-  async goToBilling() {
-    await this.click(this.billingTab);
-  }
-
-  /**
-   * Triggers the navigation drawer slide out.
-   */
-  async openDrawer() {
-    await this.click(this.drawerToggle);
-  }
-
-  /**
-   * Log out from navigation drawer.
-   */
-  async logout() {
-    await this.openDrawer();
-    await this.click(this.logoutMenuOption);
-  }
-
-  /**
-   * Check if dashboard page has loaded.
+   * Check if dashboard has loaded
    */
   async isLoaded() {
-    return await this.isDisplayed(this.dashboardTitle);
+    return this.isDisplayed(this.dashboardTitle, 20000)
+  }
+
+  /**
+   * Navigate to Surveys section
+   */
+  async goToSurveys() {
+    await this.click(this.surveysNavBtn)
+    await this.driver.pause(1500)
+  }
+
+  /**
+   * Navigate to Analytics section
+   */
+  async goToAnalytics() {
+    await this.click(this.analyticsNavBtn)
+    await this.driver.pause(1500)
+  }
+
+  /**
+   * Navigate to Billing section
+   */
+  async goToBilling() {
+    await this.click(this.billingNavBtn)
+    await this.driver.pause(1500)
+  }
+
+  /**
+   * Click Create Survey button
+   */
+  async clickCreateSurvey() {
+    await this.click(this.createSurveyBtn)
+    await this.driver.pause(2000)
+  }
+
+  /**
+   * Open AI Question Generator
+   */
+  async goToAIGenerator() {
+    await this.click(this.aiGeneratorBtn)
+    await this.driver.pause(2000)
+  }
+
+  /**
+   * Perform logout
+   */
+  async logout() {
+    // Try to find logout button directly, or open settings first
+    const logoutVisible = await this.isDisplayed(this.logoutBtn, 3000)
+    if (!logoutVisible) {
+      // Try opening settings
+      const settingsVisible = await this.isDisplayed(this.settingsNavBtn, 3000)
+      if (settingsVisible) {
+        await this.click(this.settingsNavBtn)
+        await this.driver.pause(1500)
+      }
+    }
+
+    await this.scrollToElement(this.logoutBtn, 10)
+
+    const logoutNow = await this.isDisplayed(this.logoutBtn, 3000)
+    if (logoutNow) {
+      await this.click(this.logoutBtn)
+      await this.driver.pause(2000)
+    }
+  }
+
+  /**
+   * Get count of surveys in list
+   */
+  async getSurveyCount() {
+    try {
+      const items = await this.driver.$$(`android=new UiSelector().className("android.view.View")`)
+      return items.length
+    } catch {
+      return 0
+    }
   }
 }
 
-module.exports = DashboardPage;
+module.exports = DashboardPage

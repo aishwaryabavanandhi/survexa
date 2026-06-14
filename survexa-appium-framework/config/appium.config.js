@@ -1,43 +1,68 @@
 /**
  * config/appium.config.js
- * Capability profiles and appium server configurations.
+ * Appium 2.x WebdriverIO configuration for Survexa Android App
+ * Supports real devices and emulators dynamically
  */
-require('dotenv').config();
-const path = require('path');
+require('dotenv').config()
+const path = require('path')
 
-const platformVersion = process.env.ANDROID_PLATFORM_VERSION || '14.0';
-const deviceName = process.env.ANDROID_DEVICE_NAME || 'Medium_Phone_API_36.0';
-const appPackage = process.env.APP_PACKAGE || 'com.survexa.app';
-const appActivity = process.env.APP_ACTIVITY || 'com.survexa.app.MainActivity';
+const isRealDevice = (process.env.DEVICE_TYPE || 'real').toLowerCase() === 'real'
+const APK_PATH = path.resolve(__dirname, '..', process.env.APK_PATH || '../app-release.apk')
+const fs = require('fs')
 
-// Resolve APK path relative to project root
-const apkPath = process.env.APK_PATH 
-  ? path.resolve(process.env.APK_PATH) 
-  : path.resolve(__dirname, '../app/app-release.apk');
+/**
+ * Build the Appium capabilities object.
+ * Supports both APK installation and already-installed app modes.
+ */
+function buildCapabilities() {
+  const caps = {
+    platformName: 'Android',
+    'appium:automationName': 'UiAutomator2',
+    'appium:deviceName': isRealDevice
+      ? (process.env.DEVICE_UDID || 'Android Device')
+      : (process.env.AVD_NAME || 'Pixel_6_API_34'),
+    'appium:newCommandTimeout': 300,
+    'appium:noReset': false,
+    'appium:fullReset': false,
+    'appium:autoGrantPermissions': true,
+    'appium:disableWindowAnimation': true,
+    'appium:uiautomator2ServerLaunchTimeout': 60000,
+    'appium:uiautomator2ServerInstallTimeout': 60000,
+    'appium:androidInstallTimeout': 120000,
+  }
 
-const baseCapabilities = {
-  platformName: 'Android',
-  'appium:platformVersion': platformVersion,
-  'appium:deviceName': deviceName,
-  'appium:automationName': 'UiAutomator2',
-  'appium:autoGrantPermissions': true,
-  'appium:newCommandTimeout': 3600,
-  'appium:noReset': false,
-  'appium:fullReset': false
-};
+  if (isRealDevice && process.env.DEVICE_UDID) {
+    caps['appium:udid'] = process.env.DEVICE_UDID
+  }
 
-// Add APK or pre-installed app capabilities dynamically
-if (process.env.USE_APK === 'true') {
-  baseCapabilities['appium:app'] = apkPath;
-} else {
-  baseCapabilities['appium:appPackage'] = appPackage;
-  baseCapabilities['appium:appActivity'] = appActivity;
+  if (!isRealDevice) {
+    caps['appium:avd'] = process.env.AVD_NAME || 'Pixel_6_API_34'
+    caps['appium:avdLaunchTimeout'] = 120000
+    caps['appium:avdReadyTimeout'] = 120000
+  }
+
+  // Use APK installation if file exists; otherwise use installed app
+  if (fs.existsSync(APK_PATH)) {
+    console.log(`[Config] Using APK: ${APK_PATH}`)
+    caps['appium:app'] = APK_PATH
+  } else {
+    console.log(`[Config] APK not found — using installed app: ${process.env.APP_PACKAGE}`)
+    caps['appium:appPackage'] = process.env.APP_PACKAGE || 'com.survexa.app'
+    caps['appium:appActivity'] = process.env.APP_ACTIVITY || 'com.survexa.app.MainActivity'
+  }
+
+  return caps
 }
 
-module.exports = {
+const config = {
   hostname: process.env.APPIUM_HOST || '127.0.0.1',
   port: parseInt(process.env.APPIUM_PORT || '4723', 10),
-  path: process.env.APPIUM_PATH || '/',
-  capabilities: baseCapabilities,
-  logLevel: 'info'
-};
+  path: '/',
+  capabilities: buildCapabilities(),
+  waitforTimeout: parseInt(process.env.ELEMENT_WAIT_TIMEOUT || '15000', 10),
+  connectionRetryTimeout: 120000,
+  connectionRetryCount: 3,
+  logLevel: 'warn',
+}
+
+module.exports = { config, buildCapabilities }

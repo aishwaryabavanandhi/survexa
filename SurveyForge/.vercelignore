@@ -1,0 +1,11 @@
+android/
+backend/
+node_modules/
+.gradle/
+.idea/
+.vscode/
+dist/
+*.png
+*.jpg
+*.jpeg
+*.gif

@@ -254,11 +254,14 @@ router.post('/:id/email', async (req, res) => {
     if (!noEmail) {
       try {
         const transporter = nodemailer.createTransport({
-          service: 'gmail',
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
           auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-          connectionTimeout: 1500,
-          greetingTimeout:   1500,
-          socketTimeout:     2000,
+          tls: { rejectUnauthorized: false },
+          connectionTimeout: 30000,
+          greetingTimeout:   30000,
+          socketTimeout:     45000,
         })
         for (const to of valid) {
           await transporter.sendMail({
