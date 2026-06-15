@@ -1,0 +1,71 @@
+name: Survexa E2E Selenium Automation
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            SurveyForge/package-lock.json
+            SurveyForge/backend/package-lock.json
+
+      - name: Install Frontend & Backend Dependencies
+        run: |
+          npm ci --prefix SurveyForge
+          npm ci --prefix SurveyForge/backend
+
+      - name: Install Selenium Framework Dependencies
+        run: |
+          npm ci --prefix survexa-selenium-framework
+
+      - name: Setup SQLite Database & Seed Developer User
+        run: |
+          cd SurveyForge/backend
+          node seed-dev-user.js
+
+      - name: Start Backend Server
+        run: |
+          npm run start --prefix SurveyForge/backend &
+          # Wait for backend health check to respond with 200 OK
+          npx wait-on -t 30000 http://localhost:5000/health
+
+      - name: Start Frontend Vite Server
+        run: |
+          npm run dev --prefix SurveyForge &
+          # Wait for Vite dev server to respond
+          npx wait-on -t 30000 http://localhost:5173
+
+      - name: Run Selenium E2E Tests (Headless Chrome)
+        run: |
+          npm run test --prefix survexa-selenium-framework
+        env:
+          BASE_URL: http://localhost:5173
+          BROWSER: chrome
+          HEADLESS: 'true'
+          NODE_ENV: ci
+
+      - name: Upload Excel & HTML Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: survexa-e2e-reports
+          path: |
+            survexa-selenium-framework/excel/E2E_Report.xlsx
+            survexa-selenium-framework/mochawesome-report/
+            survexa-selenium-framework/reports/failures/
+            survexa-selenium-framework/logs/
+          retention-days: 14
