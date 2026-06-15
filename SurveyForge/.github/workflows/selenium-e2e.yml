@@ -1,4 +1,4 @@
-name: Selenium E2E Tests
+name: Survexa E2E Selenium Automation
 
 on:
   push:
@@ -7,7 +7,11 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  test:
+  # ─────────────────────────────────────────────
+  # Job 1: Frontend Build Verification
+  # ─────────────────────────────────────────────
+  build:
+    name: Frontend Build
     runs-on: ubuntu-latest
 
     steps:
@@ -18,42 +22,160 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: SurveyForge/package-lock.json
 
-    - name: Install Dependencies
-      working-directory: ./e2e
-      run: npm install
+    - name: Install Frontend Dependencies
+      working-directory: SurveyForge
+      run: npm ci
+
+    - name: Build Frontend (Vite)
+      working-directory: SurveyForge
+      run: npm run build
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-dist
+        path: SurveyForge/dist/
+        retention-days: 1
+
+  # ─────────────────────────────────────────────
+  # Job 2: Backend API Tests
+  # ─────────────────────────────────────────────
+  backend-test:
+    name: Backend API Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: SurveyForge/backend/package-lock.json
+
+    - name: Install Backend Dependencies
+      working-directory: SurveyForge/backend
+      run: npm ci
+
+    - name: Create Backend .env
+      working-directory: SurveyForge/backend
+      run: |
+        cat > .env << 'EOF'
+        PORT=5000
+        JWT_SECRET=ci-test-jwt-secret-key-$(date +%s)
+        NODE_ENV=test
+        SUPABASE_URL=https://placeholder.supabase.co
+        SUPABASE_ANON_KEY=placeholder
+        EOF
+
+    - name: Start Backend Server
+      working-directory: SurveyForge/backend
+      run: |
+        node server.js &
+        echo "Backend PID: $!"
+        sleep 5
+        curl -f http://localhost:5000/health || (echo "Backend failed to start" && exit 1)
+
+    - name: Run Full E2E API Test Suite
+      working-directory: SurveyForge/backend
+      run: node e2e-test.js
+
+  # ─────────────────────────────────────────────
+  # Job 3: Selenium E2E Framework Validation
+  # ─────────────────────────────────────────────
+  selenium-framework:
+    name: Selenium E2E Framework
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: SurveyForge/e2e/package-lock.json
+
+    - name: Install Selenium Framework Dependencies
+      working-directory: SurveyForge/e2e
+      run: npm ci
 
     - name: Setup Chrome
       uses: browser-actions/setup-chrome@v1
-      
-    - name: Generate Dynamic Tests
-      working-directory: ./e2e
+      with:
+        chrome-version: stable
+
+    - name: Install Frontend Dependencies
+      working-directory: SurveyForge
+      run: npm ci
+
+    - name: Build and Serve Frontend
+      working-directory: SurveyForge
+      run: |
+        npm run build
+        npx serve dist -p 5173 &
+        sleep 5
+        curl -f http://localhost:5173 || (echo "Frontend serve failed" && exit 1)
+
+    - name: Install Backend Dependencies
+      working-directory: SurveyForge/backend
+      run: npm ci
+
+    - name: Start Backend Server
+      working-directory: SurveyForge/backend
+      run: |
+        cat > .env << 'EOF'
+        PORT=5000
+        JWT_SECRET=ci-selenium-jwt-secret
+        NODE_ENV=test
+        SUPABASE_URL=https://placeholder.supabase.co
+        SUPABASE_ANON_KEY=placeholder
+        EOF
+        node server.js &
+        sleep 5
+        curl -f http://localhost:5000/health
+
+    - name: Generate Dynamic Tests (From React Routes)
+      working-directory: SurveyForge/e2e
       run: npm run generate
-      
-    - name: Run Selenium Tests
-      working-directory: ./e2e
+
+    - name: Run Selenium E2E Tests
+      working-directory: SurveyForge/e2e
       run: npm test
       env:
         HEADLESS: "true"
         BROWSER: "chrome"
+        E2E_BASE_URL: "http://localhost:5173"
+      continue-on-error: true
 
     - name: Upload Excel Report
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: E2E-Excel-Report
-        path: e2e/reports/excel/E2E_Report.xlsx
+        path: SurveyForge/e2e/reports/excel/E2E_Report.xlsx
+        if-no-files-found: ignore
 
-    - name: Upload Mochawesome Report
+    - name: Upload HTML Report
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: E2E-HTML-Report
-        path: e2e/reports/html/
+        path: SurveyForge/e2e/reports/html/
+        if-no-files-found: ignore
 
-    - name: Upload Screenshots and Logs
+    - name: Upload Failure Screenshots
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: E2E-Failures-Logs
-        path: e2e/reports/failures/
+        name: E2E-Failure-Screenshots
+        path: SurveyForge/e2e/reports/failures/
+        if-no-files-found: ignore

@@ -4,12 +4,12 @@
   "description": "End-to-End Selenium Automation Framework for SurveyForge",
   "main": "index.js",
   "scripts": {
-    "test": "npm run clean && mocha tests/**/*.test.js --config config/mocha.config.js",
-    "test:headed": "set HEADLESS=false && npm test",
-    "test:edge": "set BROWSER=edge && npm test",
-    "test:firefox": "set BROWSER=firefox && npm test",
+    "test": "npm run clean && mocha --timeout 60000 --require tests/hooks.js --reporter mochawesome --reporter-options reportDir=reports/html,reportFilename=e2e-report,overwrite=false,html=true,json=true 'tests/**/*.test.js'",
+    "test:headed": "cross-env HEADLESS=false npm test",
+    "test:edge": "cross-env BROWSER=edge npm test",
+    "test:firefox": "cross-env BROWSER=firefox npm test",
     "generate": "node scripts/generateTests.js",
-    "clean": "npx rimraf reports/failures/* reports/html/* reports/excel/*"
+    "clean": "node -e \"const fs=require('fs');['reports/failures','reports/html','reports/excel'].forEach(d=>{fs.rmSync(d,{recursive:true,force:true});fs.mkdirSync(d,{recursive:true})});\""
   },
   "dependencies": {
     "dotenv": "^16.4.5",
@@ -18,10 +18,12 @@
   },
   "devDependencies": {
     "chai": "^4.4.1",
+    "cross-env": "^7.0.3",
     "mocha": "^10.4.0",
     "mochawesome": "^7.1.3",
     "mochawesome-merge": "^4.3.0",
     "mochawesome-report-generator": "^6.2.0",
-    "selenium-webdriver": "^4.21.0"
+    "selenium-webdriver": "^4.21.0",
+    "serve": "^14.2.3"
   }
 }
