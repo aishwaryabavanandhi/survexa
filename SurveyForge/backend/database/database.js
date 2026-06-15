@@ -154,6 +154,38 @@ const SCHEMA = `
     FOREIGN KEY (survey_id)   REFERENCES surveys(id) ON DELETE CASCADE
   );
 
+  -- Plans table
+  CREATE TABLE IF NOT EXISTS plans (
+    id              TEXT PRIMARY KEY,
+    name            TEXT NOT NULL,
+    price_inr       INTEGER NOT NULL DEFAULT 0,
+    survey_limit    INTEGER,
+    response_limit  INTEGER,
+    ai_limit        INTEGER,
+    ai_unlimited    INTEGER NOT NULL DEFAULT 0,
+    ai_insights     INTEGER NOT NULL DEFAULT 0,
+    features_json   TEXT DEFAULT '[]',
+    is_active       INTEGER NOT NULL DEFAULT 1,
+    created_at      TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S','now'))
+  );
+
+  -- Subscriptions table
+  CREATE TABLE IF NOT EXISTS subscriptions (
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id              INTEGER NOT NULL,
+    plan_id              TEXT NOT NULL DEFAULT 'free',
+    status               TEXT NOT NULL DEFAULT 'active',
+    current_period_start TEXT,
+    current_period_end   TEXT,
+    cancel_at_period_end INTEGER NOT NULL DEFAULT 0,
+    razorpay_subscription_id TEXT,
+    razorpay_order_id    TEXT,
+    razorpay_payment_id  TEXT,
+    created_at           TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S','now')),
+    updated_at           TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S','now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
   -- Billing history table
   CREATE TABLE IF NOT EXISTS billing_history (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
