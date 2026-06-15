@@ -442,11 +442,13 @@ router.post('/login', async (req, res) => {
   }
 
   const identifier = rawIdentifier.toLowerCase().trim()
+  console.log(`[Diagnostic] Incoming login: identifier="${identifier}" password="${password}" (length: ${password?.length})`)
 
   try {
     const user = queryOne('SELECT * FROM users WHERE email = ?', [identifier])
 
     if (!user) {
+      console.log(`[Diagnostic] User not found for email: ${identifier}`)
       return res.status(401).json({ success: false, error: 'Invalid email or password' })
     }
     if (!user.verified) {
@@ -467,7 +469,9 @@ router.post('/login', async (req, res) => {
       })
     }
 
+    console.log(`[Diagnostic] User found: ${user.email}, hash="${user.password}"`)
     const passwordMatch = await bcrypt.compare(password, user.password)
+    console.log(`[Diagnostic] Password match: ${passwordMatch}`)
     if (!passwordMatch) {
       return res.status(401).json({ success: false, error: 'Invalid email or password' })
     }

@@ -10,7 +10,7 @@ const initSqlJs = require('sql.js')
 const fs        = require('fs')
 const path      = require('path')
 
-const DB_PATH = path.join(__dirname, 'database.db')
+const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, 'database.db')
 
 // ── Singleton ─────────────────────────────────────────────
 let _db = null
@@ -201,6 +201,15 @@ const SCHEMA = `
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
   );
+
+  -- Performance Indexes
+  CREATE INDEX IF NOT EXISTS idx_surveys_user_id ON surveys(user_id);
+  CREATE INDEX IF NOT EXISTS idx_questions_survey_id ON questions(survey_id);
+  CREATE INDEX IF NOT EXISTS idx_responses_survey_id ON responses(survey_id);
+  CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
+  CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
+  CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+  CREATE INDEX IF NOT EXISTS idx_campaigns_survey_id ON campaigns(survey_id);
 `
 
 /**
@@ -375,7 +384,14 @@ function runMigrations(db) {
     )`,
     "ALTER TABLE plans ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1",
     "ALTER TABLE activity_log ADD COLUMN module TEXT DEFAULT ''",
-    "ALTER TABLE activity_log ADD COLUMN metadata TEXT DEFAULT '{}'"
+    "ALTER TABLE activity_log ADD COLUMN metadata TEXT DEFAULT '{}'",
+    "CREATE INDEX IF NOT EXISTS idx_surveys_user_id ON surveys(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_questions_survey_id ON questions(survey_id)",
+    "CREATE INDEX IF NOT EXISTS idx_responses_survey_id ON responses(survey_id)",
+    "CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_campaigns_survey_id ON campaigns(survey_id)"
   ]
   for (const sql of migrations) {
     try { db.run(sql) } catch (_) { /* already exists — ignore */ }
@@ -498,6 +514,9 @@ async function initDatabase() {
     _db = new SQL.Database()
     console.log('✅  Created new SQLite DB at:', DB_PATH)
   }
+
+  // Enable foreign keys
+  _db.run('PRAGMA foreign_keys = ON;')
 
   // Apply schema (IF NOT EXISTS — idempotent)
   _db.run(SCHEMA)

@@ -13,10 +13,10 @@ import { getToken, clearToken } from './token'
 const getBaseURL = () => {
   const customUrl = localStorage.getItem('survexa_backend_url')
   if (customUrl) return customUrl
-  if (typeof window !== 'undefined' && (window.Capacitor || (window.location.hostname === 'localhost' && !window.location.port))) {
+  if (typeof window !== 'undefined' && !window.Capacitor && window.location.hostname === 'localhost' && !window.location.port) {
     return 'http://10.0.2.2:5000'
   }
-  return import.meta.env.VITE_API_URL ?? ''
+  return import.meta.env.VITE_API_URL ?? 'https://api.survexa.com'
 }
 
 const api = axios.create({

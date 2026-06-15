@@ -5,7 +5,7 @@ node_modules/
 .idea/
 .vscode/
 dist/
-*.png
-*.jpg
-*.jpeg
-*.gif
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif

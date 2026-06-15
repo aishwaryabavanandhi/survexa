@@ -29,6 +29,10 @@
   --sf-border: rgba(15, 23, 42, 0.08);
   --sf-border-strong: rgba(15, 23, 42, 0.12);
 
+  /* Brand primary & soft accents */
+  --sf-primary: #794cff;
+  --sf-primary-soft: #eee5ff;
+
   /* Gradients */
   --sf-gradient-brand: linear-gradient(135deg, #d6c6ff, #c8d4ff, #b8f2f5);
   --sf-gradient-primary: linear-gradient(135deg, #d6c6ff, #c8d4ff, #b8f2f5);
@@ -67,6 +71,10 @@ html.dark {
   --sf-text-muted: #9ca3af;
   --sf-border: rgba(255, 255, 255, 0.08);
   --sf-border-strong: rgba(255, 255, 255, 0.12);
+
+  /* Brand primary & soft accents — dark */
+  --sf-primary: #a98dff;
+  --sf-primary-soft: rgba(169, 141, 255, 0.15);
 
   --sf-gradient-hero: linear-gradient(160deg, #0b1020 0%, #111827 50%, #161b2e 100%);
   --sf-gradient-sidebar: linear-gradient(180deg, #111827 0%, #0b1020 100%);
