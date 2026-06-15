@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { initDatabase, run } = require('./database');
+const { initDatabase, run } = require('./database/database');
 
 async function runSeed() {
   await initDatabase();

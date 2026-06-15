@@ -3,7 +3,7 @@
  * Exposes routes to fetch user activity logs.
  */
 const express = require('express')
-const { query } = require('../database')
+const { query } = require('../database/database')
 const router = express.Router()
 
 /* GET /activity - get activity logs for the current logged-in user */

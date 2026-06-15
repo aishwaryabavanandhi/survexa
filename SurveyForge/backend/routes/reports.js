@@ -8,7 +8,7 @@ const { generatePDFReport } = require('../utils/pdfReport')
 const { assertSurveyWritable } = require('../utils/surveyOwnership')
 const { Resend } = require('resend')
 const nodemailer = require('nodemailer')
-const { query, queryOne } = require('../database')
+const { query, queryOne } = require('../database/database')
 const { generateCompletion } = require('../services/aiService')
 const { logActivity } = require('../lib/activityLogger')
 

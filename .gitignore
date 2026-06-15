@@ -111,3 +111,4 @@ SurveyForge/.env.vercel.production
 SurveyForge/backend/seed-test-user.js
 SurveyForge/e2e/node_modules/
 SurveyForge/e2e/reports/
+*.zip

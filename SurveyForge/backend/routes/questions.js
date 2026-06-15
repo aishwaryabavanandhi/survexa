@@ -3,7 +3,7 @@
  */
 
 const express = require('express')
-const { query, run, queryOne } = require('../database')
+const { query, run, queryOne } = require('../database/database')
 const { assertSurveyReadable, assertSurveyWritable } = require('../utils/surveyOwnership')
 const { normalizeQuestions } = require('../utils/questionTypes')
 const { logActivity } = require('../lib/activityLogger')

@@ -3,7 +3,7 @@
  * Rule-based fallback and mock data has been completely removed.
  */
 const express = require('express')
-const { query, queryOne } = require('../database')
+const { query, queryOne } = require('../database/database')
 const { getUsageSnapshot } = require('../lib/usage')
 const { generateCompletion } = require('../services/aiService')
 

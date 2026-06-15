@@ -13,7 +13,7 @@
  */
 
 const express = require('express')
-const { query, run, queryOne, persist } = require('../database')
+const { query, run, queryOne, persist } = require('../database/database')
 
 const router = express.Router()
 

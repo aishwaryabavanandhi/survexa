@@ -5,7 +5,7 @@
 const express = require('express')
 const { v4: uuidv4 } = require('uuid')
 const nodemailer = require('nodemailer')
-const { query, run, queryOne } = require('../database')
+const { query, run, queryOne } = require('../database/database')
 const { assertSurveyReadable, assertSurveyWritable } = require('../utils/surveyOwnership')
 const {
   PLATFORMS,

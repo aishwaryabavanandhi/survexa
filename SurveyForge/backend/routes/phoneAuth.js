@@ -3,7 +3,7 @@
  */
 const express = require('express')
 const bcrypt = require('bcryptjs')
-const { query, run, queryOne } = require('../database')
+const { query, run, queryOne } = require('../database/database')
 const { normalizePhone } = require('../utils/phone')
 const { sendPhoneOtp } = require('../services/smsProvider')
 const { verifyFirebaseIdToken, isFirebaseConfigured } = require('../services/firebaseAdmin')

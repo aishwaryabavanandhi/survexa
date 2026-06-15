@@ -2,7 +2,7 @@
  * Comprehensive E2E API test — run while server is up: node e2e-test.js
  */
 const http = require('http')
-const { initDatabase, queryOne, run, query } = require('./database')
+const { initDatabase, queryOne, run, query } = require('./database/database')
 
 const PORT = process.env.PORT || 5000
 const BASE = `http://localhost:${PORT}`

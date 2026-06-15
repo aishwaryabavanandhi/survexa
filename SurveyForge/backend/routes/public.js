@@ -8,7 +8,7 @@
 
 const express    = require('express')
 const nodemailer = require('nodemailer')
-const { queryOne, query, run } = require('../database')
+const { queryOne, query, run } = require('../database/database')
 const { generatePDFReport }    = require('../utils/pdfReport')
 const { checkLimit, syncResponseCount } = require('../lib/usage')
 const {
@@ -257,7 +257,7 @@ router.post('/survey/:token/respond', async (req, res) => {
             survey.id,
           ]
         )
-        const { persist } = require('../database')
+        const { persist } = require('../database/database')
         if (typeof persist === 'function') persist()
       } catch (ne) {
         console.warn('[Public] Notification insert failed:', ne.message)

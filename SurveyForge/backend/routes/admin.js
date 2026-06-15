@@ -13,7 +13,7 @@
  */
 
 const express = require('express')
-const { query, run, queryOne } = require('../database')
+const { query, run, queryOne } = require('../database/database')
 const { logActivity } = require('../lib/activityLogger')
 const router = express.Router()
 

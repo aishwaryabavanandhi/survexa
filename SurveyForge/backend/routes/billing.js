@@ -2,7 +2,7 @@
  * Billing, subscriptions, Razorpay
  */
 const express = require('express')
-const { query, run, queryOne } = require('../database')
+const { query, run, queryOne } = require('../database/database')
 const { listPlans, getPlan } = require('../lib/plans')
 const { getUsageSnapshot, checkLimit } = require('../lib/usage')
 const {

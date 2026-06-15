@@ -5,7 +5,7 @@
 require('dotenv').config()
 const http = require('http')
 const crypto = require('crypto')
-const { initDatabase, queryOne, run, query } = require('./database')
+const { initDatabase, queryOne, run, query } = require('./database/database')
 const { verifyPaymentSignature, verifyWebhookSignature } = require('./services/razorpay')
 
 const PORT = process.env.PORT || 5000

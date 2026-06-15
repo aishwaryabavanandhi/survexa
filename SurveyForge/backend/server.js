@@ -10,7 +10,7 @@ const helmet     = require('helmet')
 const rateLimit  = require('express-rate-limit')
 const path       = require('path')
 
-const { initDatabase } = require('./database')
+const { initDatabase } = require('./database/database')
 
 /* ── Rate limiters ───────────────────────────────────────── */
 const authLimiter = rateLimit({
