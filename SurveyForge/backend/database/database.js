@@ -186,6 +186,34 @@ const SCHEMA = `
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
+  -- Payments table
+  CREATE TABLE IF NOT EXISTS payments (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id             INTEGER NOT NULL,
+    plan_id             TEXT NOT NULL,
+    amount_paise        INTEGER NOT NULL,
+    currency            TEXT NOT NULL DEFAULT 'INR',
+    status              TEXT NOT NULL DEFAULT 'created',
+    method              TEXT DEFAULT 'razorpay',
+    razorpay_order_id   TEXT,
+    razorpay_payment_id TEXT,
+    razorpay_signature  TEXT,
+    created_at          TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S','now')),
+    paid_at             TEXT DEFAULT NULL,
+    amount              REAL DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  -- Usage tracking table
+  CREATE TABLE IF NOT EXISTS usage_tracking (
+    user_id              INTEGER PRIMARY KEY,
+    surveys_created      INTEGER NOT NULL DEFAULT 0,
+    responses_collected  INTEGER NOT NULL DEFAULT 0,
+    ai_requests_used     INTEGER NOT NULL DEFAULT 0,
+    updated_at           TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S','now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
   -- Billing history table
   CREATE TABLE IF NOT EXISTS billing_history (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
