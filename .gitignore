@@ -81,3 +81,33 @@ survexa-selenium-framework/logs/
 survexa-selenium-framework/mochawesome-report/
 survexa-appium-framework/reports/
 survexa-appium-framework/logs/
+survexa-appium-framework/excel/
+survexa-appium-framework/scratch_debug.js
+
+# Gradle caches (extremely large, Windows long-path issues)
+.gradle/
+**/.gradle/
+
+# Temporary QR & screenshot images at root
+emulator_screencap.png
+emulator_screencap_now.png
+website_qr.png
+apk_download_qr.png
+expo_go_qr.png
+survey_share_qr.png
+
+# Old mobile project (superseded by SurveyForgeMobile)
+survexa-mobile/
+
+# New Expo mobile project - exclude large/generated files
+SurveyForgeMobile/.expo/
+SurveyForgeMobile/node_modules/
+SurveyForgeMobile/.gradle/
+
+# Misc
+b/
+SurveyForge/.env.vercel
+SurveyForge/.env.vercel.production
+SurveyForge/backend/seed-test-user.js
+SurveyForge/e2e/node_modules/
+SurveyForge/e2e/reports/

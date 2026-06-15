@@ -2,6 +2,7 @@
  * Comprehensive verification runner — outputs JSON report for QA
  * Usage: node verify-all.js (server must be running on PORT)
  */
+require('dotenv').config()
 const http = require('http')
 const crypto = require('crypto')
 const { initDatabase, queryOne, run, query } = require('./database')

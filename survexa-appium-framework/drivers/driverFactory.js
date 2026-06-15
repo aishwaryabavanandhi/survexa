@@ -40,9 +40,11 @@ class DriverFactory {
       logger.info(`✅ Driver session created: ${this.sessionId}`)
 
       // Set implicit wait
-      await this.driver.setImplicitTimeout(
-        parseInt(process.env.IMPLICIT_WAIT || '5000', 10)
-      )
+      try {
+        await this.driver.setTimeout({ implicit: parseInt(process.env.IMPLICIT_WAIT || '5000', 10) })
+      } catch (timeoutErr) {
+        logger.warn(`Could not set implicit timeout: ${timeoutErr.message}`)
+      }
 
       return this.driver
     } catch (err) {

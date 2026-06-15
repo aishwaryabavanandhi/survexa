@@ -23,11 +23,7 @@ describe('TC-GEST — Gesture Automation Module', function () {
     loginPage    = new LoginPage(driver)
     dashboardPage = new DashboardPage(driver)
 
-    const loginLoaded = await loginPage.isLoaded()
-    if (loginLoaded) {
-      await loginPage.login(TEST_EMAIL, TEST_PASSWORD)
-      await driver.pause(4000)
-    }
+    await BaseTest.ensureLoggedIn(driver, TEST_EMAIL, TEST_PASSWORD)
   })
 
   after(async function () {

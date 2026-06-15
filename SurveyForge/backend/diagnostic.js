@@ -13,6 +13,7 @@ const db   = require('./database')
 const PORT = process.env.PORT || 5000
 const BASE_URL = `http://localhost:${PORT}`
 const TEST_EMAIL = `diagnostic.agent.${Math.floor(1000 + Math.random() * 9000)}@survexa.test`
+const TEST_PHONE = `+91999999${String(Math.floor(1000 + Math.random() * 9000))}`
 const TEST_PASSWORD = 'Password123!'
 const TEST_NAME = 'Diagnostic Agent'
 
@@ -79,14 +80,17 @@ async function runDiagnostics() {
     const signup = await request('POST', '/auth/signup', {}, {
       name: TEST_NAME,
       email: TEST_EMAIL,
-      password: TEST_PASSWORD
+      password: TEST_PASSWORD,
+      phone: TEST_PHONE
     })
     
     if (signup.status === 201 && signup.body.success) {
       console.log('   ✅ Account registration successful!')
-      otpCode = signup.body.otp
+      otpCode = signup.body.emailOtp || signup.body.otp
       if (!otpCode) {
         await new Promise((r) => setTimeout(r, 200))
+        // Since sql.js is in-memory, reload db to see disk modifications from the other process
+        await db.initDatabase()
         const row = db.queryOne(
           'SELECT code FROM otp WHERE email = ? ORDER BY id DESC LIMIT 1',
           [TEST_EMAIL],
@@ -104,19 +108,42 @@ async function runDiagnostics() {
       throw new Error(`Signup failed with status ${signup.status}: ${JSON.stringify(signup.body)}`)
     }
 
-    // 3. POST /auth/verify-otp
-    console.log(`\n STEP 3: Verifying account using OTP: ${otpCode}...`)
+    // 3. POST /auth/verify-otp (email verification)
+    console.log(`\n STEP 3: Verifying email using OTP: ${otpCode}...`)
     const verify = await request('POST', '/auth/verify-otp', {}, {
       email: TEST_EMAIL,
       code: otpCode
     })
 
     if (verify.status === 200 && verify.body.success) {
-      tempToken = verify.body.token
-      console.log('   ✅ Account successfully verified!')
+      console.log('   ✅ Email successfully verified!')
+    } else {
+      throw new Error(`Email Verification failed with status ${verify.status}: ${JSON.stringify(verify.body)}`)
+    }
+
+    // 3b. POST /auth/phone/verify-otp (phone verification)
+    let phoneOtpCode = signup.body.phoneOtp
+    if (!phoneOtpCode) {
+      await db.initDatabase()
+      const row = db.queryOne(
+        'SELECT code FROM phone_otp WHERE phone = ? ORDER BY id DESC LIMIT 1',
+        [TEST_PHONE],
+      )
+      phoneOtpCode = row?.code
+    }
+    console.log(`\n STEP 3b: Verifying phone using OTP: ${phoneOtpCode}...`)
+    const verifyPhone = await request('POST', '/auth/phone/verify-otp', {}, {
+      phone: TEST_PHONE,
+      code: phoneOtpCode,
+      purpose: 'signup'
+    })
+
+    if (verifyPhone.status === 200 && verifyPhone.body.success) {
+      tempToken = verifyPhone.body.token
+      console.log('   ✅ Phone successfully verified!')
       console.log('   🔐 JWT Token generated successfully.')
     } else {
-      throw new Error(`OTP Verification failed with status ${verify.status}: ${JSON.stringify(verify.body)}`)
+      throw new Error(`Phone Verification failed with status ${verifyPhone.status}: ${JSON.stringify(verifyPhone.body)}`)
     }
 
     // 4. GET /auth/me (JWT Authorization header test)
@@ -149,6 +176,7 @@ async function runDiagnostics() {
     console.log(' STEP 5: Cleaning up diagnostic database records...')
     db.run('DELETE FROM users WHERE email = ?', [TEST_EMAIL])
     db.run('DELETE FROM otp WHERE email = ?', [TEST_EMAIL])
+    db.run('DELETE FROM phone_otp WHERE phone = ?', [TEST_PHONE])
     console.log('   🧹 SQLite DB clean. Temporary account purged.\n')
     process.exit(0)
   }

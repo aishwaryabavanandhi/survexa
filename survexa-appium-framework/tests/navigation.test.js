@@ -23,11 +23,7 @@ describe('TC-NAV — Navigation Module', function () {
     loginPage    = new LoginPage(driver)
     dashboardPage = new DashboardPage(driver)
 
-    const loginLoaded = await loginPage.isLoaded()
-    if (loginLoaded) {
-      await loginPage.login(TEST_EMAIL, TEST_PASSWORD)
-      await driver.pause(4000)
-    }
+    await BaseTest.ensureLoggedIn(driver, TEST_EMAIL, TEST_PASSWORD)
   })
 
   after(async function () {
@@ -73,13 +69,17 @@ describe('TC-NAV — Navigation Module', function () {
   })
 
   it('TC-NAV-04: Back button returns to previous screen', async function () {
-    excelReporter.recordStepLog(this.test.title, 'Navigate forward', 'Info', 'Going to Surveys')
+    excelReporter.recordStepLog(this.test.title, 'Navigate to Surveys tab', 'Info', 'Going to Surveys')
     await dashboardPage.goToSurveys()
     await driver.pause(1500)
 
+    excelReporter.recordStepLog(this.test.title, 'Navigate forward to Builder', 'Info', 'Opening Create Survey')
+    await dashboardPage.clickCreateSurvey()
+    await driver.pause(2000)
+
     excelReporter.recordStepLog(this.test.title, 'Press back', 'Info', 'Pressing Android back')
     await dashboardPage.pressBack()
-    await driver.pause(1500)
+    await driver.pause(2000)
 
     // Should be on previous screen
     excelReporter.recordStepLog(this.test.title, 'Verify back navigation', 'Pass', 'Back button worked')

@@ -10,14 +10,14 @@ class DashboardPage extends BasePage {
 
     // ── Navigation selectors ──────────────────────────────────
     this.surveysNavBtn    = `android=new UiSelector().textContains("Surveys")`
-    this.analyticsNavBtn  = `android=new UiSelector().textContains("Analytics")`
+    this.analyticsNavBtn  = `android=new UiSelector().text("Data")`
     this.billingNavBtn    = `android=new UiSelector().textContains("Billing")`
-    this.settingsNavBtn   = `android=new UiSelector().textContains("Settings")`
+    this.settingsNavBtn   = `android=new UiSelector().text("You")`
     this.dashboardTitle   = `android=new UiSelector().textContains("Dashboard")`
     this.createSurveyBtn  = `android=new UiSelector().textContains("Create")`
     this.upgradeBillingCard = `android=new UiSelector().textContains("Upgrade")`
     this.aiGeneratorBtn   = `android=new UiSelector().textContains("AI")`
-    this.logoutBtn        = `android=new UiSelector().textContains("Logout")`
+    this.logoutBtn        = `android=new UiSelector().text("Logout")`
     this.profileAvatar    = `android=new UiSelector().description("Profile")`
 
     // Survey list item
@@ -51,7 +51,12 @@ class DashboardPage extends BasePage {
    * Navigate to Billing section
    */
   async goToBilling() {
-    await this.click(this.billingNavBtn)
+    const billingVisible = await this.isDisplayed(`android=new UiSelector().text("Billing")`, 2000)
+    if (!billingVisible) {
+      await this.click(this.settingsNavBtn)
+      await this.driver.pause(1500)
+    }
+    await this.click(`android=new UiSelector().text("Billing")`)
     await this.driver.pause(1500)
   }
 

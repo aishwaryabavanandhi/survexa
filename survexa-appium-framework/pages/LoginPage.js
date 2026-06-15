@@ -16,9 +16,9 @@ class LoginPage extends BasePage {
     // These work for Capacitor WebView via UiAutomator2 text-based selectors
     this.emailField        = `android=new UiSelector().className("android.widget.EditText").instance(0)`
     this.passwordField     = `android=new UiSelector().className("android.widget.EditText").instance(1)`
-    this.loginButton       = `android=new UiSelector().textContains("Sign in")`
-    this.forgotPasswordBtn = `android=new UiSelector().textContains("Forgot")`
-    this.signupLink        = `android=new UiSelector().textContains("Sign up")`
+    this.loginButton       = `android=new UiSelector().text("Sign in")`
+    this.forgotPasswordBtn = `android=new UiSelector().descriptionContains("Forgot")`
+    this.signupLink        = `android=new UiSelector().descriptionContains("Sign up")`
     this.errorMessage      = `android=new UiSelector().className("android.widget.TextView")`
 
     // XPath-based fallbacks
@@ -58,33 +58,13 @@ class LoginPage extends BasePage {
    * Get the error message text displayed after invalid login
    */
   async getErrorMessage() {
-    // Look for toast / error text on screen
-    const errorSelectors = [
-      `android=new UiSelector().textContains("Invalid")`,
-      `android=new UiSelector().textContains("email")`,
-      `android=new UiSelector().textContains("password")`,
-      `android=new UiSelector().textContains("required")`,
-      `android=new UiSelector().textContains("error")`,
-    ]
-
-    for (const sel of errorSelectors) {
-      if (await this.isDisplayed(sel, 3000)) {
-        return await this.getText(sel)
-      }
-    }
-
-    // Fallback: read all text visible on screen
+    const xpath = `//*[contains(@text, "required") or contains(@text, "invalid") or contains(@text, "Invalid") or contains(@text, "error") or contains(@text, "Incorrect") or contains(@text, "incorrect") or contains(@text, "match") or contains(@text, "already exists") or contains(@text, "credentials")]`
     try {
-      const allText = await this.driver.$$('android=new UiSelector().className("android.widget.TextView")')
-      for (const el of allText) {
-        const text = await el.getText()
-        if (text && text.length > 5 && text.length < 200) {
-          return text
-        }
-      }
-    } catch { }
-
-    return ''
+      const el = await this.waitForElement(xpath, 5000)
+      return await el.getText()
+    } catch (err) {
+      return ''
+    }
   }
 
   /**

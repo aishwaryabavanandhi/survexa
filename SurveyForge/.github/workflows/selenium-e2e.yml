@@ -1,0 +1,59 @@
+name: Selenium E2E Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Dependencies
+      working-directory: ./e2e
+      run: npm install
+
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1
+      
+    - name: Generate Dynamic Tests
+      working-directory: ./e2e
+      run: npm run generate
+      
+    - name: Run Selenium Tests
+      working-directory: ./e2e
+      run: npm test
+      env:
+        HEADLESS: "true"
+        BROWSER: "chrome"
+
+    - name: Upload Excel Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: E2E-Excel-Report
+        path: e2e/reports/excel/E2E_Report.xlsx
+
+    - name: Upload Mochawesome Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: E2E-HTML-Report
+        path: e2e/reports/html/
+
+    - name: Upload Screenshots and Logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: E2E-Failures-Logs
+        path: e2e/reports/failures/

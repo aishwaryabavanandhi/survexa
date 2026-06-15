@@ -1,0 +1,27 @@
+{
+  "name": "surveyforge-e2e-framework",
+  "version": "1.0.0",
+  "description": "End-to-End Selenium Automation Framework for SurveyForge",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run clean && mocha tests/**/*.test.js --config config/mocha.config.js",
+    "test:headed": "set HEADLESS=false && npm test",
+    "test:edge": "set BROWSER=edge && npm test",
+    "test:firefox": "set BROWSER=firefox && npm test",
+    "generate": "node scripts/generateTests.js",
+    "clean": "npx rimraf reports/failures/* reports/html/* reports/excel/*"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {
+    "chai": "^4.4.1",
+    "mocha": "^10.4.0",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.3.0",
+    "mochawesome-report-generator": "^6.2.0",
+    "selenium-webdriver": "^4.21.0"
+  }
+}

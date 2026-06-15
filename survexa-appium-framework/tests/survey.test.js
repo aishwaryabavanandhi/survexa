@@ -36,12 +36,7 @@ describe('TC-SURVEY — Survey Management Module', function () {
     dashboardPage = new DashboardPage(driver)
     surveyPage   = new SurveyPage(driver)
 
-    // Login via UI
-    const loginLoaded = await loginPage.isLoaded()
-    if (loginLoaded) {
-      await loginPage.login(TEST_EMAIL, TEST_PASSWORD)
-      await driver.pause(4000)
-    }
+    await BaseTest.ensureLoggedIn(driver, TEST_EMAIL, TEST_PASSWORD)
   })
 
   after(async function () {

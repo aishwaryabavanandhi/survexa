@@ -142,6 +142,51 @@ const BaseTest = {
       errorMsg || ''
     )
   },
+
+  /**
+   * Helper to ensure the app is in logged-in state on Dashboard
+   */
+  async ensureLoggedIn(driver, email, password) {
+    const LoginPage = require('../pages/LoginPage')
+    const DashboardPage = require('../pages/DashboardPage')
+    const loginPage = new LoginPage(driver)
+    const dashboardPage = new DashboardPage(driver)
+
+    // 1. Check if we are already logged in and on the Dashboard
+    const dashboardVisible = await dashboardPage.isDisplayed(dashboardPage.dashboardTitle, 3000)
+    if (dashboardVisible) {
+      logger.info('Already logged in and on Dashboard.')
+      return
+    }
+
+    // 2. Check if we are on the Signup page, go to Login
+    const signupButtonText = `android=new UiSelector().text("Sign up & verify")`
+    const signupVisible = await loginPage.isDisplayed(signupButtonText, 3000)
+    if (signupVisible) {
+      logger.info('On Signup page, clicking "Sign in" link.')
+      const signInLink = `android=new UiSelector().descriptionContains("Sign in")`
+      await loginPage.click(signInLink)
+      await driver.pause(2000)
+    }
+
+    // 3. Now verify Login page and log in
+    const loginLoaded = await loginPage.isLoaded()
+    if (loginLoaded) {
+      logger.info('Logging in via UI...')
+      await loginPage.login(email, password)
+      await driver.pause(4000)
+    } else {
+      logger.warn('Could not determine screen state or load login page. Re-launching app...')
+      await driver.terminateApp('com.survexa.app')
+      await driver.activateApp('com.survexa.app')
+      await driver.pause(5000)
+      const reloaded = await loginPage.isLoaded()
+      if (reloaded) {
+        await loginPage.login(email, password)
+        await driver.pause(4000)
+      }
+    }
+  }
 }
 
 /**

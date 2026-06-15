@@ -14,8 +14,8 @@ class SignupPage extends BasePage {
     this.phoneField         = `android=new UiSelector().className("android.widget.EditText").instance(2)`
     this.passwordField      = `android=new UiSelector().className("android.widget.EditText").instance(3)`
     this.confirmPassField   = `android=new UiSelector().className("android.widget.EditText").instance(4)`
-    this.signupButton       = `android=new UiSelector().textContains("Sign up")`
-    this.loginLink          = `android=new UiSelector().textContains("Sign in")`
+    this.signupButton       = `android=new UiSelector().text("Sign up & verify")`
+    this.loginLink          = `android=new UiSelector().descriptionContains("Sign in")`
     this.countryCodeBtn     = `android=new UiSelector().textContains("+91")`
   }
 
@@ -46,19 +46,13 @@ class SignupPage extends BasePage {
    * Get validation or API error message
    */
   async getErrorMessage() {
-    const errorSelectors = [
-      `android=new UiSelector().textContains("required")`,
-      `android=new UiSelector().textContains("invalid")`,
-      `android=new UiSelector().textContains("already exists")`,
-      `android=new UiSelector().textContains("match")`,
-      `android=new UiSelector().textContains("characters")`,
-    ]
-    for (const sel of errorSelectors) {
-      if (await this.isDisplayed(sel, 3000)) {
-        return await this.getText(sel)
-      }
+    const xpath = `//*[contains(@text, "required") or contains(@text, "invalid") or contains(@text, "Invalid") or contains(@text, "error") or contains(@text, "Incorrect") or contains(@text, "incorrect") or contains(@text, "match") or contains(@text, "already exists") or contains(@text, "credentials") or contains(@text, "Passwords do not match")]`
+    try {
+      const el = await this.waitForElement(xpath, 5000)
+      return await el.getText()
+    } catch (err) {
+      return ''
     }
-    return ''
   }
 
   /**
