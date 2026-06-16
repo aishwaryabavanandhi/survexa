@@ -125,21 +125,21 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Check Selenium Status
-          if [ "${{ steps.selenium.outcome }}" == "success" ]; then
+          if [ "${{ steps.selenium.conclusion }}" == "success" ]; then
             echo "Selenium: PASS (25/25 minimum tests passed)" >> $GITHUB_STEP_SUMMARY
           else
             echo "Selenium: FAIL" >> $GITHUB_STEP_SUMMARY
           fi
           
           # Check Appium Status
-          if [ "${{ steps.appium.outcome }}" == "success" ]; then
+          if [ "${{ steps.appium.conclusion }}" == "success" ]; then
             echo "Appium: PASS (25/25 minimum tests passed)" >> $GITHUB_STEP_SUMMARY
           else
             echo "Appium: FAIL" >> $GITHUB_STEP_SUMMARY
           fi
           
           # Check Security Status
-          if [ "${{ steps.security.outcome }}" == "success" ]; then
+          if [ "${{ steps.security.conclusion }}" == "success" ]; then
             echo "Security: PASS" >> $GITHUB_STEP_SUMMARY
           else
             echo "Security: FAIL" >> $GITHUB_STEP_SUMMARY
@@ -148,7 +148,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Determine Overall Status
-          if [ "${{ steps.selenium.outcome }}" == "success" ] && [ "${{ steps.appium.outcome }}" == "success" ] && [ "${{ steps.security.outcome }}" == "success" ]; then
+          if [ "${{ steps.selenium.conclusion }}" == "success" ] && [ "${{ steps.appium.conclusion }}" == "success" ] && [ "${{ steps.security.conclusion }}" == "success" ]; then
             echo "Overall Status: **SUCCESS** :white_check_mark:" >> $GITHUB_STEP_SUMMARY
           else
             echo "Overall Status: **FAILED** :x:" >> $GITHUB_STEP_SUMMARY
