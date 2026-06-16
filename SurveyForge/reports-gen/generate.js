@@ -1,5 +1,11 @@
 const ExcelJS = require('exceljs');
 const fs = require('fs');
+const path = require('path');
+
+const outDir = path.join(__dirname, '..', '..', 'reports', 'excel');
+if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+}
 
 async function createSeleniumReport() {
     const workbook = new ExcelJS.Workbook();
@@ -86,7 +92,7 @@ async function createSeleniumReport() {
     }
 
     styleWorkbook(workbook);
-    await workbook.xlsx.writeFile('../Selenium_Test_Report.xlsx');
+    await workbook.xlsx.writeFile(path.join(outDir, 'Selenium_Test_Report.xlsx'));
 }
 
 async function createAppiumReport() {
@@ -152,7 +158,7 @@ async function createAppiumReport() {
     // logsSheet.addRow({ time: new Date().toISOString(), type: 'ERROR', msg: `WindowManager: Window overlaps with SoftInput` });
 
     styleWorkbook(workbook);
-    await workbook.xlsx.writeFile('../Appium_Test_Report.xlsx');
+    await workbook.xlsx.writeFile(path.join(outDir, 'Appium_Test_Report.xlsx'));
 }
 
 async function createVulnerabilityReport() {
@@ -219,7 +225,7 @@ async function createVulnerabilityReport() {
     remSheet.addRow({ vuln: 'VULN_002', fix: 'Configured Helmet for secure headers', status: 'Pending Review' });
 
     styleWorkbook(workbook);
-    await workbook.xlsx.writeFile('../Vulnerability_Test_Report.xlsx');
+    await workbook.xlsx.writeFile(path.join(outDir, 'Security_Test_Report.xlsx'));
 }
 
 function styleWorkbook(workbook) {

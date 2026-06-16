@@ -98,28 +98,47 @@ jobs:
         continue-on-error: true
 
       # --- STAGE 6: Generate Reports ---
-      - name: Stage 6 - Upload Selenium Report
+      - name: Upload Excel Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Selenium_Test_Report
-          path: Selenium_Test_Report.xlsx
-          retention-days: 14
-          
-      - name: Stage 6 - Upload Appium Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: Appium_Test_Report
-          path: Appium_Test_Report.xlsx
+          name: Test-Reports
+          path: |
+            reports/excel/Selenium_Test_Report.xlsx
+            reports/excel/Appium_Test_Report.xlsx
+            reports/excel/Security_Test_Report.xlsx
           retention-days: 14
 
-      - name: Stage 6 - Upload Security Report
+      - name: Upload Screenshots
         uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true
         with:
-          name: Security_Test_Report
-          path: Vulnerability_Test_Report.xlsx
+          name: Screenshots
+          path: |
+            survexa-selenium-framework/reports/screenshots/
+            survexa-appium-framework/reports/screenshots/
+          retention-days: 14
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: Logs
+          path: |
+            survexa-appium-framework/reports/logs/
+          retention-days: 14
+
+      - name: Upload HTML Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: HTML-Reports
+          path: |
+            survexa-selenium-framework/mochawesome-report/
+            survexa-appium-framework/reports/html/
           retention-days: 14
 
       - name: Generate Execution Summary

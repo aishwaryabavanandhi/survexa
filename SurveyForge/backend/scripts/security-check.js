@@ -214,7 +214,9 @@ async function generateReport() {
   ];
   remSheet.addRow({ vuln: 'No critical open items', status: 'CLOSED' });
 
-  const finalReportPath = path.join(__dirname, '..', '..', '..', 'Security_Test_Report.xlsx');
+  const outDir = path.join(__dirname, '..', '..', '..', 'reports', 'excel');
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+  const finalReportPath = path.join(outDir, 'Security_Test_Report.xlsx');
   await workbook.xlsx.writeFile(finalReportPath);
   if (failCount > 0) {
     console.error("Security verification had warnings but passing to proceed.");
