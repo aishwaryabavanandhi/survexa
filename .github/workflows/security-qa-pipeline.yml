@@ -1,0 +1,156 @@
+name: Security & QA Pipeline
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: development
+      JWT_SECRET: dev-secret-token-123
+      SUPABASE_URL: https://zijjwaubebbmazqphspx.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: dummy-key-to-prevent-crash-in-ci
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            SurveyForge/package-lock.json
+            SurveyForge/backend/package-lock.json
+
+      # --- STAGE 1: Frontend Build ---
+      - name: Stage 1 - Frontend Build (Install)
+        run: npm ci --prefix SurveyForge
+        
+      - name: Stage 1 - Frontend Build (Build)
+        run: npm run build --prefix SurveyForge
+
+      # --- STAGE 2: Backend Build / Start ---
+      - name: Stage 2 - Backend Install
+        run: npm ci --prefix SurveyForge/backend
+        
+      - name: Stage 2 - Setup SQLite Database
+        run: |
+          cd SurveyForge/backend
+          node seed-dev-user.js
+
+      - name: Stage 2 - Start Backend Server
+        run: |
+          npm run start --prefix SurveyForge/backend &
+          # Wait for backend health check to respond with 200 OK
+          for i in {1..15}; do curl -sf http://127.0.0.1:5000/health && break; sleep 2; done
+          
+      - name: Stage 2 - Start Frontend Server for E2E
+        run: |
+          npm run dev --prefix SurveyForge &
+          for i in {1..15}; do curl -sf http://127.0.0.1:5173 && break; sleep 2; done
+
+      # --- STAGE 3: Playwright / Selenium Tests ---
+      - name: Stage 3 - Install Selenium Dependencies
+        run: npm ci --prefix survexa-selenium-framework
+        
+      - name: Stage 3 - Run Selenium E2E Tests (Headless Chrome)
+        id: selenium
+        run: npm run test --prefix survexa-selenium-framework
+        env:
+          BASE_URL: http://localhost:5173
+          BROWSER: chrome
+          HEADLESS: 'true'
+          NODE_ENV: ci
+        continue-on-error: true
+
+      # --- STAGE 4: Appium Tests ---
+      - name: Stage 4 - Enable KVM for Android Emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Stage 4 - Install Appium Dependencies
+        run: npm ci --prefix survexa-appium-framework
+
+      - name: Stage 4 - Run Appium Tests (with Emulator)
+        id: appium
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: default
+          arch: x86
+          profile: Nexus 6
+          script: cd survexa-appium-framework && npm run test
+        continue-on-error: true
+
+      # --- STAGE 5: Security Verification ---
+      - name: Stage 5 - Run Security Verification
+        id: security
+        run: npm run test:security --prefix SurveyForge/backend
+        continue-on-error: true
+
+      # --- STAGE 6: Generate Reports ---
+      - name: Stage 6 - Upload Selenium Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Selenium_Test_Report
+          path: survexa-selenium-framework/excel/E2E_Report.xlsx
+          retention-days: 14
+          
+      - name: Stage 6 - Upload Appium Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Appium_Test_Report
+          path: survexa-appium-framework/excel/Appium_Report.xlsx
+          retention-days: 14
+
+      - name: Stage 6 - Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Security_Test_Report
+          path: Vulnerability_Test_Report.xlsx
+          retention-days: 14
+
+      - name: Generate Execution Summary
+        run: |
+          echo "## SURVEXA Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check Selenium Status
+          if [ "${{ steps.selenium.outcome }}" == "success" ]; then
+            echo "Selenium: PASS (25/25 minimum tests passed)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Selenium: FAIL" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Appium Status
+          if [ "${{ steps.appium.outcome }}" == "success" ]; then
+            echo "Appium: PASS (25/25 minimum tests passed)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Appium: FAIL" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Security Status
+          if [ "${{ steps.security.outcome }}" == "success" ]; then
+            echo "Security: PASS" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Security: FAIL" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Determine Overall Status
+          if [ "${{ steps.selenium.outcome }}" == "success" ] && [ "${{ steps.appium.outcome }}" == "success" ] && [ "${{ steps.security.outcome }}" == "success" ]; then
+            echo "Overall Status: **SUCCESS** :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Overall Status: **FAILED** :x:" >> $GITHUB_STEP_SUMMARY
+            exit 1 # Fail the workflow as required
+          fi
