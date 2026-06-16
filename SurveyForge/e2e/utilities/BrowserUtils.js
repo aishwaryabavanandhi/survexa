@@ -14,12 +14,21 @@ class BrowserUtils {
         return await this.driver.wait(until.elementLocated(locator), timeout);
     }
 
-    async click(locator, timeout = this.defaultTimeout) {
-        logger.info(`Clicking element: ${locator}`);
-        const element = await this.waitForElement(locator, timeout);
-        await this.driver.wait(until.elementIsVisible(element), timeout);
-        await this.driver.wait(until.elementIsEnabled(element), timeout);
-        await element.click();
+    async click(locator, timeout = 10000) {
+        try {
+            const element = await this.waitForElement(locator, timeout);
+            await this.driver.wait(until.elementIsVisible(element), timeout);
+            await this.driver.wait(until.elementIsEnabled(element), timeout);
+            await element.click();
+        } catch (error) {
+            if (error.name === 'ElementClickInterceptedError') {
+                logger.warn(`Click intercepted on ${locator}. Falling back to JS click.`);
+                const element = await this.driver.findElement(locator);
+                await this.driver.executeScript("arguments[0].click();", element);
+            } else {
+                throw error;
+            }
+        }
     }
 
     async type(locator, text, timeout = this.defaultTimeout) {

@@ -96,9 +96,11 @@ jobs:
       - name: ⚙️ Create .env file
         working-directory: survexa-appium-framework
         env:
-          TEST_EMAIL: "${{ secrets.TEST_EMAIL || 'testuser@survexa.test' }}"
-          TEST_PASSWORD: "${{ secrets.TEST_PASSWORD || 'TestPassword123!' }}"
+          TEST_EMAIL: "${{ secrets.TEST_EMAIL }}"
+          TEST_PASSWORD: "${{ secrets.TEST_PASSWORD }}"
         run: |
+          FINAL_EMAIL="${TEST_EMAIL:-testuser@survexa.test}"
+          FINAL_PASSWORD="${TEST_PASSWORD:-TestPassword123!}"
           cat > .env << EOF
           DEVICE_TYPE=emulator
           AVD_NAME=${{ env.AVD_NAME }}
@@ -107,8 +109,8 @@ jobs:
           APP_ACTIVITY=com.survexa.app.MainActivity
           APPIUM_HOST=127.0.0.1
           APPIUM_PORT=4723
-          TEST_EMAIL=$TEST_EMAIL
-          TEST_PASSWORD=$TEST_PASSWORD
+          TEST_EMAIL=$FINAL_EMAIL
+          TEST_PASSWORD=$FINAL_PASSWORD
           BACKEND_URL=http://localhost:5000
           ELEMENT_WAIT_TIMEOUT=20000
           PAGE_LOAD_TIMEOUT=30000

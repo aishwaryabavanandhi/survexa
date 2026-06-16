@@ -199,6 +199,7 @@ export default function AdminBilling() {
       const monthlyData = data.chart_monthly_revenue || []
       return {
         labels: monthlyData.map(m => {
+          if (!m.month) return '—'
           const [year, month] = m.month.split('-')
           const date = new Date(Number(year), Number(month) - 1)
           return date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })
@@ -227,6 +228,7 @@ export default function AdminBilling() {
 
     return {
       labels: growth.map(g => {
+        if (!g.month) return '—'
         const [year, month] = g.month.split('-')
         const date = new Date(Number(year), Number(month) - 1)
         return date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })

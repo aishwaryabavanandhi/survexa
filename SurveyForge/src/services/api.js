@@ -11,7 +11,11 @@ import { getToken, clearToken } from './token'
  * - Otherwise use '' (empty = relative URL) so Vite's dev proxy handles routing to localhost:5000.
  */
 const getBaseURL = () => {
-  return 'http://localhost:5000'
+  if (typeof window !== 'undefined') {
+    const override = localStorage.getItem('survexa_backend_url')
+    if (override) return override
+  }
+  return import.meta.env.VITE_API_URL ?? ''
 }
 
 const api = axios.create({

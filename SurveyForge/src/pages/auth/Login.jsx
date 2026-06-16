@@ -91,8 +91,8 @@ export default function Login() {
     <div className="min-h-screen flex bg-[var(--sf-bg)] dark:bg-[#0b1020]">
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-pastel-lavender via-pastel-periwinkle to-pastel-cyan flex-col items-center justify-center p-12 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/10 -translate-x-32 -translate-y-32 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-violet-400/20 translate-x-32 translate-y-32 blur-3xl" />
+        <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/10 -translate-x-32 -translate-y-32 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-violet-400/20 translate-x-32 translate-y-32 blur-3xl pointer-events-none" />
         <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.6 }} className="relative z-10 max-w-md text-center">
           <div 
             onClick={handleLogoClick}
@@ -112,7 +112,7 @@ export default function Login() {
       </div>
 
       {/* Right form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-[var(--sf-bg-subtle)] dark:bg-[#111827]">
+      <div className="flex-1 flex items-center justify-center p-6 bg-[var(--sf-bg-subtle)] dark:bg-[#111827] relative z-10">
         <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.45 }} className="w-full max-w-md">
           <div 
             onClick={handleLogoClick}

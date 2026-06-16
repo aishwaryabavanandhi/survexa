@@ -46,7 +46,7 @@ export default function SurveyShare() {
   const copy = async () => {
     if (!shareUrl) return
     try {
-      await navigator.clipboard.writeText(shareUrl)
+      await window.navigator.clipboard.writeText(shareUrl)
       setCopied(true)
       toast.success('Link copied')
       setTimeout(() => setCopied(false), 2000)
@@ -58,7 +58,7 @@ export default function SurveyShare() {
   const copyEmbed = async () => {
     if (!embedSnippet) return
     try {
-      await navigator.clipboard.writeText(embedSnippet)
+      await window.navigator.clipboard.writeText(embedSnippet)
       toast.success('Embed code copied')
     } catch {
       toast.error('Copy failed')

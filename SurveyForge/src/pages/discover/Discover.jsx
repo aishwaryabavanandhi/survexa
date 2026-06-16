@@ -10,7 +10,7 @@ export default function Discover() {
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <div>
-        <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white">What&apos;s new</h2>
+        <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white">What's new</h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Product updates and roadmap teasers.</p>
       </div>
 

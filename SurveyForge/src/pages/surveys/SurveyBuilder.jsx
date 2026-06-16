@@ -305,7 +305,7 @@ export default function SurveyBuilder() {
   const handleCopyLink = async () => {
     const url = `${BASE_URL}/survey/${shareToken}`
     try {
-      await navigator.clipboard.writeText(url)
+      await window.navigator.clipboard.writeText(url)
     } catch {
       const el = document.createElement('textarea')
       el.value = url; document.body.appendChild(el)
