@@ -1,4 +1,9 @@
-const ExcelJS = require('exceljs');
+let ExcelJS;
+try {
+    ExcelJS = require('exceljs');
+} catch (e) {
+    ExcelJS = require(require('path').resolve(process.cwd(), 'node_modules', 'exceljs'));
+}
 const fs = require('fs');
 const path = require('path');
 
