@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "exceljs": "^4.4.0",
+    "sqlite3": "^6.0.1",
     "webdriverio": "^8.36.1"
   },
   "devDependencies": {

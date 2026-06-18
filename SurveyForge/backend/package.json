@@ -18,21 +18,21 @@
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
     "express-rate-limit": "^8.5.0",
-    "firebase-admin": "^13.10.0",
+    "firebase-admin": "^14.0.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "libphonenumber-js": "^1.13.3",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^9.0.0",
     "pdfkit": "^0.15.2",
     "razorpay": "^2.9.2",
     "resend": "^6.12.4",
     "sql.js": "^1.14.1",
     "twilio": "^6.0.2",
-    "uuid": "^9.0.1",
+    "uuid": "^14.0.0",
     "ws": "^8.21.0"
   },
   "devDependencies": {
-    "exceljs": "^4.4.0",
+    "exceljs": "^3.4.0",
     "nodemon": "^3.1.3"
   }
 }

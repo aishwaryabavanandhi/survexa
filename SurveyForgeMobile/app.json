@@ -1,5 +1,6 @@
 {
   "expo": {
+    "owner": "aishwaryabavan",
     "name": "SurveyForgeMobile",
     "slug": "SurveyForgeMobile",
     "version": "1.0.0",
@@ -8,7 +9,7 @@
     "scheme": "surveyforgemobile",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/icon.png"
     },
     "android": {
       "adaptiveIcon": {
