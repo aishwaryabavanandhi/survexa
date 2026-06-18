@@ -1,0 +1,12 @@
+{
+  "name": "surveyforge-security-suite",
+  "version": "1.0.0",
+  "description": "Security Test Suite for SurveyForge",
+  "scripts": {
+    "test:security": "node run_security_checks.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  },
+  "type": "commonjs"
+}

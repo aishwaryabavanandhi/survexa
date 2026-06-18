@@ -1,0 +1,78 @@
+name: Survexa Security & Vulnerability Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * 0' # Run weekly
+
+jobs:
+  security-audit:
+    name: Security Scans & Reporting ✅
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 1. Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+
+      # 2. Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      # 3. NPM Audit
+      - name: Run NPM Audit (Frontend & Backend)
+        run: |
+          npm audit --audit-level=critical || echo "npm audit found issues, but continuing..."
+          cd backend && npm audit --audit-level=critical || echo "npm audit found backend issues, but continuing..."
+
+      # 4. OWASP Dependency Check
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        with:
+          project: 'SurveyForge'
+          path: '.'
+          format: 'HTML'
+          out: 'reports'
+          args: >
+            --suppression suppression.xml
+            --failOnCVSS 7
+        continue-on-error: true
+
+      # 5. Security Suite Generation (Custom Excel Report)
+      - name: Install Security Suite Dependencies
+        working-directory: security-tests
+        run: npm install
+
+      - name: Execute 25 Security Checks
+        working-directory: security-tests
+        run: npm run test:security
+        
+      # 6. Upload Security Test Report
+      - name: Upload Security Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Security-Reports
+          path: |
+            Security_Test_Report.xlsx
+            reports/dependency-check-report.html
+          if-no-files-found: ignore
