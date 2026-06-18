@@ -1,14 +1,14 @@
-// AUTOMATICALLY GENERATED REAL E2E TEST FOR SurveyPublish
+// AUTOMATICALLY GENERATED REAL E2E TEST FOR TemplateGallery
 const { expect } = require('chai');
 const { By, until } = require('selenium-webdriver');
 const BaseTest = require('../BaseTest');
 
-describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
+describe('TemplateGallery Page - Comprehensive E2E Validation', function() {
   this.timeout(45000);
 
   before(async function() {
     await BaseTest.initDriver();
-    await BaseTest.driver.get('http://localhost:5173/surveys/1/share');
+    await BaseTest.driver.get('http://localhost:5173/templates');
     await BaseTest.driver.sleep(2000);
   });
 
@@ -45,7 +45,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('Page Load' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('Page Load' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -84,7 +84,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('Route Access' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('Route Access' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -123,7 +123,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('UI Elements' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('UI Elements' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -162,7 +162,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('Input Validation' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('Input Validation' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -201,7 +201,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('Error Handling' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('Error Handling' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -240,7 +240,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('Success Workflow' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('Success Workflow' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -279,7 +279,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('API Integration' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('API Integration' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -318,7 +318,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('Data Save' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('Data Save' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -357,7 +357,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('Permission Handling' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('Permission Handling' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
@@ -396,7 +396,7 @@ describe('SurveyPublish Page - Comprehensive E2E Validation', function() {
       }
     }
 
-    if ('Edge Cases' === 'Permission Handling' && '/surveys/1/share'.includes('/admin')) {
+    if ('Edge Cases' === 'Permission Handling' && '/templates'.includes('/admin')) {
       const url = await driver.getCurrentUrl();
       if(url.includes('/admin')) {
          throw new Error("Security Failure: Unauthenticated user allowed on /admin");
