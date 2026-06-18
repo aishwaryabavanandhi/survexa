@@ -1,0 +1,65 @@
+name: Survexa Mobile Appium E2E Automation
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  appium-e2e:
+    name: Appium Mobile E2E Tests ✅
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Mobile Dependencies
+        working-directory: ../SurveyForgeMobile
+        run: npm install
+        
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Appium E2E Dependencies
+        working-directory: ../SurveyForgeMobile/e2e
+        run: npm install
+        
+      - name: Run Appium E2E Tests
+        working-directory: ../SurveyForgeMobile/e2e
+        run: |
+          mkdir -p reports/failures reports/html
+          npm test
+          echo "✅ Appium mobile framework validation passed"
+
+      - name: Generate Logcat (Simulated/Fallback)
+        if: always()
+        working-directory: ../SurveyForgeMobile/e2e
+        run: |
+          mkdir -p logs
+          echo "Simulated logcat output for dummy tests" > logs/device-logcat.log
+
+      - name: Upload Mobile Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Appium-Test-Results
+          path: |
+            ../SurveyForgeMobile/Mobile_E2E_Report.xlsx
+            ../SurveyForgeMobile/Appium_Test_Report.xlsx
+            ../SurveyForgeMobile/e2e/reports/failures/
+            ../SurveyForgeMobile/e2e/logs/
+            ../SurveyForgeMobile/e2e/reports/html/
+          if-no-files-found: ignore

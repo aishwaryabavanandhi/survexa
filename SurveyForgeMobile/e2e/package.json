@@ -1,0 +1,20 @@
+{
+  "name": "surveyforgemobile-e2e",
+  "version": "1.0.0",
+  "description": "Appium E2E Automation for SurveyForgeMobile",
+  "scripts": {
+    "test": "npm run clean && mocha --timeout 60000 --require tests/hooks.js --reporter mochawesome --reporter-options reportDir=reports/html,reportFilename=e2e-report,overwrite=false,html=true,json=true 'tests/suites/**/*.test.js'",
+    "clean": "node -e \"const fs=require('fs');['reports/failures','reports/html','reports/excel'].forEach(d=>{fs.rmSync(d,{recursive:true,force:true});fs.mkdirSync(d,{recursive:true})});\""
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "webdriverio": "^8.36.1"
+  },
+  "devDependencies": {
+    "chai": "^4.4.1",
+    "mocha": "^10.4.0",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.3.0",
+    "mochawesome-report-generator": "^6.2.0"
+  }
+}
