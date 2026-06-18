@@ -8,14 +8,11 @@ class ExcelReporter {
         this.workbook = new ExcelJS.Workbook();
         this.summarySheet = this.workbook.addWorksheet('Summary');
         this.testCasesSheet = this.workbook.addWorksheet('Test Cases');
-        this.failedTestsSheet = this.workbook.addWorksheet('Failed Tests');
+        this.failedTestsSheet = this.workbook.addWorksheet('Failed Cases');
         this.executionLogsSheet = this.workbook.addWorksheet('Execution Logs');
 
-        this.reportPath = path.join(__dirname, '../reports/excel');
-        if (!fs.existsSync(this.reportPath)) {
-            fs.mkdirSync(this.reportPath, { recursive: true });
-        }
-        this.filePath = path.join(this.reportPath, 'E2E_Report.xlsx');
+        this.reportPath = path.join(__dirname, '../../');
+        this.filePath = path.join(this.reportPath, 'Selenium_Test_Report.xlsx');
 
         this._initializeSheets();
         this.testResults = [];

@@ -180,20 +180,12 @@ jobs:
         working-directory: SurveyForge/e2e
         run: npm install
 
-      - name: Generate Dynamic Tests from React Routes
-        working-directory: SurveyForge/e2e
-        run: node scripts/generateTests.js
 
       - name: Run Selenium E2E Tests
         working-directory: SurveyForge/e2e
         run: |
-          mkdir -p reports/failures reports/html reports/excel
-          node -e "
-            const BaseTest = require('./tests/BaseTest');
-            const ExcelReporter = require('./utilities/ExcelReporter');
-            console.log('✅ Selenium framework loaded successfully');
-            console.log('✅ Config:', require('./config/env.config'));
-          "
+          mkdir -p reports/failures reports/html
+          npm test
           echo "✅ Selenium framework validation passed"
         env:
           HEADLESS: "true"
@@ -204,7 +196,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Selenium-Reports
+          name: Selenium-Test-Report
           path: |
-            SurveyForge/e2e/reports/
+            SurveyForge/Selenium_Test_Report.xlsx
+            SurveyForge/e2e/reports/failures/
           if-no-files-found: ignore
