@@ -32,7 +32,7 @@ export default function OtpInputRow({
       transition={{ duration: 0.4 }}
     >
       {otp.map((digit, idx) => (
-        <input
+        <input data-testid="input-elt-7"
           key={idx}
           ref={(el) => { inputs.current[idx] = el }}
           type="text"

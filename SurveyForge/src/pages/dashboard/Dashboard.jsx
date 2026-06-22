@@ -181,7 +181,7 @@ export default function Dashboard() {
           </p>
         </div>
         <Link to="/create">
-          <Button icon="＋">New Survey</Button>
+          <Button data-testid="Button-elt-104" icon="＋">New Survey</Button>
         </Link>
       </motion.div>
 
@@ -211,7 +211,7 @@ export default function Dashboard() {
               <p className="text-4xl mb-3">📋</p>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No surveys yet</p>
               <Link to="/surveys/builder" className="mt-4 inline-block">
-                <Button size="sm">Create your first survey</Button>
+                <Button data-testid="Button-elt-105" size="sm">Create your first survey</Button>
               </Link>
             </div>
           ) : (

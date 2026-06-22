@@ -217,7 +217,7 @@ export default function OTP() {
             transition={{ duration: 0.4 }}
           >
             {otp.map((digit, idx) => (
-              <input
+              <input data-testid="input-elt-69"
                 key={idx}
                 ref={el => (inputs.current[idx] = el)}
                 type="text"
@@ -268,7 +268,7 @@ export default function OTP() {
             )}
           </AnimatePresence>
 
-          <Button
+          <Button data-testid="Button-elt-70"
             onClick={() => handleVerify()}
             fullWidth
             loading={loading}
@@ -282,7 +282,7 @@ export default function OTP() {
           <div className="mt-5 flex flex-col gap-2">
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Didn't receive a code?{' '}
-              <button
+              <button data-testid="button-elt-71"
                 onClick={handleResend}
                 disabled={resending || resendCD > 0}
                 className="text-primary-600 dark:text-primary-400 font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"

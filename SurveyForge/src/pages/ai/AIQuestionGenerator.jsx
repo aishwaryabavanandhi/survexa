@@ -130,7 +130,7 @@ export default function AIQuestionGenerator() {
         className="card card-gradient-border p-6 space-y-5">
 
         {/* Topic */}
-        <Input
+        <Input data-testid="Input-elt-46"
           id="ai-topic"
           label="Survey Topic *"
           placeholder="e.g. Customer Support Experience, Remote Work Tools…"
@@ -148,7 +148,7 @@ export default function AIQuestionGenerator() {
             Quick topics:
           </p>
           {QUICK_TOPICS.map((t) => (
-            <button key={t} onClick={() => setTopic(t)}
+            <button data-testid="button-elt-47" key={t} onClick={() => setTopic(t)}
               className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-all
                 border border-primary-200 dark:border-primary-800
                 ${topic === t
@@ -207,7 +207,7 @@ export default function AIQuestionGenerator() {
               {count}
             </span>
           </div>
-          <input
+          <input data-testid="input-elt-48"
             type="range" min={4} max={15} step={1}
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
@@ -220,7 +220,7 @@ export default function AIQuestionGenerator() {
           </div>
         </div>
 
-        <Button onClick={generate} loading={loading} size="lg" fullWidth>
+        <Button data-testid="Button-elt-49" onClick={generate} loading={loading} size="lg" fullWidth>
           {loading ? 'Generating…' : '✨ Generate Professional Questions'}
         </Button>
 
@@ -263,10 +263,10 @@ export default function AIQuestionGenerator() {
                 )}
               </div>
               <div className="flex gap-2">
-                <Button variant="secondary" size="sm" onClick={generate} loading={loading}>
+                <Button data-testid="Button-elt-50" variant="secondary" size="sm" onClick={generate} loading={loading}>
                   ↻ Regenerate
                 </Button>
-                <Button size="sm" onClick={handleSaveToBuilder} loading={saving}>
+                <Button data-testid="Button-elt-51" size="sm" onClick={handleSaveToBuilder} loading={saving}>
                   → Save to Builder
                 </Button>
               </div>
@@ -302,7 +302,7 @@ export default function AIQuestionGenerator() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <button
+                      <button data-testid="button-elt-52"
                         onClick={() => toggleType(q.id)}
                         title="Click to change type"
                         className={`badge cursor-pointer hover:opacity-80 transition-opacity ${TYPE_COLOR[q.type] ?? TYPE_COLOR.text}`}
@@ -340,7 +340,7 @@ export default function AIQuestionGenerator() {
                   </div>
 
                   <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setEditingId(q.id)}
+                    <button data-testid="button-elt-53" onClick={() => setEditingId(q.id)}
                       className="p-1.5 rounded-lg text-gray-400 hover:bg-primary-50 dark:hover:bg-primary-500/10
                         hover:text-primary-500 transition-all" title="Edit">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,7 +348,7 @@ export default function AIQuestionGenerator() {
                           d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                       </svg>
                     </button>
-                    <button onClick={() => { deleteQ(q.id); toast.success('Question removed') }}
+                    <button data-testid="button-elt-54" onClick={() => { deleteQ(q.id); toast.success('Question removed') }}
                       className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 dark:hover:bg-red-500/10
                         hover:text-red-500 transition-all" title="Remove">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,7 +373,7 @@ export default function AIQuestionGenerator() {
                   Saves to builder where you can reorder questions, edit options, and get a share link.
                 </p>
               </div>
-              <Button size="sm" onClick={handleSaveToBuilder} loading={saving}>
+              <Button data-testid="Button-elt-55" size="sm" onClick={handleSaveToBuilder} loading={saving}>
                 Save & Open Builder
               </Button>
             </motion.div>

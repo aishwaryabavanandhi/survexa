@@ -331,7 +331,7 @@ export default function SurveyBuilder() {
       <div className="max-w-xl mx-auto mt-10 bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
         <p className="text-3xl mb-2">⚠️</p>
         <p className="font-semibold text-red-700">{loadError}</p>
-        <Button className="mt-4" variant="secondary" onClick={() => navigate('/surveys')}>
+        <Button data-testid="Button-elt-181" className="mt-4" variant="secondary" onClick={() => navigate('/surveys')}>
           ← Back to Surveys
         </Button>
       </div>
@@ -357,12 +357,12 @@ export default function SurveyBuilder() {
           <span className={`text-xs font-bold px-2 py-1 rounded-lg ${surveyStatus === 'published' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'}`}>
             {surveyStatus === 'published' ? 'Published' : 'Draft'}
           </span>
-          <Button variant="secondary" onClick={handleFetchRecommendations}>✨ AI Recommendations</Button>
-          <Button variant="secondary" onClick={() => setPreviewOpen(true)}>Preview</Button>
-          <Button variant="secondary" onClick={handleSave} loading={saving}>
+          <Button data-testid="Button-elt-182" variant="secondary" onClick={handleFetchRecommendations}>✨ AI Recommendations</Button>
+          <Button data-testid="Button-elt-183" variant="secondary" onClick={() => setPreviewOpen(true)}>Preview</Button>
+          <Button data-testid="Button-elt-184" variant="secondary" onClick={handleSave} loading={saving}>
             Save draft
           </Button>
-          <Button onClick={handlePublish} loading={saving}>
+          <Button data-testid="Button-elt-185" onClick={handlePublish} loading={saving}>
             Publish
           </Button>
         </div>
@@ -370,7 +370,7 @@ export default function SurveyBuilder() {
 
       {/* Survey meta */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <Input
+        <Input data-testid="Input-elt-186"
           id="survey-title" label="Survey Title *" placeholder="e.g. Customer Satisfaction Survey"
           value={title} onChange={(e) => { setTitle(e.target.value); setErrors({}) }}
           error={errors.title}
@@ -390,7 +390,7 @@ export default function SurveyBuilder() {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-3">
         <h3 className="font-bold text-gray-800 text-sm">Survey settings</h3>
         <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-          <input
+          <input data-testid="input-elt-187"
             type="checkbox"
             checked={!!settings.randomize_questions}
             onChange={(e) => setSettings((s) => ({ ...s, randomize_questions: e.target.checked }))}
@@ -421,7 +421,7 @@ export default function SurveyBuilder() {
                 { name: 'Rose', value: '#E890C0' },
                 { name: 'Mint', value: '#A0E8C8' },
               ].map((c) => (
-                <button
+                <button data-testid="button-elt-188"
                   key={c.value}
                   type="button"
                   onClick={() => setTheme({ ...theme, primaryColor: c.value })}
@@ -432,7 +432,7 @@ export default function SurveyBuilder() {
                   title={c.name}
                 />
               ))}
-              <input
+              <input data-testid="input-elt-189"
                 type="color"
                 value={theme.primaryColor}
                 onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })}
@@ -497,13 +497,13 @@ export default function SurveyBuilder() {
             <p className="font-bold text-primary-700 text-sm">Survey saved! Share this link with respondents</p>
           </div>
           <div className="flex gap-2">
-            <input
+            <input data-testid="input-elt-190"
               readOnly
               value={`${BASE_URL}/survey/${shareToken}`}
               className="flex-1 px-4 py-2.5 bg-white border border-primary-200 rounded-xl text-sm
                          font-mono text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-400"
             />
-            <button
+            <button data-testid="button-elt-191"
               onClick={handleCopyLink}
               className={`px-4 py-2.5 text-sm font-semibold rounded-xl transition-all
                 ${shareCopied
@@ -517,7 +517,7 @@ export default function SurveyBuilder() {
             Anyone with this link can fill out your survey — no login required.
           </p>
           <div className="mt-3 flex gap-2">
-            <a
+            <a data-testid="a-elt-192"
               href={`${BASE_URL}/survey/${shareToken}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -526,7 +526,7 @@ export default function SurveyBuilder() {
               Preview as respondent →
             </a>
             <span className="text-primary-300">·</span>
-            <button
+            <button data-testid="button-elt-193"
               onClick={() => navigate('/surveys')}
               className="text-xs text-primary-700 underline hover:text-primary-900"
             >
@@ -598,14 +598,14 @@ export default function SurveyBuilder() {
                           ))}
                         </select>
                         <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
-                          <input type="checkbox" checked={q.required}
+                          <input data-testid="input-elt-194" type="checkbox" checked={q.required}
                             onChange={(e) => updateQuestion(q.id, { required: e.target.checked })}
                             className="accent-primary-500"
                           />
                           Required
                         </label>
                         {questions.length > 1 && (
-                          <button onClick={() => removeQuestion(q.id)}
+                          <button data-testid="button-elt-195" onClick={() => removeQuestion(q.id)}
                             className="text-gray-300 hover:text-red-500 transition-colors">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -616,7 +616,7 @@ export default function SurveyBuilder() {
                       </div>
 
                       {/* Question text */}
-                      <input
+                      <input data-testid="input-elt-196"
                         value={q.text}
                         onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
                         placeholder="Type your question here…"
@@ -632,19 +632,19 @@ export default function SurveyBuilder() {
                               <span className="text-gray-300">
                                 {q.type === 'checkbox' ? '☐' : q.type === 'dropdown' ? `${oi + 1}.` : '○'}
                               </span>
-                              <input
+                              <input data-testid="input-elt-197"
                                 value={opt}
                                 onChange={(e) => updateOption(q.id, oi, e.target.value)}
                                 className="flex-1 text-sm border-b border-gray-200 px-1 py-1
                                            focus:outline-none focus:border-primary-400 bg-transparent"
                               />
                               {q.options.length > 1 && (
-                                <button onClick={() => removeOption(q.id, oi)}
+                                <button data-testid="button-elt-198" onClick={() => removeOption(q.id, oi)}
                                   className="text-gray-300 hover:text-red-400 text-xs">✕</button>
                               )}
                             </div>
                           ))}
-                          <button onClick={() => addOption(q.id)}
+                          <button data-testid="button-elt-199" onClick={() => addOption(q.id)}
                             className="text-xs text-primary-500 hover:text-primary-700 font-medium mt-1">
                             ＋ Add option
                           </button>
@@ -696,7 +696,7 @@ export default function SurveyBuilder() {
                           <p className="font-semibold text-gray-500">Matrix rows & columns</p>
                           {(q.options.rows || []).map((row, ri) => (
                             <div key={ri} className="flex gap-2">
-                              <input
+                              <input data-testid="input-elt-200"
                                 value={row}
                                 onChange={(e) => {
                                   const rows = [...q.options.rows]
@@ -708,9 +708,9 @@ export default function SurveyBuilder() {
                               />
                             </div>
                           ))}
-                          <button type="button" onClick={() => updateQuestion(q.id, { options: { ...q.options, rows: [...(q.options.rows || []), `Row ${(q.options.rows?.length || 0) + 1}`] } })} className="text-primary-500">＋ Row</button>
+                          <button data-testid="button-elt-201" type="button" onClick={() => updateQuestion(q.id, { options: { ...q.options, rows: [...(q.options.rows || []), `Row ${(q.options.rows?.length || 0) + 1}`] } })} className="text-primary-500">＋ Row</button>
                           {(q.options.columns || []).map((col, ci) => (
-                            <input
+                            <input data-testid="input-elt-202"
                               key={ci}
                               value={col}
                               onChange={(e) => {
@@ -722,7 +722,7 @@ export default function SurveyBuilder() {
                               placeholder={`Column ${ci + 1}`}
                             />
                           ))}
-                          <button type="button" onClick={() => updateQuestion(q.id, { options: { ...q.options, columns: [...(q.options.columns || []), `Col ${(q.options.columns?.length || 0) + 1}`] } })} className="text-primary-500">＋ Column</button>
+                          <button data-testid="button-elt-203" type="button" onClick={() => updateQuestion(q.id, { options: { ...q.options, columns: [...(q.options.columns || []), `Col ${(q.options.columns?.length || 0) + 1}`] } })} className="text-primary-500">＋ Column</button>
                         </div>
                       )}
 
@@ -733,18 +733,18 @@ export default function SurveyBuilder() {
                           {q.options.map((opt, oi) => (
                             <div key={oi} className="flex items-center gap-2">
                               <span className="text-gray-300">⚖️</span>
-                              <input
+                              <input data-testid="input-elt-204"
                                 value={opt}
                                 onChange={(e) => updateOption(q.id, oi, e.target.value)}
                                 className="flex-1 text-sm border-b border-gray-200 px-1 py-1 focus:outline-none focus:border-primary-400 bg-transparent"
                                 placeholder={`Attribute ${oi + 1}`}
                               />
                               {q.options.length > 2 && (
-                                <button onClick={() => removeOption(q.id, oi)} className="text-gray-300 hover:text-red-400 text-xs">✕</button>
+                                <button data-testid="button-elt-205" onClick={() => removeOption(q.id, oi)} className="text-gray-300 hover:text-red-400 text-xs">✕</button>
                               )}
                             </div>
                           ))}
-                          <button onClick={() => addOption(q.id)} className="text-xs text-primary-500 hover:text-primary-700 font-medium mt-1">
+                          <button data-testid="button-elt-206" onClick={() => addOption(q.id)} className="text-xs text-primary-500 hover:text-primary-700 font-medium mt-1">
                             ＋ Add Item
                           </button>
                         </div>
@@ -757,7 +757,7 @@ export default function SurveyBuilder() {
                           {(Array.isArray(q.options) ? q.options : []).map((attr, ai) => (
                             <div key={ai} className="bg-gray-50 p-3 rounded-xl space-y-2 border border-gray-100">
                               <div className="flex items-center gap-2">
-                                <input
+                                <input data-testid="input-elt-207"
                                   value={attr.attribute ?? ''}
                                   onChange={(e) => {
                                     const nextOpts = [...q.options]
@@ -767,7 +767,7 @@ export default function SurveyBuilder() {
                                   placeholder="Attribute name (e.g. Price, Color)"
                                   className="flex-1 text-sm font-semibold border-b border-gray-300 px-1 focus:outline-none bg-transparent"
                                 />
-                                <button
+                                <button data-testid="button-elt-208"
                                   onClick={() => {
                                     const nextOpts = q.options.filter((_, i) => i !== ai)
                                     updateQuestion(q.id, { options: nextOpts })
@@ -781,7 +781,7 @@ export default function SurveyBuilder() {
                                 {(attr.levels ?? []).map((lvl, li) => (
                                   <div key={li} className="flex items-center gap-2">
                                     <span className="text-xs text-gray-400">•</span>
-                                    <input
+                                    <input data-testid="input-elt-209"
                                       value={lvl}
                                       onChange={(e) => {
                                         const nextLevels = [...attr.levels]
@@ -794,7 +794,7 @@ export default function SurveyBuilder() {
                                       placeholder={`Level ${li + 1}`}
                                     />
                                     {attr.levels.length > 1 && (
-                                      <button
+                                      <button data-testid="button-elt-210"
                                         onClick={() => {
                                           const nextLevels = attr.levels.filter((_, i) => i !== li)
                                           const nextOpts = [...q.options]
@@ -808,7 +808,7 @@ export default function SurveyBuilder() {
                                     )}
                                   </div>
                                 ))}
-                                <button
+                                <button data-testid="button-elt-211"
                                   onClick={() => {
                                     const nextLevels = [...(attr.levels ?? []), `New Level ${(attr.levels?.length ?? 0) + 1}`]
                                     const nextOpts = [...q.options]
@@ -822,7 +822,7 @@ export default function SurveyBuilder() {
                               </div>
                             </div>
                           ))}
-                          <button
+                          <button data-testid="button-elt-212"
                             onClick={() => {
                               const nextOpts = [...(q.options ?? []), { attribute: `Attribute ${(q.options?.length ?? 0) + 1}`, levels: ['Level 1', 'Level 2'] }]
                               updateQuestion(q.id, { options: nextOpts })
@@ -860,7 +860,7 @@ export default function SurveyBuilder() {
                           </ul>
                           <div className="pt-2 flex items-center gap-2">
                             <span>Currency Symbol:</span>
-                            <input
+                            <input data-testid="input-elt-213"
                               value={Array.isArray(q.options) && q.options[0] ? q.options[0] : '$'}
                               onChange={(e) => updateQuestion(q.id, { options: [e.target.value] })}
                               className="w-10 text-center border border-gray-200 rounded p-1 focus:outline-none"
@@ -915,7 +915,7 @@ export default function SurveyBuilder() {
                                     ))
                                   }
                                 </select>
-                                <button
+                                <button data-testid="button-elt-214"
                                   onClick={() => {
                                     const nextLogic = q.logic.filter((_, i) => i !== ri)
                                     updateQuestion(q.id, { logic: nextLogic })
@@ -926,7 +926,7 @@ export default function SurveyBuilder() {
                                 </button>
                               </div>
                             ))}
-                            <button
+                            <button data-testid="button-elt-215"
                               onClick={() => {
                                 const nextLogic = [...(q.logic ?? []), { condition: '', target: '' }]
                                 updateQuestion(q.id, { logic: nextLogic })
@@ -949,7 +949,7 @@ export default function SurveyBuilder() {
       </DragDropContext>
 
       {/* Add question */}
-      <button onClick={addQuestion}
+      <button data-testid="button-elt-216" onClick={addQuestion}
         className="w-full py-3 border-2 border-dashed border-primary-200 rounded-2xl text-primary-500
                    text-sm font-semibold hover:border-primary-400 hover:bg-primary-50 transition-all">
         ＋ Add Question
@@ -966,14 +966,14 @@ export default function SurveyBuilder() {
                 {q.required && <span className="text-red-500 ml-1">*</span>}
               </p>
               {q.type === 'text' && (
-                <input disabled placeholder="Short answer…"
+                <input data-testid="input-elt-217" disabled placeholder="Short answer…"
                   className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm bg-gray-50" />
               )}
               {['mcq', 'checkbox', 'dropdown'].includes(q.type) && (
                 <div className="space-y-1.5">
                   {Array.isArray(q.options) && q.options.map((o, oi) => (
                     <label key={oi} className="flex items-center gap-2 text-sm text-gray-700">
-                      <input type={q.type === 'mcq' ? 'radio' : 'checkbox'} name={`prev-${q.id}`}
+                      <input data-testid="input-elt-218" type={q.type === 'mcq' ? 'radio' : 'checkbox'} name={`prev-${q.id}`}
                         className="accent-primary-500" /> {o}
                     </label>
                   ))}
@@ -982,7 +982,7 @@ export default function SurveyBuilder() {
               {q.type === 'rating' && (
                 <div className="flex gap-2">
                   {[1,2,3,4,5].map((n) => (
-                    <button key={n} className="w-10 h-10 rounded-xl border-2 border-gray-200 text-sm font-semibold text-gray-500 hover:border-primary-400 hover:text-primary-500 transition-colors">
+                    <button data-testid="button-elt-219" key={n} className="w-10 h-10 rounded-xl border-2 border-gray-200 text-sm font-semibold text-gray-500 hover:border-primary-400 hover:text-primary-500 transition-colors">
                       {n}
                     </button>
                   ))}
@@ -995,8 +995,8 @@ export default function SurveyBuilder() {
                     <div key={oi} className="flex justify-between text-xs items-center max-w-sm">
                       <span>{o}</span>
                       <div className="flex gap-4">
-                        <label className="flex items-center gap-1"><input type="radio" disabled /> Best</label>
-                        <label className="flex items-center gap-1"><input type="radio" disabled /> Worst</label>
+                        <label className="flex items-center gap-1"><input data-testid="input-elt-220" type="radio" disabled /> Best</label>
+                        <label className="flex items-center gap-1"><input data-testid="input-elt-221" type="radio" disabled /> Worst</label>
                       </div>
                     </div>
                   ))}
@@ -1026,9 +1026,9 @@ export default function SurveyBuilder() {
                     </div>
                   </div>
                   <div className="flex gap-2 justify-center mt-2">
-                    <button className="border px-2 py-1 rounded bg-white font-medium" disabled>Select Profile A</button>
-                    <button className="border px-2 py-1 rounded bg-white font-medium" disabled>Select Profile B</button>
-                    <button className="border px-2 py-1 rounded bg-white font-medium text-gray-400" disabled>Neither</button>
+                    <button data-testid="button-elt-222" className="border px-2 py-1 rounded bg-white font-medium" disabled>Select Profile A</button>
+                    <button data-testid="button-elt-223" className="border px-2 py-1 rounded bg-white font-medium" disabled>Select Profile B</button>
+                    <button data-testid="button-elt-224" className="border px-2 py-1 rounded bg-white font-medium text-gray-400" disabled>Neither</button>
                   </div>
                 </div>
               )}
@@ -1038,7 +1038,7 @@ export default function SurveyBuilder() {
                     <p className="font-medium text-gray-600">1. Functional: How would you feel if present?</p>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {['Like', 'Must-be', 'Neutral', 'Live-with', 'Dislike'].map((lbl) => (
-                        <label key={lbl} className="flex items-center gap-1 border px-2 py-1 rounded bg-white"><input type="radio" disabled /> {lbl}</label>
+                        <label key={lbl} className="flex items-center gap-1 border px-2 py-1 rounded bg-white"><input data-testid="input-elt-225" type="radio" disabled /> {lbl}</label>
                       ))}
                     </div>
                   </div>
@@ -1046,7 +1046,7 @@ export default function SurveyBuilder() {
                     <p className="font-medium text-gray-600">2. Dysfunctional: How would you feel if absent?</p>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {['Like', 'Must-be', 'Neutral', 'Live-with', 'Dislike'].map((lbl) => (
-                        <label key={lbl} className="flex items-center gap-1 border px-2 py-1 rounded bg-white"><input type="radio" disabled /> {lbl}</label>
+                        <label key={lbl} className="flex items-center gap-1 border px-2 py-1 rounded bg-white"><input data-testid="input-elt-226" type="radio" disabled /> {lbl}</label>
                       ))}
                     </div>
                   </div>
@@ -1059,7 +1059,7 @@ export default function SurveyBuilder() {
                       <span className="font-medium">{lbl}:</span>
                       <div className="flex items-center gap-1">
                         <span>{Array.isArray(q.options) && q.options[0] ? q.options[0] : '$'}</span>
-                        <input type="number" disabled className="w-20 border rounded p-1" />
+                        <input data-testid="input-elt-227" type="number" disabled className="w-20 border rounded p-1" />
                       </div>
                     </div>
                   ))}
@@ -1069,7 +1069,7 @@ export default function SurveyBuilder() {
           ))}
         </div>
         <div className="mt-6 flex justify-end">
-          <Button onClick={() => setPreviewOpen(false)} variant="secondary">Close Preview</Button>
+          <Button data-testid="Button-elt-228" onClick={() => setPreviewOpen(false)} variant="secondary">Close Preview</Button>
         </div>
       </Modal>
 
@@ -1112,7 +1112,7 @@ export default function SurveyBuilder() {
                 { id: 'types', label: 'Question Types' },
                 { id: 'improvements', label: 'General Tips' },
               ].map((tab) => (
-                <button
+                <button data-testid="button-elt-229"
                   key={tab.id}
                   type="button"
                   onClick={() => setRecsTab(tab.id)}
@@ -1184,7 +1184,7 @@ export default function SurveyBuilder() {
 
             {/* Footer */}
             <div className="flex justify-end pt-2">
-              <Button size="sm" onClick={() => setRecsModalOpen(false)}>Close Audit</Button>
+              <Button data-testid="Button-elt-230" size="sm" onClick={() => setRecsModalOpen(false)}>Close Audit</Button>
             </div>
           </div>
         ) : (

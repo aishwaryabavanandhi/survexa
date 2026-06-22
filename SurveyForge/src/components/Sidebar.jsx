@@ -177,7 +177,7 @@ export default function Sidebar({ open, onClose }) {
             </div>
             <div className="flex gap-1">
               {/* Dark mode toggle */}
-              <button
+              <button data-testid="button-elt-1"
                 onClick={toggle}
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                 className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500
@@ -188,7 +188,7 @@ export default function Sidebar({ open, onClose }) {
                 {isDark ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
               </button>
               {/* Logout */}
-              <button
+              <button data-testid="button-elt-2"
                 onClick={logout}
                 title="Sign out"
                 className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500

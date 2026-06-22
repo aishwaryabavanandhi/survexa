@@ -289,7 +289,7 @@ export default function DistributionHub() {
 
       {surveys.length === 0 ? (
           <Link to="/surveys/builder">
-            <Button>Publish a survey first</Button>
+            <Button data-testid="Button-elt-106">Publish a survey first</Button>
           </Link>
         ) : (
           <select
@@ -349,7 +349,7 @@ export default function DistributionHub() {
 
           <div className="flex flex-wrap gap-2">
             {PLATFORMS.map((p) => (
-              <button
+              <button data-testid="button-elt-107"
                 key={p.id}
                 type="button"
                 onClick={() => handlePlatformSelect(p.id)}
@@ -450,7 +450,7 @@ function PlatformPanel({
         <p className="text-xs font-bold text-gray-400 uppercase">Tracked link</p>
         <div className="flex gap-2 mt-1">
           <code className="flex-1 text-xs bg-gray-50 dark:bg-[#1e1e2e] p-2 rounded-lg truncate">{tracking}</code>
-          <Button size="sm" variant="secondary" onClick={() => copyText(tracking)}>Copy</Button>
+          <Button data-testid="Button-elt-108" size="sm" variant="secondary" onClick={() => copyText(tracking)}>Copy</Button>
         </div>
       </div>
 
@@ -458,8 +458,8 @@ function PlatformPanel({
         <>
           <pre className="text-xs bg-gray-50 dark:bg-[#1e1e2e] p-3 rounded-xl whitespace-pre-wrap">{sc.whatsapp}</pre>
           <div className="flex gap-2">
-            <Button onClick={openWhatsApp}>Share on WhatsApp</Button>
-            <Button variant="secondary" onClick={() => copyText(sc.whatsapp)}>Copy message</Button>
+            <Button data-testid="Button-elt-109" onClick={openWhatsApp}>Share on WhatsApp</Button>
+            <Button data-testid="Button-elt-110" variant="secondary" onClick={() => copyText(sc.whatsapp)}>Copy message</Button>
           </div>
         </>
       )}
@@ -468,8 +468,8 @@ function PlatformPanel({
         <>
           <p className="text-sm text-gray-600 dark:text-gray-400">{sc.instagram?.caption}</p>
           <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={downloadStorySvg}>Download Story image (SVG)</Button>
-            <Button variant="secondary" onClick={() => copyText(sc.instagram?.caption)}>Copy caption</Button>
+            <Button data-testid="Button-elt-111" variant="secondary" onClick={downloadStorySvg}>Download Story image (SVG)</Button>
+            <Button data-testid="Button-elt-112" variant="secondary" onClick={() => copyText(sc.instagram?.caption)}>Copy caption</Button>
           </div>
           {pack.reels && (
             <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#1e1e2e] text-xs">
@@ -488,8 +488,8 @@ function PlatformPanel({
         <>
           <pre className="text-xs bg-gray-50 dark:bg-[#1e1e2e] p-3 rounded-xl whitespace-pre-wrap">{sc.linkedin}</pre>
           <div className="flex gap-2">
-            <Button onClick={shareLinkedIn}>Share on LinkedIn</Button>
-            <Button variant="secondary" onClick={() => copyText(sc.linkedin)}>Copy post</Button>
+            <Button data-testid="Button-elt-113" onClick={shareLinkedIn}>Share on LinkedIn</Button>
+            <Button data-testid="Button-elt-114" variant="secondary" onClick={() => copyText(sc.linkedin)}>Copy post</Button>
           </div>
         </>
       )}
@@ -497,7 +497,7 @@ function PlatformPanel({
       {platform === 'facebook' && (
         <>
           <pre className="text-xs bg-gray-50 dark:bg-[#1e1e2e] p-3 rounded-xl whitespace-pre-wrap">{sc.facebook}</pre>
-          <Button onClick={shareFacebook}>Share on Facebook</Button>
+          <Button data-testid="Button-elt-115" onClick={shareFacebook}>Share on Facebook</Button>
         </>
       )}
 
@@ -505,15 +505,15 @@ function PlatformPanel({
         <>
           <pre className="text-xs bg-gray-50 dark:bg-[#1e1e2e] p-3 rounded-xl whitespace-pre-wrap">{sc.twitter}</pre>
           <div className="flex gap-2">
-            <Button onClick={shareTwitter}>Post on X</Button>
-            <Button variant="secondary" onClick={() => copyText(sc.twitter)}>Copy post</Button>
+            <Button data-testid="Button-elt-116" onClick={shareTwitter}>Post on X</Button>
+            <Button data-testid="Button-elt-117" variant="secondary" onClick={() => copyText(sc.twitter)}>Copy post</Button>
           </div>
         </>
       )}
 
       {platform === 'email' && (
         <div className="space-y-3">
-          <input
+          <input data-testid="input-elt-118"
             type="text"
             placeholder="Email subject"
             value={emailSubject}
@@ -527,7 +527,7 @@ function PlatformPanel({
             onChange={(e) => setEmailList(e.target.value)}
             className="w-full rounded-xl border px-3 py-2 text-sm dark:bg-[#1e1e2e] dark:border-[#2a2a3a]"
           />
-          <Button onClick={sendEmails}>Send invitations</Button>
+          <Button data-testid="Button-elt-119" onClick={sendEmails}>Send invitations</Button>
           <p className="text-xs text-gray-400">Opens and clicks are tracked via campaign link and pixel.</p>
         </div>
       )}
@@ -536,10 +536,10 @@ function PlatformPanel({
         <div className="text-center space-y-4">
           <img src={pack.qr_url} alt="Survey QR" className="w-48 h-48 mx-auto rounded-xl border shadow-sm" />
           <div className="flex flex-wrap justify-center gap-2">
-            <Button variant="secondary" onClick={() => downloadQr(pack.qr_url, 'survexa-qr.png')}>
+            <Button data-testid="Button-elt-120" variant="secondary" onClick={() => downloadQr(pack.qr_url, 'survexa-qr.png')}>
               Download QR
             </Button>
-            <Button variant="secondary" onClick={() => downloadQr(pack.qr_print_url, 'survexa-qr-print.png')}>
+            <Button data-testid="Button-elt-121" variant="secondary" onClick={() => downloadQr(pack.qr_print_url, 'survexa-qr-print.png')}>
               Print-ready (1000px)
             </Button>
           </div>

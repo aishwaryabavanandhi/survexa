@@ -202,7 +202,7 @@ export default function Reports() {
               </div>
 
               <div className="flex gap-2">
-                <Button
+                <Button data-testid="Button-elt-147"
                   size="sm" variant="secondary"
                   loading={downloading === s.id}
                   onClick={() => handleDownload(s)}
@@ -210,7 +210,7 @@ export default function Reports() {
                 >
                   Download PDF
                 </Button>
-                <Button
+                <Button data-testid="Button-elt-148"
                   size="sm"
                   onClick={() => openEmailModal(s)}
                   icon={<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>}
@@ -233,7 +233,7 @@ export default function Reports() {
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
                   Recipient email
                 </label>
-                <input
+                <input data-testid="input-elt-149"
                   type="email" value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
@@ -245,8 +245,8 @@ export default function Reports() {
                 The full PDF report (with charts and insights) will be attached.
               </p>
               <div className="flex justify-end gap-2">
-                <Button variant="secondary" onClick={() => setModal(false)}>Cancel</Button>
-                <Button onClick={handleSend} loading={sending} disabled={!email.trim()}>
+                <Button data-testid="Button-elt-150" variant="secondary" onClick={() => setModal(false)}>Cancel</Button>
+                <Button data-testid="Button-elt-151" onClick={handleSend} loading={sending} disabled={!email.trim()}>
                   Send Report
                 </Button>
               </div>
@@ -258,7 +258,7 @@ export default function Reports() {
                 : 'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'}`}>
               {result.success ? '✅ ' : '❌ '}{result.message}
               <div className="mt-3">
-                <Button variant="secondary" size="sm" onClick={() => setModal(false)}>Close</Button>
+                <Button data-testid="Button-elt-152" variant="secondary" size="sm" onClick={() => setModal(false)}>Close</Button>
               </div>
             </div>
           )}

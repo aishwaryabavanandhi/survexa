@@ -74,14 +74,14 @@ export default function EnterMobile() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form data-testid="form-elt-57" onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-[var(--sf-text-secondary)] mb-1.5">
                 Mobile number
               </label>
               <div className="flex gap-2">
                 <CountryCodeSelector value={dialCode} onChange={setDialCode} className="shrink-0 w-[140px]" />
-                <input
+                <input data-testid="input-elt-58"
                   id="phone"
                   name="phone"
                   type="tel"
@@ -93,7 +93,7 @@ export default function EnterMobile() {
                 />
               </div>
             </div>
-            <Button type="submit" fullWidth loading={loading} size="lg">
+            <Button data-testid="Button-elt-59" type="submit" fullWidth loading={loading} size="lg">
               Send OTP
             </Button>
           </form>

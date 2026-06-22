@@ -165,7 +165,7 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Bell Button */}
-      <button
+      <button data-testid="button-elt-12"
         id="notification-bell"
         onClick={() => setOpen(o => !o)}
         className="relative p-2 rounded-xl text-gray-500 dark:text-gray-400
@@ -221,7 +221,7 @@ export default function NotificationBell() {
                 )}
               </div>
               {unread > 0 && (
-                <button
+                <button data-testid="button-elt-13"
                   onClick={handleMarkAll}
                   className="text-xs font-semibold text-primary-500 hover:text-primary-600
                     dark:hover:text-primary-400 transition-colors"
@@ -293,7 +293,7 @@ export default function NotificationBell() {
                   </div>
 
                   {/* Delete individual action */}
-                  <button
+                  <button data-testid="button-elt-14"
                     onClick={(e) => handleDelete(e, n.id)}
                     className="opacity-0 group-hover:opacity-100 p-1 rounded-lg shrink-0
                       text-gray-300 hover:text-red-500 hover:bg-red-50
@@ -317,7 +317,7 @@ export default function NotificationBell() {
                   {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
                 </p>
                 <div className="flex items-center gap-3">
-                  <button
+                  <button data-testid="button-elt-15"
                     type="button"
                     onClick={() => {
                       setOpen(false)
@@ -328,7 +328,7 @@ export default function NotificationBell() {
                   >
                     Open inbox
                   </button>
-                  <button
+                  <button data-testid="button-elt-16"
                     type="button"
                     onClick={() => {
                       setOpen(false)

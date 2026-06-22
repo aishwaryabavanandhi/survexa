@@ -340,7 +340,7 @@ export default function Analytics() {
                 <option key={s.id} value={s.id}>{s.title}</option>
               ))}
             </select>
-            <Button size="sm" variant="secondary" onClick={handleExportCsv} loading={exporting}>
+            <Button data-testid="Button-elt-56" size="sm" variant="secondary" onClick={handleExportCsv} loading={exporting}>
               Export CSV
             </Button>
           </div>

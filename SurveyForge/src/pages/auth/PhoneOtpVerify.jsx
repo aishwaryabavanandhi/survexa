@@ -214,7 +214,7 @@ export default function PhoneOtpVerify() {
             )}
           </AnimatePresence>
 
-          <Button
+          <Button data-testid="Button-elt-72"
             onClick={() => handleVerify()}
             fullWidth
             loading={loading}
@@ -235,7 +235,7 @@ export default function PhoneOtpVerify() {
               Resend options
             </Link>
             {' · '}
-            <button
+            <button data-testid="button-elt-73"
               type="button"
               onClick={handleResend}
               disabled={resending || resendCD > 0}

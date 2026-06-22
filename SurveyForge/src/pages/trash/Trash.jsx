@@ -69,7 +69,7 @@ export default function Trash() {
           </p>
         </div>
         <Link to="/surveys">
-          <Button variant="secondary" size="sm">Back to surveys</Button>
+          <Button data-testid="Button-elt-259" variant="secondary" size="sm">Back to surveys</Button>
         </Link>
       </div>
 
@@ -87,10 +87,10 @@ export default function Trash() {
                 <p className="text-xs text-gray-400">Deleted {s.deleted_at ? new Date(s.deleted_at).toLocaleString() : ''}</p>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => handleRestore(s.id)} disabled={busy === s.id}>
+                <Button data-testid="Button-elt-260" size="sm" onClick={() => handleRestore(s.id)} disabled={busy === s.id}>
                   Restore
                 </Button>
-                <Button size="sm" variant="secondary" onClick={() => handlePermanentDelete(s.id)} disabled={busy === s.id}>
+                <Button data-testid="Button-elt-261" size="sm" variant="secondary" onClick={() => handlePermanentDelete(s.id)} disabled={busy === s.id}>
                   Delete forever
                 </Button>
               </div>

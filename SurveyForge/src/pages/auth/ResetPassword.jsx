@@ -73,7 +73,7 @@ export default function ResetPassword() {
           </motion.div>
           <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-2">Password updated!</h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-8">You can now sign in with your new password.</p>
-          <button onClick={() => navigate('/login')}
+          <button data-testid="button-elt-75" onClick={() => navigate('/login')}
             className="inline-block px-8 py-3 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-bold transition-colors">
             Go to login →
           </button>
@@ -116,9 +116,9 @@ export default function ResetPassword() {
             <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">Set new password</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Your reset link expires in 15 minutes</p>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form data-testid="form-elt-76" onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <Input id="new-password" name="password" type="password" label="New password"
+                <Input data-testid="Input-elt-77" id="new-password" name="password" type="password" label="New password"
                   placeholder="At least 8 characters" value={password}
                   onChange={e => { setPassword(e.target.value); setError('') }}
                   autoComplete="new-password"
@@ -139,7 +139,7 @@ export default function ResetPassword() {
                 )}
               </div>
 
-              <Input id="confirm-password" name="confirm" type="password" label="Confirm password"
+              <Input data-testid="Input-elt-78" id="confirm-password" name="confirm" type="password" label="Confirm password"
                 placeholder="Repeat password" value={confirm}
                 onChange={e => { setConfirm(e.target.value); setError('') }}
                 autoComplete="new-password"
@@ -152,7 +152,7 @@ export default function ResetPassword() {
                 </div>
               )}
 
-              <Button type="submit" fullWidth loading={loading} size="lg">Update password</Button>
+              <Button data-testid="Button-elt-79" type="submit" fullWidth loading={loading} size="lg">Update password</Button>
             </form>
 
             <p className="mt-5 text-center text-sm">

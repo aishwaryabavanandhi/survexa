@@ -24,12 +24,12 @@ export default function UpgradeModal({ open, onClose, title, message, code }) {
         )}
         <div className="flex flex-col gap-3">
           <Link to="/upgrade" onClick={onClose}>
-            <Button fullWidth size="lg">View plans & upgrade</Button>
+            <Button data-testid="Button-elt-8" fullWidth size="lg">View plans & upgrade</Button>
           </Link>
           <Link to="/pricing" onClick={onClose} className="text-sm text-[var(--sf-primary)] font-semibold hover:underline">
             Compare all plans
           </Link>
-          <button type="button" onClick={onClose} className="text-sm text-[var(--sf-text-muted)] hover:underline mt-2">
+          <button data-testid="button-elt-9" type="button" onClick={onClose} className="text-sm text-[var(--sf-text-muted)] hover:underline mt-2">
             Maybe later
           </button>
         </div>

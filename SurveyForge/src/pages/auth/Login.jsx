@@ -129,7 +129,7 @@ export default function Login() {
             {/* Mode toggle */}
             <div className="flex bg-[var(--sf-bg-subtle)] rounded-xl p-1 mb-5 border border-[var(--sf-border)]">
               {['email', 'phone'].map(m => (
-                <button key={m} onClick={() => { setMode(m); setForm({ identifier: '', password: form.password }); setErrors({}); setAuthError('') }}
+                <button data-testid="button-elt-64" key={m} onClick={() => { setMode(m); setForm({ identifier: '', password: form.password }); setErrors({}); setAuthError('') }}
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                     mode === m ? 'bg-white text-[var(--sf-text)] shadow-sm' : 'text-[var(--sf-text-muted)]'
                   }`}>
@@ -159,11 +159,11 @@ export default function Login() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form data-testid="form-elt-65" onSubmit={handleSubmit} className="space-y-5">
               <AnimatePresence mode="wait">
                 {mode === 'email' ? (
                   <motion.div key="email" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }}>
-                    <Input id="identifier" name="identifier" type="email" label="Email address"
+                    <Input data-testid="Input-elt-66" id="identifier" name="identifier" type="email" label="Email address"
                       placeholder="jane@company.com" value={form.identifier} onChange={handleChange}
                       error={errors.identifier} autoComplete="email"
                       icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>}
@@ -180,7 +180,7 @@ export default function Login() {
 
               {mode === 'email' && (
                 <div>
-                  <Input id="password" name="password" type="password" label="Password"
+                  <Input data-testid="Input-elt-67" id="password" name="password" type="password" label="Password"
                     placeholder="••••••••" value={form.password} onChange={handleChange}
                     error={errors.password} autoComplete="current-password"
                     icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>}
@@ -193,7 +193,7 @@ export default function Login() {
                 </div>
               )}
 
-              <Button type="submit" fullWidth loading={loading} size="lg">
+              <Button data-testid="Button-elt-68" type="submit" fullWidth loading={loading} size="lg">
                 {mode === 'phone' ? 'Continue with OTP' : 'Sign in'}
               </Button>
             </form>

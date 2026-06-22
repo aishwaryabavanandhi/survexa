@@ -127,7 +127,7 @@ export default function AdminActivityLog() {
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
             🔍
           </span>
-          <input
+          <input data-testid="input-elt-17"
             type="text"
             placeholder="Search email, action, target..."
             value={searchTerm}
@@ -138,7 +138,7 @@ export default function AdminActivityLog() {
 
         <div className="flex gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
           {modules.map((m) => (
-            <button
+            <button data-testid="button-elt-18"
               key={m}
               onClick={() => setSelectedModule(m)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${

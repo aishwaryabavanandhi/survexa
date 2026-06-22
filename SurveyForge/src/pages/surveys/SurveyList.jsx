@@ -50,7 +50,7 @@ function ShareButton({ survey }) {
   }
 
   return (
-    <button
+    <button data-testid="button-elt-231"
       onClick={handleCopy}
       title={shareUrl}
       className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl transition-all
@@ -74,7 +74,7 @@ function QRButton({ survey }) {
   const shareUrl = `${BASE_URL}/survey/${survey.share_token}`
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(shareUrl)}`
   return (
-    <a
+    <a data-testid="a-elt-232"
       href={qrUrl}
       target="_blank"
       rel="noopener noreferrer"
@@ -167,11 +167,11 @@ export default function SurveyList() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={fetchSurveys}>↻ Refresh</Button>
+          <Button data-testid="Button-elt-233" variant="secondary" onClick={fetchSurveys}>↻ Refresh</Button>
           {surveyLimitReached ? (
-            <Button onClick={() => setUpgradeOpen(true)}>＋ New Survey</Button>
+            <Button data-testid="Button-elt-234" onClick={() => setUpgradeOpen(true)}>＋ New Survey</Button>
           ) : (
-            <Link to="/create"><Button>＋ New Survey</Button></Link>
+            <Link to="/create"><Button data-testid="Button-elt-235">＋ New Survey</Button></Link>
           )}
         </div>
       </div>
@@ -196,7 +196,7 @@ export default function SurveyList() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex gap-1 bg-gray-100 rounded-xl p-1">
           {TABS.map((t) => (
-            <button key={t} onClick={() => setTab(t)}
+            <button data-testid="button-elt-236" key={t} onClick={() => setTab(t)}
               className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all
                 ${tab === t ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
               {t}
@@ -205,7 +205,7 @@ export default function SurveyList() {
         </div>
 
         <div className="flex items-center gap-3">
-          <input
+          <input data-testid="input-elt-237"
             placeholder="Search surveys…" value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-52 px-4 py-2 border border-gray-200 rounded-xl text-sm
@@ -213,7 +213,7 @@ export default function SurveyList() {
           />
           <div className="flex gap-1 border border-gray-200 rounded-xl p-1">
             {['grid', 'list'].map((v) => (
-              <button key={v} onClick={() => setView(v)}
+              <button data-testid="button-elt-238" key={v} onClick={() => setView(v)}
                 className={`p-1.5 rounded-lg transition-colors
                   ${view === v ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'}`}>
                 {v === 'grid'
@@ -234,7 +234,7 @@ export default function SurveyList() {
               <p className="text-5xl mb-4">📋</p>
               <p className="font-semibold text-gray-600">No surveys yet</p>
               <p className="text-sm mt-1 mb-5">Create your first survey to get started</p>
-              <Link to="/create"><Button>＋ Create Survey</Button></Link>
+              <Link to="/create"><Button data-testid="Button-elt-239">＋ Create Survey</Button></Link>
             </>
           ) : (
             <>
@@ -278,13 +278,13 @@ export default function SurveyList() {
                 )}
 
                 <div className="mt-4 flex gap-2 flex-wrap">
-                  <Link to={`/surveys/builder/${s.id}`}><Button size="sm">Edit</Button></Link>
-                  <Link to={`/surveys/${s.id}/share`}><Button size="sm" variant="secondary">Share hub</Button></Link>
-                  <button type="button" onClick={() => handleDuplicate(s.id)} className="px-3 py-1.5 text-xs font-medium rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50">Duplicate</button>
+                  <Link to={`/surveys/builder/${s.id}`}><Button data-testid="Button-elt-240" size="sm">Edit</Button></Link>
+                  <Link to={`/surveys/${s.id}/share`}><Button data-testid="Button-elt-241" size="sm" variant="secondary">Share hub</Button></Link>
+                  <button data-testid="button-elt-242" type="button" onClick={() => handleDuplicate(s.id)} className="px-3 py-1.5 text-xs font-medium rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50">Duplicate</button>
                   <ShareButton survey={s} />
                   <QRButton survey={s} />
-                  <Link to="/responses"><Button size="sm" variant="secondary">Responses</Button></Link>
-                  <button
+                  <Link to="/responses"><Button data-testid="Button-elt-243" size="sm" variant="secondary">Responses</Button></Link>
+                  <button data-testid="button-elt-244"
                     onClick={() => handleDelete(s.id)}
                     disabled={deleting === s.id}
                     className="px-3 py-1.5 text-xs font-medium text-red-400 hover:text-red-600
@@ -324,12 +324,12 @@ export default function SurveyList() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2 flex-wrap">
-                        <Link to={`/surveys/builder/${s.id}`}><Button size="sm">Edit</Button></Link>
-                        <Link to={`/surveys/${s.id}/share`}><Button size="sm" variant="secondary">Share</Button></Link>
-                        <button type="button" onClick={() => handleDuplicate(s.id)} className="text-xs text-gray-500 hover:text-primary-600 font-medium px-2">Duplicate</button>
+                        <Link to={`/surveys/builder/${s.id}`}><Button data-testid="Button-elt-245" size="sm">Edit</Button></Link>
+                        <Link to={`/surveys/${s.id}/share`}><Button data-testid="Button-elt-246" size="sm" variant="secondary">Share</Button></Link>
+                        <button data-testid="button-elt-247" type="button" onClick={() => handleDuplicate(s.id)} className="text-xs text-gray-500 hover:text-primary-600 font-medium px-2">Duplicate</button>
                         <ShareButton survey={s} />
                         <QRButton survey={s} />
-                        <button onClick={() => handleDelete(s.id)} disabled={deleting === s.id}
+                        <button data-testid="button-elt-248" onClick={() => handleDelete(s.id)} disabled={deleting === s.id}
                           className="text-xs text-red-400 hover:text-red-600 font-medium px-2 disabled:opacity-50">
                           {deleting === s.id ? '…' : 'Delete'}
                         </button>

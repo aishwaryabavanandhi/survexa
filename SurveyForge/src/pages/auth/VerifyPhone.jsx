@@ -53,7 +53,7 @@ export default function VerifyPhone() {
             with the 6-digit code we sent (check server console in dev mode).
           </p>
 
-          <button
+          <button data-testid="button-elt-87"
             type="button"
             onClick={goVerify}
             className="mt-8 w-full sf-btn sf-btn-primary py-3.5 rounded-xl font-semibold text-base"

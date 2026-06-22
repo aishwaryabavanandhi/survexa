@@ -82,7 +82,7 @@ export default function Responses() {
             {loadingResp ? 'Loading…' : `${responses.length} submission${responses.length !== 1 ? 's' : ''}`}
           </p>
         </div>
-        <Button variant="secondary" onClick={exportCSV} disabled={responses.length === 0}>
+        <Button data-testid="Button-elt-155" variant="secondary" onClick={exportCSV} disabled={responses.length === 0}>
           ⬇ Export CSV
         </Button>
       </div>
@@ -93,7 +93,7 @@ export default function Responses() {
           <p className="text-5xl mb-4">💬</p>
           <p className="font-semibold text-gray-600">No surveys yet</p>
           <p className="text-sm mt-1 mb-5">Create a survey first to collect responses</p>
-          <Link to="/surveys/builder"><Button>＋ Create Survey</Button></Link>
+          <Link to="/surveys/builder"><Button data-testid="Button-elt-156">＋ Create Survey</Button></Link>
         </div>
       ) : (
         <>
@@ -117,7 +117,7 @@ export default function Responses() {
 
             <div className="flex-1 min-w-48">
               <label className="block text-xs font-semibold text-gray-500 mb-1">Search</label>
-              <input
+              <input data-testid="input-elt-157"
                 placeholder="Search responses…"
                 value={search} onChange={(e) => setSearch(e.target.value)}
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm

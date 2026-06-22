@@ -61,7 +61,7 @@ export default function AIInsights() {
             Analysis scoped to your surveys and responses
           </p>
         </div>
-        <Button onClick={fetchInsights} loading={loading} variant="secondary">
+        <Button data-testid="Button-elt-122" onClick={fetchInsights} loading={loading} variant="secondary">
           🔄 Refresh Insights
         </Button>
       </div>

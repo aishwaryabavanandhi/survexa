@@ -133,8 +133,8 @@ export default function Signup() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              <Input
+            <form data-testid="form-elt-80" onSubmit={handleSubmit} className="space-y-4" noValidate>
+              <Input data-testid="Input-elt-81"
                 id="name"
                 name="name"
                 label="Full name"
@@ -144,7 +144,7 @@ export default function Signup() {
                 error={errors.name}
                 autoComplete="name"
               />
-              <Input
+              <Input data-testid="Input-elt-82"
                 id="email"
                 name="email"
                 type="email"
@@ -161,7 +161,7 @@ export default function Signup() {
                 </label>
                 <div className="flex gap-2">
                   <CountryCodeSelector value={dialCode} onChange={setDialCode} className="shrink-0 w-[140px]" />
-                  <input
+                  <input data-testid="input-elt-83"
                     id="phone"
                     name="phone"
                     type="tel"
@@ -175,7 +175,7 @@ export default function Signup() {
                 {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
                 <p className="mt-1 text-xs text-[var(--sf-text-muted)]">Select country code, then enter your number</p>
               </div>
-              <Input
+              <Input data-testid="Input-elt-84"
                 id="password"
                 name="password"
                 type="password"
@@ -186,7 +186,7 @@ export default function Signup() {
                 error={errors.password}
                 autoComplete="new-password"
               />
-              <Input
+              <Input data-testid="Input-elt-85"
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
@@ -198,7 +198,7 @@ export default function Signup() {
                 autoComplete="new-password"
               />
 
-              <Button type="submit" fullWidth loading={loading} size="lg">
+              <Button data-testid="Button-elt-86" type="submit" fullWidth loading={loading} size="lg">
                 {loading ? 'Creating account…' : 'Sign up & verify'}
               </Button>
             </form>

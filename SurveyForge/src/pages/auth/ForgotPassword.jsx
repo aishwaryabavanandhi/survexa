@@ -80,7 +80,7 @@ export default function ForgotPassword() {
               </Link>
               <p className="mt-4 text-xs text-gray-400 dark:text-gray-600">
                 Didn't get it?{' '}
-                <button onClick={() => setSent(false)} className="text-primary-500 hover:underline font-medium">Try again</button>
+                <button data-testid="button-elt-60" onClick={() => setSent(false)} className="text-primary-500 hover:underline font-medium">Try again</button>
               </p>
             </div>
           ) : (
@@ -89,14 +89,14 @@ export default function ForgotPassword() {
               <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">Reset your password</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Enter your email and we'll send you a reset link</p>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <Input id="reset-email" name="email" type="email" label="Email address"
+              <form data-testid="form-elt-61" onSubmit={handleSubmit} className="space-y-5">
+                <Input data-testid="Input-elt-62" id="reset-email" name="email" type="email" label="Email address"
                   placeholder="you@company.com" value={email}
                   onChange={e => { setEmail(e.target.value); setError('') }}
                   error={error}
                   icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>}
                 />
-                <Button type="submit" fullWidth loading={loading} size="lg">Send reset link</Button>
+                <Button data-testid="Button-elt-63" type="submit" fullWidth loading={loading} size="lg">Send reset link</Button>
               </form>
 
               <p className="mt-5 text-center text-sm">

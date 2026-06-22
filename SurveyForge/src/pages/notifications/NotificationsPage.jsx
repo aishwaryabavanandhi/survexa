@@ -92,10 +92,10 @@ export default function NotificationsPage() {
         </div>
         <div className="flex gap-2">
           <Link to="/dashboard">
-            <Button variant="secondary" size="sm">Dashboard</Button>
+            <Button data-testid="Button-elt-123" variant="secondary" size="sm">Dashboard</Button>
           </Link>
           {hasUnread && (
-            <Button size="sm" variant="secondary" onClick={onMarkAll}>
+            <Button data-testid="Button-elt-124" size="sm" variant="secondary" onClick={onMarkAll}>
               Mark all read
             </Button>
           )}
@@ -125,10 +125,10 @@ export default function NotificationsPage() {
                 <p className="text-[10px] text-gray-400 mt-2">{timeAgo(n.created_at)}</p>
               </div>
               <div className="flex flex-col gap-1 shrink-0">
-                <button type="button" onClick={() => onOpen(n)} className="text-xs font-semibold text-primary-600 hover:underline">
+                <button data-testid="button-elt-125" type="button" onClick={() => onOpen(n)} className="text-xs font-semibold text-primary-600 hover:underline">
                   Open
                 </button>
-                <button type="button" onClick={() => onDelete(n.id)} className="text-xs text-red-400 hover:text-red-600 font-medium">
+                <button data-testid="button-elt-126" type="button" onClick={() => onDelete(n.id)} className="text-xs text-red-400 hover:text-red-600 font-medium">
                   Remove
                 </button>
               </div>

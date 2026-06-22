@@ -75,7 +75,7 @@ export default function ResendPhoneOtp() {
             <p className="mb-4 text-sm text-[var(--sf-text-muted)]">{message}</p>
           )}
 
-          <Button
+          <Button data-testid="Button-elt-74"
             fullWidth
             size="lg"
             loading={loading}

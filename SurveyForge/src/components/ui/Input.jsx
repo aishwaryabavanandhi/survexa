@@ -36,7 +36,7 @@ export default function Input({
             {icon}
           </span>
         )}
-        <input
+        <input data-testid="input-elt-10"
           id={id}
           name={name}
           type={type}

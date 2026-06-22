@@ -107,13 +107,13 @@ export default function SurveyShare() {
         </div>
         <div className="flex gap-2">
           <Link to={`/surveys/builder/${surveyId}`}>
-            <Button variant="secondary" size="sm">Edit survey</Button>
+            <Button data-testid="Button-elt-249" variant="secondary" size="sm">Edit survey</Button>
           </Link>
           <Link to={`/distribution?survey=${surveyId}`}>
-            <Button size="sm">Distribution Hub</Button>
+            <Button data-testid="Button-elt-250" size="sm">Distribution Hub</Button>
           </Link>
           <Link to="/surveys">
-            <Button variant="secondary" size="sm">All surveys</Button>
+            <Button data-testid="Button-elt-251" variant="secondary" size="sm">All surveys</Button>
           </Link>
         </div>
       </div>
@@ -131,10 +131,10 @@ export default function SurveyShare() {
               <code className="flex-1 min-w-0 text-xs bg-gray-50 dark:bg-[#1e1e2e] px-3 py-2 rounded-xl border border-gray-100 dark:border-[#2a2a3a] truncate">
                 {shareUrl}
               </code>
-              <Button size="sm" onClick={copy}>
+              <Button data-testid="Button-elt-252" size="sm" onClick={copy}>
                 {copied ? 'Copied' : 'Copy'}
               </Button>
-              <a href={qrUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary text-sm py-2 px-3">
+              <a data-testid="a-elt-253" href={qrUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary text-sm py-2 px-3">
                 Open QR
               </a>
             </div>
@@ -143,16 +143,16 @@ export default function SurveyShare() {
           <div className="card p-5 border border-gray-100 dark:border-[#2a2a3a] dark:bg-[#16161f]">
             <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-3">Share on social & email</h3>
             <div className="flex flex-wrap gap-2">
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary text-sm py-2 px-3">
+              <a data-testid="a-elt-254" href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary text-sm py-2 px-3">
                 WhatsApp
               </a>
-              <a href={twitterUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary text-sm py-2 px-3">
+              <a data-testid="a-elt-255" href={twitterUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary text-sm py-2 px-3">
                 X / Twitter
               </a>
-              <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary text-sm py-2 px-3">
+              <a data-testid="a-elt-256" href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary text-sm py-2 px-3">
                 LinkedIn
               </a>
-              <a href={emailShareUrl} className="btn btn-secondary text-sm py-2 px-3">
+              <a data-testid="a-elt-257" href={emailShareUrl} className="btn btn-secondary text-sm py-2 px-3">
                 Email share
               </a>
             </div>
@@ -172,7 +172,7 @@ export default function SurveyShare() {
                 value={embedSnippet}
                 className="w-full text-xs font-mono rounded-xl border border-gray-200 dark:border-[#2a2a3a] bg-gray-50 dark:bg-[#1e1e2e] p-3 flex-1"
               />
-              <Button size="sm" className="mt-3 self-end" variant="secondary" onClick={copyEmbed}>
+              <Button data-testid="Button-elt-258" size="sm" className="mt-3 self-end" variant="secondary" onClick={copyEmbed}>
                 Copy embed
               </Button>
             </div>

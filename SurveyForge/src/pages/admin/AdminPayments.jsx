@@ -118,7 +118,7 @@ export default function AdminPayments() {
       {/* Tabs */}
       <div className="flex border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/2 p-1 rounded-2xl max-w-md">
         {['pending', 'approved', 'rejected'].map((tab) => (
-          <button
+          <button data-testid="button-elt-31"
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`flex-1 py-2.5 text-xs font-bold capitalize rounded-xl transition-all ${
@@ -215,7 +215,7 @@ export default function AdminPayments() {
               {/* Actions for Pending */}
               {activeTab === 'pending' && (
                 <div className="flex gap-2.5 pt-2 border-t border-gray-100 dark:border-gray-800/80">
-                  <Button
+                  <Button data-testid="Button-elt-32"
                     variant="ghost"
                     size="sm"
                     className="flex-1 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 font-bold border border-red-200/50 dark:border-red-900/30"
@@ -224,7 +224,7 @@ export default function AdminPayments() {
                   >
                     Reject
                   </Button>
-                  <Button
+                  <Button data-testid="Button-elt-33"
                     size="sm"
                     className="flex-1 font-bold"
                     onClick={() => handleApprove(r.id)}
@@ -262,7 +262,7 @@ export default function AdminPayments() {
                 alt="Receipt proof zoom"
                 className="max-w-full max-h-[85vh] object-contain rounded-lg"
               />
-              <button
+              <button data-testid="button-elt-34"
                 onClick={() => setZoomImage(null)}
                 className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white w-9 h-9 rounded-full flex items-center justify-center font-bold font-sans text-sm shadow transition-colors"
               >
@@ -292,7 +292,7 @@ export default function AdminPayments() {
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Provide a clear reason for rejecting this payment request. The reason will be stored in history and sent to the customer.
               </p>
-              <form onSubmit={handleRejectSubmit} className="mt-4 space-y-4">
+              <form data-testid="form-elt-35" onSubmit={handleRejectSubmit} className="mt-4 space-y-4">
                 <div>
                   <label className="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Reason for Rejection</label>
                   <textarea
@@ -305,7 +305,7 @@ export default function AdminPayments() {
                   />
                 </div>
                 <div className="flex gap-2.5 justify-end">
-                  <Button
+                  <Button data-testid="Button-elt-36"
                     type="button"
                     variant="secondary"
                     onClick={() => {
@@ -316,7 +316,7 @@ export default function AdminPayments() {
                   >
                     Cancel
                   </Button>
-                  <Button
+                  <Button data-testid="Button-elt-37"
                     type="submit"
                     className="bg-red-600 hover:bg-red-700 text-white font-bold"
                     loading={submittingReject}

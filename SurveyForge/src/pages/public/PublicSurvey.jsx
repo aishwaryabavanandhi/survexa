@@ -244,7 +244,7 @@ export default function PublicSurvey() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form data-testid="form-elt-133" onSubmit={handleSubmit} className="space-y-5">
           {visibleQuestions.map((q, idx) => {
             const key = qKey(q)
             return (
@@ -266,7 +266,7 @@ export default function PublicSurvey() {
             <p className="text-xs text-gray-400 mb-3">
               Stored with your response for follow-up.
             </p>
-            <input
+            <input data-testid="input-elt-134"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -276,7 +276,7 @@ export default function PublicSurvey() {
             />
           </div>
 
-          <button
+          <button data-testid="button-elt-135"
             type="submit"
             disabled={submitting}
             style={{ backgroundColor: primaryColor, borderRadius: borderRadius }}
@@ -323,7 +323,7 @@ function QuestionCard({ question, index, value, onChange, theme }) {
       {t === 'text' && <TextInput value={value} onChange={onChange} theme={theme} rows={2} />}
       {t === 'long_text' && <TextInput value={value} onChange={onChange} theme={theme} rows={5} />}
       {t === 'date' && (
-        <input
+        <input data-testid="input-elt-136"
           type="date"
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value)}
@@ -332,7 +332,7 @@ function QuestionCard({ question, index, value, onChange, theme }) {
         />
       )}
       {t === 'file' && (
-        <input
+        <input data-testid="input-elt-137"
           type="file"
           onChange={(e) => {
             const file = e.target.files?.[0]
@@ -399,7 +399,7 @@ function CheckboxInput({ question, value, onChange, theme }) {
               ? 'bg-primary-50/10'
               : 'hover:bg-gray-50/5'}`}
         >
-          <input
+          <input data-testid="input-elt-138"
             type="checkbox"
             checked={selected.includes(opt)}
             onChange={() => toggle(opt)}
@@ -453,7 +453,7 @@ function MatrixInput({ question, value = {}, onChange, theme }) {
               <td className="p-2 font-medium text-xs">{row}</td>
               {cols.map((col) => (
                 <td key={col} className="p-2 text-center">
-                  <input
+                  <input data-testid="input-elt-139"
                     type="radio"
                     name={`matrix-${question.id}-${row}`}
                     checked={value[row] === col}
@@ -481,7 +481,7 @@ function RatingInput({ value, onChange, theme, max = 5, labels: customLabels }) 
     <div>
       <div className="flex gap-2 justify-center flex-wrap">
         {nums.map((n) => (
-          <button
+          <button data-testid="button-elt-140"
             key={n}
             type="button"
             onClick={() => onChange(n)}
@@ -549,7 +549,7 @@ function MaxDiffInput({ question, value = {}, onChange, theme }) {
             <tr key={idx} className="border-b border-gray-200/50">
               <td className="px-4 py-3 font-semibold">{item}</td>
               <td className="px-4 py-3 text-center">
-                <input
+                <input data-testid="input-elt-141"
                   type="radio"
                   name={`maxdiff-best-${question.id}-${item}`}
                   checked={value.best === item}
@@ -559,7 +559,7 @@ function MaxDiffInput({ question, value = {}, onChange, theme }) {
                 />
               </td>
               <td className="px-4 py-3 text-center">
-                <input
+                <input data-testid="input-elt-142"
                   type="radio"
                   name={`maxdiff-worst-${question.id}-${item}`}
                   checked={value.worst === item}
@@ -621,7 +621,7 @@ function ConjointInput({ question, value, onChange, theme }) {
         </div>
       </div>
 
-      <button
+      <button data-testid="button-elt-143"
         type="button"
         onClick={() => onChange('Neither')}
         style={{ borderRadius: theme.borderRadius }}
@@ -662,7 +662,7 @@ function KanoInput({ value = {}, onChange, theme }) {
                   : 'bg-transparent hover:bg-gray-50/5'
               }`}
             >
-              <input
+              <input data-testid="input-elt-144"
                 type="radio"
                 checked={value.functional === opt.key}
                 onChange={() => onChange({ ...value, functional: opt.key })}
@@ -689,7 +689,7 @@ function KanoInput({ value = {}, onChange, theme }) {
                   : 'bg-transparent hover:bg-gray-50/5'
               }`}
             >
-              <input
+              <input data-testid="input-elt-145"
                 type="radio"
                 checked={value.dysfunctional === opt.key}
                 onChange={() => onChange({ ...value, dysfunctional: opt.key })}
@@ -725,7 +725,7 @@ function PSMInput({ question, value = {}, onChange, theme }) {
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 font-bold">
               {symbol}
             </div>
-            <input
+            <input data-testid="input-elt-146"
               type="number"
               placeholder="0.00"
               value={value[f.key] ?? ''}

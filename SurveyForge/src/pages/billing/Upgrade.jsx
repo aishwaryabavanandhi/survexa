@@ -176,7 +176,7 @@ export default function Upgrade() {
               </div>
             </div>
           </div>
-          <Button variant="secondary" onClick={() => navigate('/billing')} size="sm" className="self-start md:self-center">
+          <Button data-testid="Button-elt-94" variant="secondary" onClick={() => navigate('/billing')} size="sm" className="self-start md:self-center">
             View Billing Status
           </Button>
         </motion.div>
@@ -220,7 +220,7 @@ export default function Upgrade() {
                       ))}
                     </ul>
                   </div>
-                  <Button
+                  <Button data-testid="Button-elt-95"
                     fullWidth
                     className="mt-8 shadow-sm"
                     disabled={!!pendingRequest || current}
@@ -276,13 +276,13 @@ export default function Upgrade() {
                 <div className="space-y-1">
                   <span className="text-xs text-[var(--sf-text-muted)] font-bold uppercase tracking-wide">UPI ID</span>
                   <div className="flex items-center gap-2">
-                    <input
+                    <input data-testid="input-elt-96"
                       type="text"
                       readOnly
                       value={paymentDetails?.upi_id || 'aishubavan2@okicici'}
                       className="input py-2 text-sm font-mono text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-[var(--sf-border)] flex-1"
                     />
-                    <Button variant="secondary" onClick={handleCopyUPI} className="px-3 shrink-0 py-2.5">
+                    <Button data-testid="Button-elt-97" variant="secondary" onClick={handleCopyUPI} className="px-3 shrink-0 py-2.5">
                       Copy
                     </Button>
                   </div>
@@ -302,13 +302,13 @@ export default function Upgrade() {
             </div>
 
             {/* Submission Form */}
-            <form onSubmit={handleSubmitRequest} className="space-y-5 pt-4 border-t border-[var(--sf-border)]">
+            <form data-testid="form-elt-98" onSubmit={handleSubmitRequest} className="space-y-5 pt-4 border-t border-[var(--sf-border)]">
               {/* Payment reference */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--sf-text-secondary)] uppercase tracking-wide">
                   UPI Transaction ID / Ref Number <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input data-testid="input-elt-99"
                   type="text"
                   required
                   placeholder="e.g. 308945621458 or pay_XYZ"
@@ -327,7 +327,7 @@ export default function Upgrade() {
                 <div className="flex items-center gap-4">
                   <label className="cursor-pointer bg-gray-100 dark:bg-white/5 border border-dashed border-[var(--sf-border)] rounded-xl py-3 px-5 text-sm font-semibold hover:bg-gray-200 dark:hover:bg-white/10 transition-colors shadow-sm shrink-0">
                     Choose Receipt Image
-                    <input
+                    <input data-testid="input-elt-100"
                       type="file"
                       accept="image/png, image/jpeg, image/jpg"
                       onChange={handleFileChange}
@@ -346,7 +346,7 @@ export default function Upgrade() {
                     className="mt-3 relative w-36 h-36 border border-[var(--sf-border)] rounded-xl overflow-hidden group shadow-sm bg-black"
                   >
                     <img src={screenshotBase64} alt="Receipt preview" className="w-full h-full object-cover" />
-                    <button
+                    <button data-testid="button-elt-101"
                       type="button"
                       onClick={() => {
                         setScreenshotBase64('')
@@ -362,7 +362,7 @@ export default function Upgrade() {
 
               {/* Buttons */}
               <div className="flex gap-3 pt-4 justify-end">
-                <Button
+                <Button data-testid="Button-elt-102"
                   type="button"
                   variant="secondary"
                   onClick={() => {
@@ -375,7 +375,7 @@ export default function Upgrade() {
                 >
                   Back to plans
                 </Button>
-                <Button type="submit" loading={loading} disabled={loading}>
+                <Button data-testid="Button-elt-103" type="submit" loading={loading} disabled={loading}>
                   Submit Payment Request
                 </Button>
               </div>

@@ -99,7 +99,7 @@ export default function Onboarding() {
                 {USER_TYPES.map((t) => {
                   const active = data.userType === t
                   return (
-                    <button
+                    <button data-testid="button-elt-127"
                       key={t}
                       type="button"
                       onClick={() => setData((d) => ({ ...d, userType: t }))}
@@ -126,7 +126,7 @@ export default function Onboarding() {
                 {INTERESTS.map((label) => {
                   const on = data.interests.includes(label)
                   return (
-                    <button
+                    <button data-testid="button-elt-128"
                       key={label}
                       type="button"
                       onClick={() => toggleInterest(label)}
@@ -207,13 +207,13 @@ export default function Onboarding() {
 
         <div className="mt-auto pt-8 flex items-center justify-between gap-3">
           {step > 0 ? (
-            <Button variant="secondary" onClick={() => setStep((s) => s - 1)} className="rounded-xl">
+            <Button data-testid="Button-elt-129" variant="secondary" onClick={() => setStep((s) => s - 1)} className="rounded-xl">
               Back
             </Button>
           ) : (
             <span />
           )}
-          <Button onClick={next} disabled={!canContinue()} className="rounded-xl min-w-[8rem]">
+          <Button data-testid="Button-elt-130" onClick={next} disabled={!canContinue()} className="rounded-xl min-w-[8rem]">
             {step === steps.length - 1 ? 'Enter app' : 'Continue'}
           </Button>
         </div>
@@ -229,7 +229,7 @@ function SliderRow({ label, left, right, value, onChange }) {
         <span>{label}</span>
         <span className="text-primary-600 dark:text-primary-400">{value}%</span>
       </div>
-      <input
+      <input data-testid="input-elt-131"
         type="range"
         min={0}
         max={100}
@@ -252,7 +252,7 @@ function ToggleRow({ title, desc, checked, onChange }) {
         <p className="font-semibold text-gray-900 dark:text-white text-sm">{title}</p>
         <p className="text-xs text-gray-500 dark:text-gray-500 mt-0.5">{desc}</p>
       </div>
-      <button
+      <button data-testid="button-elt-132"
         type="button"
         role="switch"
         aria-checked={checked}

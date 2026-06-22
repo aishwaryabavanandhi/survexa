@@ -62,11 +62,11 @@ export default function Pricing() {
               <div className="mt-8">
                 {p.id === 'free' ? (
                   <Link to="/signup">
-                    <Button fullWidth variant="secondary">Get started</Button>
+                    <Button data-testid="Button-elt-92" fullWidth variant="secondary">Get started</Button>
                   </Link>
                 ) : (
                   <Link to="/upgrade">
-                    <Button fullWidth>{p.id === 'professional' ? 'Go Professional' : 'Choose Starter'}</Button>
+                    <Button data-testid="Button-elt-93" fullWidth>{p.id === 'professional' ? 'Go Professional' : 'Choose Starter'}</Button>
                   </Link>
                 )}
               </div>

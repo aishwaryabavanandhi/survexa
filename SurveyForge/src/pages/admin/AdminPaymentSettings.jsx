@@ -153,7 +153,7 @@ export default function AdminPaymentSettings() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-6">
+      <form data-testid="form-elt-38" onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-6">
         {/* UPI ID and details block */}
         <div className="card p-6 md:col-span-2 space-y-6">
           <h3 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wider">UPI Accounts & Info</h3>
@@ -162,7 +162,7 @@ export default function AdminPaymentSettings() {
             {/* UPI ID */}
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Admin UPI ID</label>
-              <input
+              <input data-testid="input-elt-39"
                 type="text"
                 required
                 placeholder="e.g. name@upi or aishubavan2@okicici"
@@ -175,7 +175,7 @@ export default function AdminPaymentSettings() {
             {/* Account holder name */}
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Holder Name</label>
-              <input
+              <input data-testid="input-elt-40"
                 type="text"
                 required
                 placeholder="e.g. Aishwarya Bavan"
@@ -206,7 +206,7 @@ export default function AdminPaymentSettings() {
                       {/* Price in INR */}
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs text-gray-400 font-bold">₹</span>
-                        <input
+                        <input data-testid="input-elt-41"
                           type="number"
                           disabled={isFree}
                           min={0}
@@ -217,7 +217,7 @@ export default function AdminPaymentSettings() {
                       </div>
 
                       {/* Active status toggle switch */}
-                      <button
+                      <button data-testid="button-elt-42"
                         type="button"
                         disabled={isFree}
                         onClick={() => handlePlanToggleActive(p.id)}
@@ -262,7 +262,7 @@ export default function AdminPaymentSettings() {
             <div className="space-y-2">
               <label className="cursor-pointer bg-gray-100 dark:bg-white/5 border border-[var(--sf-border)] rounded-xl py-2 px-4 text-xs font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-colors shadow-sm block text-center">
                 Upload New QR Image
-                <input
+                <input data-testid="input-elt-43"
                   type="file"
                   accept="image/png, image/jpeg, image/jpg"
                   onChange={handleFileChange}
@@ -276,7 +276,7 @@ export default function AdminPaymentSettings() {
           </div>
 
           <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-2">
-            <Button
+            <Button data-testid="Button-elt-44"
               type="submit"
               fullWidth
               loading={saving}
@@ -285,7 +285,7 @@ export default function AdminPaymentSettings() {
               Save Configuration
             </Button>
             {qrPreview && (
-              <Button
+              <Button data-testid="Button-elt-45"
                 type="button"
                 variant="secondary"
                 fullWidth

@@ -387,7 +387,7 @@ export default function AdminBilling() {
             </p>
           </div>
         </div>
-        <Button variant="secondary" onClick={handleExportCSV} className="self-start sm:self-center shadow-sm">
+        <Button data-testid="Button-elt-19" variant="secondary" onClick={handleExportCSV} className="self-start sm:self-center shadow-sm">
           <span>📤</span> Export CSV Report
         </Button>
       </div>
@@ -565,7 +565,7 @@ export default function AdminBilling() {
               <p className="text-xs text-gray-400 mt-0.5">Timeline chart of captured revenue payments</p>
             </div>
             <div className="flex items-center bg-gray-100 dark:bg-white/5 rounded-lg p-0.5 text-xs">
-              <button
+              <button data-testid="button-elt-20"
                 onClick={() => setRevenueTimeframe('daily')}
                 className={`px-3 py-1.5 rounded-md font-medium transition-all ${
                   revenueTimeframe === 'daily'
@@ -575,7 +575,7 @@ export default function AdminBilling() {
               >
                 Daily (30d)
               </button>
-              <button
+              <button data-testid="button-elt-21"
                 onClick={() => setRevenueTimeframe('monthly')}
                 className={`px-3 py-1.5 rounded-md font-medium transition-all ${
                   revenueTimeframe === 'monthly'
@@ -621,7 +621,7 @@ export default function AdminBilling() {
           </div>
           {/* Search Box */}
           <div className="relative w-full md:w-72">
-            <input
+            <input data-testid="input-elt-22"
               type="text"
               placeholder="Search user, status, ID..."
               value={searchTerm}
@@ -710,7 +710,7 @@ export default function AdminBilling() {
               of <span className="font-semibold text-gray-800 dark:text-white">{filteredPayments.length}</span> transactions
             </span>
             <div className="flex items-center gap-2">
-              <Button
+              <Button data-testid="Button-elt-23"
                 variant="secondary"
                 size="xs"
                 disabled={currentPage === 1}
@@ -721,7 +721,7 @@ export default function AdminBilling() {
               <span className="px-3 text-gray-600 dark:text-gray-300 font-medium">
                 Page {currentPage} of {totalPages}
               </span>
-              <Button
+              <Button data-testid="Button-elt-24"
                 variant="secondary"
                 size="xs"
                 disabled={currentPage === totalPages}

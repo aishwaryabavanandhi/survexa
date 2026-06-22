@@ -1,0 +1,54 @@
+name: Survexa Selenium Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install Survexa Web Dependencies
+        working-directory: ./
+        run: npm install
+
+      - name: Start Survexa Web App
+        working-directory: ./
+        run: npm run dev &
+        env:
+          PORT: 5173
+
+      - name: Wait for App to be Healthy
+        run: npx wait-on http://localhost:5173 -t 60000
+
+      - name: Install Selenium Dependencies
+        working-directory: ./selenium
+        run: npm install
+
+      - name: Run 340 Selenium Tests & Generate Report
+        working-directory: ./selenium
+        run: node run_and_report.js
+
+      - name: Upload Selenium Excel Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-report
+          path: selenium/reports/selenium-report.xlsx

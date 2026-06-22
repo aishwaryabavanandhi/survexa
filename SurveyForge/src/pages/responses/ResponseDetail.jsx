@@ -192,10 +192,10 @@ export default function ResponseDetail() {
 
       <div className="flex gap-3 pb-8">
         <Link to="/responses">
-          <Button variant="secondary">← Back</Button>
+          <Button data-testid="Button-elt-153" variant="secondary">← Back</Button>
         </Link>
         <Link to="/analytics">
-          <Button variant="secondary">📊 View Analytics</Button>
+          <Button data-testid="Button-elt-154" variant="secondary">📊 View Analytics</Button>
         </Link>
       </div>
     </div>

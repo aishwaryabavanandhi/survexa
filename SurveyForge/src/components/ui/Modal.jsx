@@ -66,7 +66,7 @@ export default function Modal({
                   </h3>
                 )}
                 {!hideClose && (
-                  <button
+                  <button data-testid="button-elt-11"
                     onClick={onClose}
                     aria-label="Close modal"
                     className="ml-auto p-1.5 rounded-lg text-gray-400 hover:text-gray-600

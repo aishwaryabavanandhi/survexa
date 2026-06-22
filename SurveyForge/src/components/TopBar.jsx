@@ -73,7 +73,7 @@ export default function TopBar({ onMenuClick }) {
     <header className="topbar flex items-center justify-between px-5 py-3.5 z-10">
       <div className="flex items-center gap-4">
         {/* Hamburger */}
-        <button
+        <button data-testid="button-elt-3"
           onClick={onMenuClick}
           className="p-2 rounded-xl text-gray-500 dark:text-gray-400
             hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
@@ -105,8 +105,8 @@ export default function TopBar({ onMenuClick }) {
 
       <div className="flex items-center gap-2">
         {/* Search */}
-        <form onSubmit={handleSearch} className="relative hidden md:block">
-          <input
+        <form data-testid="form-elt-4" onSubmit={handleSearch} className="relative hidden md:block">
+          <input data-testid="input-elt-5"
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -121,7 +121,7 @@ export default function TopBar({ onMenuClick }) {
         </form>
 
         {/* Dark mode toggle (desktop) */}
-        <button
+        <button data-testid="button-elt-6"
           onClick={toggle}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           className="p-2 rounded-xl text-gray-500 dark:text-gray-400

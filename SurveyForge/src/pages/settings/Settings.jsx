@@ -111,7 +111,7 @@ export default function Settings() {
       {/* Tab bar */}
       <div className="flex flex-wrap gap-1 bg-gray-100 dark:bg-[#1e1e2e] rounded-xl p-1 w-fit max-w-full">
         {TABS.map((t) => (
-          <button
+          <button data-testid="button-elt-158"
             key={t}
             type="button"
             onClick={() => {
@@ -144,7 +144,7 @@ export default function Settings() {
               <div>
                 <p className="font-bold text-gray-800 dark:text-gray-100 text-lg">{user?.name}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
-                <Button variant="secondary" size="sm" className="mt-2">Change Photo</Button>
+                <Button data-testid="Button-elt-159" variant="secondary" size="sm" className="mt-2">Change Photo</Button>
               </div>
             </div>
 
@@ -156,7 +156,7 @@ export default function Settings() {
                   className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Full Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input data-testid="input-elt-160"
                   id="profile-name"
                   value={profileName}
                   onChange={(e) => { setProfileName(e.target.value); setSaveStatus(null) }}
@@ -172,7 +172,7 @@ export default function Settings() {
                   Email{' '}
                   <span className="text-xs font-normal text-gray-400">(cannot be changed)</span>
                 </label>
-                <input
+                <input data-testid="input-elt-161"
                   id="profile-email"
                   type="email"
                   value={user?.email ?? ''}
@@ -187,7 +187,7 @@ export default function Settings() {
                   className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Organization
                 </label>
-                <input
+                <input data-testid="input-elt-162"
                   id="profile-org"
                   value={profileOrg}
                   onChange={(e) => { setProfileOrg(e.target.value); setSaveStatus(null) }}
@@ -223,7 +223,7 @@ export default function Settings() {
               {saveStatus === 'error' && (
                 <p className="text-sm text-red-500 font-medium">{saveError}</p>
               )}
-              <Button onClick={handleSave} disabled={saving}>
+              <Button data-testid="Button-elt-163" onClick={handleSave} disabled={saving}>
                 {saving ? 'Saving…' : 'Save Changes'}
               </Button>
             </div>
@@ -242,7 +242,7 @@ export default function Settings() {
                 <label key={item} className="flex items-center justify-between cursor-pointer">
                   <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
                   <div className="relative">
-                    <input type="checkbox" defaultChecked className="sr-only peer" />
+                    <input data-testid="input-elt-164" type="checkbox" defaultChecked className="sr-only peer" />
                     <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer-checked:bg-primary-500 transition-colors" />
                     <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow
                                     peer-checked:translate-x-5 transition-transform" />
@@ -257,8 +257,8 @@ export default function Settings() {
             <h3 className="font-bold text-red-500 text-sm mb-1">Danger Zone</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">These actions are irreversible.</p>
             <div className="flex gap-3 flex-wrap">
-              <Button variant="danger" size="sm">Delete Account</Button>
-              <Button variant="secondary" size="sm" onClick={logout}>Logout</Button>
+              <Button data-testid="Button-elt-165" variant="danger" size="sm">Delete Account</Button>
+              <Button data-testid="Button-elt-166" variant="secondary" size="sm" onClick={logout}>Logout</Button>
             </div>
           </div>
         </div>
@@ -270,7 +270,7 @@ export default function Settings() {
           <div className="bg-white dark:bg-[#16161f] rounded-2xl border border-gray-100 dark:border-[#2a2a3a] shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-[#2a2a3a]">
               <h3 className="font-bold text-gray-800 dark:text-gray-200">Team Members ({TEAM_MEMBERS.length})</h3>
-              <Button size="sm" onClick={() => setInviteOpen(true)}>＋ Invite Member</Button>
+              <Button data-testid="Button-elt-167" size="sm" onClick={() => setInviteOpen(true)}>＋ Invite Member</Button>
             </div>
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-[#1e1e2e] border-b border-gray-100 dark:border-[#2a2a3a]">
@@ -304,7 +304,7 @@ export default function Settings() {
                       </select>
                     </td>
                     <td className="px-6 py-4">
-                      <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-600">Remove</Button>
+                      <Button data-testid="Button-elt-168" size="sm" variant="ghost" className="text-red-400 hover:text-red-600">Remove</Button>
                     </td>
                   </tr>
                 ))}
@@ -314,7 +314,7 @@ export default function Settings() {
 
           <Modal open={inviteOpen} onClose={() => setInviteOpen(false)} title="Invite Team Member">
             <div className="space-y-4">
-              <Input id="invite-email" label="Email address" type="email" placeholder="colleague@company.com"
+              <Input data-testid="Input-elt-169" id="invite-email" label="Email address" type="email" placeholder="colleague@company.com"
                 value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Role</label>
@@ -325,8 +325,8 @@ export default function Settings() {
                 </select>
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="secondary" onClick={() => setInviteOpen(false)}>Cancel</Button>
-                <Button onClick={() => setInviteOpen(false)}>Send Invite</Button>
+                <Button data-testid="Button-elt-170" variant="secondary" onClick={() => setInviteOpen(false)}>Cancel</Button>
+                <Button data-testid="Button-elt-171" onClick={() => setInviteOpen(false)}>Send Invite</Button>
               </div>
             </div>
           </Modal>
@@ -340,7 +340,7 @@ export default function Settings() {
             <p className="text-sm text-primary-200 font-medium mb-1">Current Plan</p>
             <h3 className="text-2xl font-extrabold">Pro Plan</h3>
             <p className="text-primary-200 text-sm mt-1">$29 / month · Renews June 1, 2026</p>
-            <Button variant="secondary" size="sm" className="mt-4">Manage Subscription</Button>
+            <Button data-testid="Button-elt-172" variant="secondary" size="sm" className="mt-4">Manage Subscription</Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -364,7 +364,7 @@ export default function Settings() {
                     </li>
                   ))}
                 </ul>
-                {!p.active && <Button size="sm" fullWidth className="mt-4" variant={p.plan === 'Enterprise' ? 'secondary' : 'primary'}>
+                {!p.active && <Button data-testid="Button-elt-173" size="sm" fullWidth className="mt-4" variant={p.plan === 'Enterprise' ? 'secondary' : 'primary'}>
                   {p.plan === 'Enterprise' ? 'Contact Sales' : 'Upgrade'}
                 </Button>}
                 {p.active && <p className="text-xs text-primary-600 font-semibold mt-4">✓ Current plan</p>}
@@ -392,7 +392,7 @@ export default function Settings() {
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{intg.desc}</p>
-                <Button size="sm" variant={intg.connected ? 'secondary' : 'primary'} className="mt-3">
+                <Button data-testid="Button-elt-174" size="sm" variant={intg.connected ? 'secondary' : 'primary'} className="mt-3">
                   {intg.connected ? 'Disconnect' : 'Connect'}
                 </Button>
               </div>
@@ -410,14 +410,14 @@ export default function Settings() {
               Use a strong password and rotate it periodically.
             </p>
             <Link to="/forgot-password" className="inline-flex">
-              <Button variant="secondary" size="sm">Reset password via email</Button>
+              <Button data-testid="Button-elt-175" variant="secondary" size="sm">Reset password via email</Button>
             </Link>
           </div>
 
           <div className="bg-white dark:bg-[#16161f] rounded-2xl border border-gray-100 dark:border-[#2a2a3a] shadow-sm p-6 space-y-4">
             <h3 className="font-bold text-gray-800 dark:text-gray-200 text-sm">Two-factor authentication</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">Authenticator apps and passkeys will connect here.</p>
-            <Button variant="secondary" size="sm" disabled>Enable 2FA (coming soon)</Button>
+            <Button data-testid="Button-elt-176" variant="secondary" size="sm" disabled>Enable 2FA (coming soon)</Button>
           </div>
 
           <div className="bg-white dark:bg-[#16161f] rounded-2xl border border-gray-100 dark:border-[#2a2a3a] shadow-sm p-6 space-y-4">
@@ -429,7 +429,7 @@ export default function Settings() {
               <code className="text-xs bg-gray-50 dark:bg-[#1e1e2e] px-3 py-2 rounded-lg border border-gray-100 dark:border-[#2a2a3a] flex-1 truncate">
                 sf_live_••••••••••••••••
               </code>
-              <Button size="sm" variant="secondary" disabled>Rotate</Button>
+              <Button data-testid="Button-elt-177" size="sm" variant="secondary" disabled>Rotate</Button>
             </div>
           </div>
         </div>
@@ -445,7 +445,7 @@ export default function Settings() {
               <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#2a2a3a] border border-gray-100 dark:border-gray-700 flex items-center justify-center p-2 shadow-sm">
                 <img src={survexaLogo} alt="Survexa Logo" className="w-full h-full object-contain" />
               </div>
-              <Button variant="secondary" size="sm" disabled>Upload logo</Button>
+              <Button data-testid="Button-elt-178" variant="secondary" size="sm" disabled>Upload logo</Button>
             </div>
           </div>
 
@@ -453,9 +453,9 @@ export default function Settings() {
             <h3 className="font-bold text-gray-800 dark:text-gray-200 text-sm">Accent color</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">Primary buttons and progress on hosted forms.</p>
             <div className="flex flex-wrap items-center gap-3">
-              <input type="color" defaultValue="#B8A4E8" className="w-12 h-10 rounded-lg border border-gray-200 cursor-pointer" aria-label="Accent" />
+              <input data-testid="input-elt-179" type="color" defaultValue="#B8A4E8" className="w-12 h-10 rounded-lg border border-gray-200 cursor-pointer" aria-label="Accent" />
               <span className="text-sm font-mono text-gray-600 dark:text-gray-300">#B8A4E8</span>
-              <Button size="sm" disabled>Save</Button>
+              <Button data-testid="Button-elt-180" size="sm" disabled>Save</Button>
             </div>
           </div>
 

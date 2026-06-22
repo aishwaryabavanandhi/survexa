@@ -59,11 +59,11 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
       >
         <p className="text-gray-800 dark:text-gray-200 text-sm font-medium mb-5">{message}</p>
         <div className="flex gap-3 justify-end">
-          <button
+          <button data-testid="button-elt-25"
             onClick={onCancel}
             className="px-4 py-2 text-sm rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
           >Cancel</button>
-          <button
+          <button data-testid="button-elt-26"
             onClick={onConfirm}
             className="px-4 py-2 text-sm rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-all"
           >Delete</button>
@@ -260,14 +260,14 @@ function UsersTab({ users, currentUserId, onDelete, onRoleChange }) {
                   <div className="flex items-center gap-2">
                     {u.id !== currentUserId && (
                       <>
-                        <button
+                        <button data-testid="button-elt-27"
                           onClick={() => onRoleChange(u.id, u.role === 'admin' ? 'user' : 'admin')}
                           title={u.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}
                           className="px-2.5 py-1 rounded-lg text-xs font-medium bg-violet-50 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-500/30 transition-all"
                         >
                           {u.role === 'admin' ? '↓ Demote' : '↑ Promote'}
                         </button>
-                        <button
+                        <button data-testid="button-elt-28"
                           onClick={() => onDelete(u.id, u.email)}
                           title="Delete user"
                           className="px-2.5 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-600 dark:bg-red-500/20 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/30 transition-all"
@@ -325,7 +325,7 @@ function SurveysTab({ surveys, onDelete }) {
                 </td>
                 <td className="px-5 py-3 text-gray-500 dark:text-gray-400 text-xs">{fmtDate(s.created_at)}</td>
                 <td className="px-5 py-3">
-                  <button
+                  <button data-testid="button-elt-29"
                     onClick={() => onDelete(s.id, s.title)}
                     className="px-2.5 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-600 dark:bg-red-500/20 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/30 transition-all"
                   >
@@ -444,7 +444,7 @@ export default function AdminDashboard() {
       {/* Tabs */}
       <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/10 rounded-xl p-1 w-fit">
         {TABS.map(tab => (
-          <button
+          <button data-testid="button-elt-30"
             key={tab}
             id={`admin-tab-${tab.toLowerCase()}`}
             onClick={() => setActiveTab(tab)}

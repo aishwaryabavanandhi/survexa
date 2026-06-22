@@ -159,7 +159,7 @@ export default function Billing() {
         </div>
         {!pendingRequest && (
           <Link to="/upgrade">
-            <Button>{isPaid ? 'Change plan' : 'Upgrade plan'}</Button>
+            <Button data-testid="Button-elt-88">{isPaid ? 'Change plan' : 'Upgrade plan'}</Button>
           </Link>
         )}
       </div>
@@ -203,13 +203,13 @@ export default function Billing() {
         )}
         {isPaid && (
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button size="sm" loading={renewing} onClick={handleRenew} disabled={!!pendingRequest}>
+            <Button data-testid="Button-elt-89" size="sm" loading={renewing} onClick={handleRenew} disabled={!!pendingRequest}>
               Renew subscription
             </Button>
-            <Button variant="secondary" size="sm" loading={cancelling} onClick={() => handleCancel(false)} disabled={!!pendingRequest}>
+            <Button data-testid="Button-elt-90" variant="secondary" size="sm" loading={cancelling} onClick={() => handleCancel(false)} disabled={!!pendingRequest}>
               Cancel at period end
             </Button>
-            <Button variant="ghost" size="sm" loading={cancelling} onClick={() => handleCancel(true)} disabled={!!pendingRequest}>
+            <Button data-testid="Button-elt-91" variant="ghost" size="sm" loading={cancelling} onClick={() => handleCancel(true)} disabled={!!pendingRequest}>
               Downgrade to Free now
             </Button>
           </div>
