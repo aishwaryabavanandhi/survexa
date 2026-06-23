@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // IMPORTANT: For local testing on Android Emulator, localhost is 10.0.2.2.
-// For Expo Go on a physical device, it must be the actual IP address of the dev machine (e.g., http://192.168.1.5:5000).
-const BASE_URL = 'http://10.0.2.2:5000'; 
+// For Expo Go on a physical device, it must be the actual IP address of the dev machine.
+const BASE_URL = 'http://172.23.51.55:5000';
 
 const api = axios.create({
   baseURL: BASE_URL,
