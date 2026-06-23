@@ -7,10 +7,14 @@ export default function DashboardScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchSurveys();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchSurveys();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const fetchSurveys = async () => {
+    setLoading(true);
     try {
       const res = await api.get('/surveys');
       setSurveys(res.data.data || []);
@@ -23,22 +27,51 @@ export default function DashboardScreen({ navigation }) {
 
   const renderSurvey = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.surveyTitle}>{item.title}</Text>
-      <Text style={styles.surveyDesc}>{item.description}</Text>
-      <Text style={styles.surveyStatus}>Status: {item.status}</Text>
+      <View style={styles.cardHeader}>
+        <Text style={styles.surveyTitle}>{item.title}</Text>
+        <View style={[styles.badge, item.status === 'published' ? styles.badgeSuccess : styles.badgeDraft]}>
+          <Text style={styles.badgeText}>{item.status}</Text>
+        </View>
+      </View>
+      <Text style={styles.surveyDesc} numberOfLines={2}>{item.description || 'No description provided.'}</Text>
+      <View style={styles.cardFooter}>
+        <Text style={styles.responseCount}>{item.response_count || 0} responses</Text>
+        <Text style={styles.dateText}>{new Date(item.created_at).toLocaleDateString()}</Text>
+      </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity onPress={() => navigation.replace('Login')}>
-          <Text style={styles.logoutText}>Logout</Text>
+        <View>
+          <Text style={styles.welcomeText}>Hello,</Text>
+          <Text style={styles.headerTitle}>Survexa Dashboard</Text>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+          <View style={styles.avatarMini}>
+            <Text style={styles.avatarMiniText}>A</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.sectionTitle}>Your Surveys</Text>
+      <View style={styles.actionGrid}>
+        <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('CreateSurvey')}>
+          <Text style={styles.actionIcon}>➕</Text>
+          <Text style={styles.actionLabel}>New Survey</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Analytics')}>
+          <Text style={styles.actionIcon}>📊</Text>
+          <Text style={styles.actionLabel}>Analytics</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Recent Surveys</Text>
+        <TouchableOpacity onPress={fetchSurveys}>
+          <Text style={styles.refreshText}>Refresh</Text>
+        </TouchableOpacity>
+      </View>
       
       {loading ? (
         <ActivityIndicator size="large" color="#4f46e5" style={{ marginTop: 40 }} />
@@ -47,8 +80,15 @@ export default function DashboardScreen({ navigation }) {
           data={surveys}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderSurvey}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          ListEmptyComponent={<Text style={styles.emptyText}>No surveys found. Create one online!</Text>}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No surveys found.</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('CreateSurvey')}>
+                <Text style={styles.createLink}>Create your first survey</Text>
+              </TouchableOpacity>
+            </View>
+          }
         />
       )}
     </View>
@@ -58,65 +98,158 @@ export default function DashboardScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f9fafb',
   },
   header: {
     backgroundColor: '#fff',
-    paddingTop: 50,
-    paddingBottom: 20,
+    paddingTop: 60,
+    paddingBottom: 25,
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#f3f4f6',
+  },
+  welcomeText: {
+    fontSize: 14,
+    color: '#6b7280',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#111827',
   },
-  logoutText: {
-    color: '#ef4444',
+  avatarMini: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#4f46e5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarMiniText: {
+    color: '#fff',
     fontWeight: 'bold',
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    margin: 20,
-    color: '#374151',
+  actionGrid: {
+    flexDirection: 'row',
+    padding: 15,
+    justifyContent: 'space-between',
   },
-  card: {
+  actionCard: {
     backgroundColor: '#fff',
-    marginHorizontal: 20,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 8,
+    width: '48%',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
   },
-  surveyTitle: {
+  actionIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  actionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 15,
+  },
+  sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 4,
+  },
+  refreshText: {
+    color: '#4f46e5',
+    fontSize: 14,
+  },
+  card: {
+    backgroundColor: '#fff',
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  surveyTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#111827',
+    flex: 1,
+    marginRight: 10,
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  badgeSuccess: {
+    backgroundColor: '#ecfdf5',
+  },
+  badgeDraft: {
+    backgroundColor: '#fff7ed',
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   surveyDesc: {
     fontSize: 14,
     color: '#6b7280',
-    marginBottom: 8,
+    lineHeight: 20,
+    marginBottom: 12,
   },
-  surveyStatus: {
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+  },
+  responseCount: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: '#10b981',
+    color: '#4f46e5',
+    fontWeight: '600',
+  },
+  dateText: {
+    fontSize: 12,
+    color: '#9ca3af',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 60,
   },
   emptyText: {
-    textAlign: 'center',
     color: '#9ca3af',
-    marginTop: 40,
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  createLink: {
+    color: '#4f46e5',
+    fontWeight: 'bold',
+    fontSize: 16,
   }
 });
