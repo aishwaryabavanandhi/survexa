@@ -1,54 +1,72 @@
-name: Survexa Selenium Tests
+name: Survexa Selenium 350 Tests
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  test:
+  selenium-tests:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      - name: Install Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+    - name: Install root dependencies
+      run: npm install
 
-      - name: Install Survexa Web Dependencies
-        working-directory: ./
-        run: npm install
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm install
 
-      - name: Start Survexa Web App
-        working-directory: ./
-        run: npm run dev &
-        env:
-          PORT: 5173
+    - name: Start Backend
+      run: |
+        cd backend
+        npm start &
+        sleep 5
 
-      - name: Wait for App to be Healthy
-        run: npx wait-on http://localhost:5173 -t 60000
+    - name: Start Frontend
+      run: |
+        npm run dev &
+        npx wait-on http://localhost:5173 --timeout 30000
 
-      - name: Install Selenium Dependencies
-        working-directory: ./selenium
-        run: npm install
+    - name: Setup Selenium environment
+      run: |
+        cd selenium
+        npm install
 
-      - name: Run 340 Selenium Tests & Generate Report
-        working-directory: ./selenium
-        run: node run_and_report.js
+    - name: Ensure test directories and reports exist
+      run: |
+        mkdir -p selenium/reports/excel
+        mkdir -p reports/excel
 
-      - name: Upload Selenium Excel Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: selenium-report
-          path: selenium/reports/selenium-report.xlsx
+    - name: Run Selenium Test Suite
+      run: |
+        cd selenium
+        npm run test
+
+    - name: Generate Excel Report
+      if: always()
+      run: |
+        # If the test suite didn't already generate it, we make sure it does
+        cd selenium
+        node run_and_report.js || true
+
+    - name: Upload Excel Report Artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Selenium_Test_Report
+        path: |
+          reports/excel/Selenium_Test_Report.xlsx
+          selenium/reports/excel/Selenium_Test_Report.xlsx
+        retention-days: 14
