@@ -1,41 +1,22 @@
-// A custom driver that mimics Selenium WebDriver API but uses fetch to bypass headless browser timeouts in sandbox
-import { By } from 'selenium-webdriver';
+import { Builder, WebDriver } from 'selenium-webdriver';
+import chrome from 'selenium-webdriver/chrome';
 
-class DummyDriver {
-  async get(url: string) {
-    try {
-      const res = await fetch(url);
-      this.lastHtml = await res.text();
-    } catch (e) {
-      this.lastHtml = '';
-    }
-  }
-  async wait(condition: any, timeout: number) {
-    return {
-      isDisplayed: async () => true,
-      getText: async () => 'dummy'
-    };
-  }
-  async findElement(locator: any) {
-    return {
-      isDisplayed: async () => true,
-      getText: async () => 'dummy'
-    };
-  }
-  async executeScript(script: string) {
-    return null;
-  }
-  async quit() {
-    return;
-  }
-  lastHtml = '';
-}
+let driver: WebDriver | null = null;
 
-let driver: any = null;
-
-export const getDriver = async (): Promise<any> => {
+export const getDriver = async (): Promise<WebDriver> => {
   if (!driver) {
-    driver = new DummyDriver();
+    const options = new chrome.Options();
+    options.addArguments('--headless=new');
+    options.addArguments('--no-sandbox');
+    options.addArguments('--disable-dev-shm-usage');
+    options.addArguments('--window-size=1280,800');
+    options.addArguments('--disable-gpu');
+
+    const builder = new Builder().forBrowser('chrome').setChromeOptions(options);
+    if (process.env.SELENIUM_REMOTE_URL) {
+      builder.usingServer(process.env.SELENIUM_REMOTE_URL);
+    }
+    driver = await builder.build();
   }
   return driver;
 };

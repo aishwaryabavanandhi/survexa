@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 import { useApp } from '../../context/AppContext'
 import Button from '../../components/ui/Button'
 
-const OTP_LENGTH   = 6
+const OTP_LENGTH   = 8
 const OTP_TTL_SEC  = 300  // 5 min
 const RESEND_COOLDOWN = 60 // 60 sec
 
@@ -47,12 +47,7 @@ export default function OTP() {
 
   // Auto-fill dev OTP if present
   useEffect(() => {
-    const devOtp = location.state?.devOtp
-    if (devOtp) {
-      toast(`[DEV] Auto-filling OTP code: ${devOtp}`, { icon: '⚙️', duration: 4000 })
-      const digits = String(devOtp).split('').slice(0, OTP_LENGTH)
-      setOtp(digits)
-    }
+    // DEV auto-fill disabled
   }, [location.state?.devOtp])
 
   const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`
@@ -141,13 +136,7 @@ export default function OTP() {
       toast.success(result.message || 'New OTP sent!')
       setCountdown(OTP_TTL_SEC)
       setResendCD(RESEND_COOLDOWN)
-      if (result.otp) {
-        toast(`[DEV] Auto-filling new OTP: ${result.otp}`, { icon: '⚙️', duration: 4000 })
-        const digits = String(result.otp).split('').slice(0, OTP_LENGTH)
-        setOtp(digits)
-      } else {
-        setOtp(Array(OTP_LENGTH).fill(''))
-      }
+      setOtp(Array(OTP_LENGTH).fill(''))
       autoSubmitted.current = false
       inputs.current[0]?.focus()
     } else {

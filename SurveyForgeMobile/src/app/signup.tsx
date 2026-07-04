@@ -11,18 +11,17 @@ export default function SignupScreen() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
-    if (!name.trim() || !email.trim() || !password.trim() || !phone.trim()) {
+    if (!name.trim() || !email.trim() || !password.trim()) {
       Alert.alert('Validation Error', 'Please fill in all fields.');
       return;
     }
     setLoading(true);
     try {
-      const response = await api.post('/auth/signup', { name, email, phone, password });
+      const response = await api.post('/auth/signup', { name, email, password });
       if (response.data?.success) {
         Alert.alert('Account Created!', 'Please check your email for verification.');
         router.replace('/');
@@ -52,8 +51,6 @@ export default function SignupScreen() {
           <Text style={styles.label}>Email Address</Text>
           <TextInput style={styles.input} placeholder="you@example.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" placeholderTextColor="#9ca3af" />
 
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput style={styles.input} placeholder="+91 98765 43210" value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholderTextColor="#9ca3af" />
 
           <Text style={styles.label}>Password</Text>
           <TextInput style={styles.input} placeholder="Min 8 characters" value={password} onChangeText={setPassword} secureTextEntry placeholderTextColor="#9ca3af" />

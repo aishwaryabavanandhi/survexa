@@ -1,0 +1,73 @@
+name: Survexa 350 Real Selenium Test Suite
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  selenium-automation:
+    name: Run 350 Real Selenium Automation Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            SurveyForge/package-lock.json
+            SurveyForge/backend/package-lock.json
+            SurveyForge/selenium/package-lock.json
+
+      - name: Install Root Frontend Dependencies
+        working-directory: SurveyForge
+        run: npm ci
+
+      - name: Install Backend Dependencies
+        working-directory: SurveyForge/backend
+        run: npm ci
+
+      - name: Install Selenium Suite Dependencies
+        working-directory: SurveyForge/selenium
+        run: npm ci
+
+      - name: Setup Chrome Browser
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Start Backend Express Server
+        working-directory: SurveyForge/backend
+        run: |
+          node server.js &
+          sleep 5
+
+      - name: Start Frontend Vite Server
+        working-directory: SurveyForge
+        run: |
+          npx vite --port 5173 --host &
+          sleep 5
+          npx wait-on http://localhost:5173 --timeout 30000 || sleep 10
+
+      - name: Execute 350 Real Selenium Tests & Generate Excel Report
+        working-directory: SurveyForge/selenium
+        run: node run_and_report.js
+
+      - name: Upload Selenium Excel Test Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Selenium_Test_Report
+          path: |
+            SurveyForge/reports/excel/Selenium_Test_Report.xlsx
+            SurveyForge/Selenium_Test_Report.xlsx
+            SurveyForge/selenium/reports/excel/Selenium_Test_Report.xlsx
+            Selenium_Test_Report.xlsx
+          retention-days: 30

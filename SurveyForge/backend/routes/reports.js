@@ -117,26 +117,20 @@ function isSupabaseConfigured() {
   return url.length > 0 && !url.includes('your-supabase')
 }
 
-// ── Build analytics object from SQLite DB ───────────────────────
+// ── Build analytics object from Supabase DB ───────────────────────
 async function buildAnalytics(survey_id) {
-  const survey = queryOne('SELECT * FROM surveys WHERE id = ?', [survey_id])
-  if (!survey) throw new Error('Survey not found')
+  const { data: survey, error: surveyErr } = await supabase.from('surveys').select('*').eq('id', survey_id).single()
+  if (surveyErr || !survey) throw new Error('Survey not found')
 
-  // Parse fields
-  survey.theme = typeof survey.theme === 'string' ? JSON.parse(survey.theme || '{}') : (survey.theme || {})
-  survey.settings = typeof survey.settings === 'string' ? JSON.parse(survey.settings || '{}') : (survey.settings || {})
+  const { data: questions } = await supabase.from('questions').select('*').eq('survey_id', survey_id).order('position', { ascending: true })
+  const { data: responses } = await supabase.from('responses').select('*').eq('survey_id', survey_id)
 
-  const questions = query('SELECT * FROM questions WHERE survey_id = ? ORDER BY position', [survey_id])
-  questions.forEach((q) => {
-    q.options = typeof q.options === 'string' ? JSON.parse(q.options || '[]') : (q.options || [])
-    q.logic = typeof q.logic === 'string' ? JSON.parse(q.logic || '[]') : (q.logic || [])
-  })
+  const totalResponses = responses?.length || 0
+  const qs = questions || []
+  const rs = responses || []
 
-  const responses = query('SELECT * FROM responses WHERE survey_id = ?', [survey_id])
-  const totalResponses = responses.length
-
-  const analytics = questions.map((q) => {
-    const answers = responses
+  const analytics = qs.map((q) => {
+    const answers = rs
       .map((r) => {
         try {
           const parsed = typeof r.answers === 'string' ? JSON.parse(r.answers || '{}') : (r.answers || {})
@@ -157,7 +151,8 @@ async function buildAnalytics(survey_id) {
 
     if (['mcq', 'checkbox', 'dropdown'].includes(q.type)) {
       const counts = {}
-      q.options.forEach((o) => { counts[o] = 0 })
+      const opts = typeof q.options === 'string' ? JSON.parse(q.options || '[]') : (q.options || [])
+      opts.forEach((o) => { counts[o] = 0 })
       answers.flat().forEach((a) => { counts[a] = (counts[a] ?? 0) + 1 })
       const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
       return { question: q, type: 'mcq', counts, topOption: top, count: answers.length }
@@ -220,10 +215,13 @@ router.post('/download', async (req, res) => {
   if (!survey_id) return res.status(400).json({ success: false, error: 'survey_id is required' })
 
   try {
-    const survey = assertSurveyWritable(req, res, survey_id)
-    if (!survey) return
+    const { survey, totalResponses, analytics } = await buildAnalytics(survey_id)
 
-    const { totalResponses, analytics } = await buildAnalytics(survey_id)
+    // Authorization: User must own the survey or be an admin
+    if (req.user?.role !== 'admin' && String(survey.user_id) !== String(req.user?.id)) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
+
     const aiInsights = await generateAIReportInsights(survey, totalResponses, analytics)
     const pdf = await generatePDFReport(survey, totalResponses, analytics, aiInsights)
 
@@ -239,6 +237,9 @@ router.post('/download', async (req, res) => {
     res.end(pdf)
   } catch (err) {
     console.error('[Report] PDF error:', err)
+    if (err.message === 'Survey not found') {
+      return res.status(404).json({ success: false, error: err.message })
+    }
     res.status(500).json({ success: false, error: err.message })
   }
 })
@@ -255,10 +256,13 @@ router.post('/send', async (req, res) => {
   }
 
   try {
-    const survey = assertSurveyWritable(req, res, survey_id)
-    if (!survey) return
+    const { survey, totalResponses, analytics } = await buildAnalytics(survey_id)
 
-    const { totalResponses, analytics } = await buildAnalytics(survey_id)
+    // Authorization: User must own the survey or be an admin
+    if (req.user?.role !== 'admin' && String(survey.user_id) !== String(req.user?.id)) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
+
     const aiInsights = await generateAIReportInsights(survey, totalResponses, analytics)
     const pdf = await generatePDFReport(survey, totalResponses, analytics, aiInsights)
     logActivity(req.user?.id, req.user?.email || 'user', 'pdf_generation', survey.title, survey_id, 'reports', { method: 'email', recipient: email })

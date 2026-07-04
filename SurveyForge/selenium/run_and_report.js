@@ -122,15 +122,19 @@ async function main() {
     }
   }
 
-  // Exact path required by prompt
+  // Exact path required by prompt and CI workflows
   const reportPath = path.join(__dirname, '..', 'reports', 'excel', 'Selenium_Test_Report.xlsx');
+  const reportPath2 = path.join(__dirname, 'reports', 'excel', 'Selenium_Test_Report.xlsx');
+  const reportPath3 = path.join(__dirname, '..', 'Selenium_Test_Report.xlsx');
+  const reportPath4 = path.join(__dirname, '..', '..', 'Selenium_Test_Report.xlsx');
   
-  if (!fs.existsSync(path.dirname(reportPath))) {
-    fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+  for (const p of [reportPath, reportPath2, reportPath3, reportPath4]) {
+    if (!fs.existsSync(path.dirname(p))) {
+      fs.mkdirSync(path.dirname(p), { recursive: true });
+    }
+    await workbook.xlsx.writeFile(p);
   }
-
-  await workbook.xlsx.writeFile(reportPath);
-  console.log(`Excel report generated successfully at ${reportPath} with ${testCount} tests logged.`);
+  console.log(`Excel report generated successfully across all required paths with ${testCount} tests logged.`);
 
   if (!results.success) {
     process.exit(1);

@@ -6,7 +6,7 @@ const express = require('express')
 const { v4: uuidv4 } = require('uuid')
 const nodemailer = require('nodemailer')
 const { query, run, queryOne } = require('../database/database')
-const { assertSurveyReadable, assertSurveyWritable } = require('../utils/surveyOwnership')
+const { supabase } = require('../config/supabase')
 const {
   PLATFORMS,
   buildTrackingUrl,
@@ -65,13 +65,17 @@ function campaignStats(campaignId) {
 }
 
 /* GET /campaigns/dashboard?survey_id= */
-router.get('/dashboard', (req, res) => {
+router.get('/dashboard', async (req, res) => {
   const { survey_id } = req.query
   if (!survey_id) {
     return res.status(400).json({ success: false, error: 'survey_id is required' })
   }
   try {
-    if (!assertSurveyReadable(req, res, survey_id)) return
+    const { data: survey, error } = await supabase.from('surveys').select('*').eq('id', survey_id).single()
+    if (error || !survey) return res.status(404).json({ success: false, error: 'Survey not found' })
+    if (req.user?.role !== 'admin' && String(survey.user_id) !== String(req.user?.id)) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
 
     const campaigns = query(
       'SELECT * FROM campaigns WHERE survey_id = ? AND user_id = ? ORDER BY platform',
@@ -120,13 +124,18 @@ router.get('/dashboard', (req, res) => {
 })
 
 /* GET /campaigns?survey_id= */
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   const { survey_id } = req.query
   if (!survey_id) {
     return res.status(400).json({ success: false, error: 'survey_id is required' })
   }
   try {
-    if (!assertSurveyReadable(req, res, survey_id)) return
+    const { data: survey, error } = await supabase.from('surveys').select('*').eq('id', survey_id).single()
+    if (error || !survey) return res.status(404).json({ success: false, error: 'Survey not found' })
+    if (req.user?.role !== 'admin' && String(survey.user_id) !== String(req.user?.id)) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
+
     const rows = query(
       'SELECT * FROM campaigns WHERE survey_id = ? AND user_id = ?',
       [survey_id, req.user.id],
@@ -138,7 +147,7 @@ router.get('/', (req, res) => {
 })
 
 /* POST /campaigns — create or refresh platform campaign */
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { survey_id, platform, name, share_message } = req.body
   if (!survey_id || !platform) {
     return res.status(400).json({ success: false, error: 'survey_id and platform are required' })
@@ -147,8 +156,12 @@ router.post('/', (req, res) => {
     return res.status(400).json({ success: false, error: `Invalid platform: ${platform}` })
   }
   try {
-    if (!assertSurveyWritable(req, res, survey_id)) return
-    const survey = queryOne('SELECT * FROM surveys WHERE id = ?', [survey_id])
+    const { data: survey, error } = await supabase.from('surveys').select('*').eq('id', survey_id).single()
+    if (error || !survey) return res.status(404).json({ success: false, error: 'Survey not found' })
+    if (req.user?.role !== 'admin' && String(survey.user_id) !== String(req.user?.id)) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
+
     if (!survey?.share_token) {
       return res.status(400).json({ success: false, error: 'Publish survey before creating campaigns' })
     }
@@ -187,14 +200,14 @@ router.post('/', (req, res) => {
 })
 
 /* GET /campaigns/:id/share-content */
-router.get('/:id/share-content', (req, res) => {
+router.get('/:id/share-content', async (req, res) => {
   try {
     const campaign = parseCampaign(queryOne('SELECT * FROM campaigns WHERE id = ?', [req.params.id]))
     if (!campaign) return res.status(404).json({ success: false, error: 'Campaign not found' })
     if (campaign.user_id !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, error: 'Access denied' })
     }
-    const survey = queryOne('SELECT * FROM surveys WHERE id = ?', [campaign.survey_id])
+    const { data: survey } = await supabase.from('surveys').select('*').eq('id', campaign.survey_id).single()
     const trackingUrl = buildTrackingUrl(campaign.tracking_token)
     const templates = platformShareTemplates(survey, trackingUrl, campaign.share_message)
     const storySvg = buildStorySvg(survey?.title || 'Survey', trackingUrl)
@@ -237,7 +250,7 @@ router.post('/:id/email', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Campaign is not an email channel' })
     }
 
-    const survey = queryOne('SELECT title FROM surveys WHERE id = ?', [campaign.survey_id])
+    const { data: survey } = await supabase.from('surveys').select('title').eq('id', campaign.survey_id).single()
     const trackingUrl = buildTrackingUrl(campaign.tracking_token)
     const apiBase = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 5000}`
     const openPixel = `${apiBase}/public/campaign/${campaign.tracking_token}/open.gif`

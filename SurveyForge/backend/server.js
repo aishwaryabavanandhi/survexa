@@ -41,7 +41,6 @@ async function startServer() {
 
   /* Route modules (imported AFTER DB ready) */
   const authRoutes          = require('./routes/auth')
-  const phoneAuthRoutes     = require('./routes/phoneAuth')
   const aiRoutes            = require('./routes/ai')
   const surveysRoutes       = require('./routes/surveys')
   const questionsRoutes     = require('./routes/questions')
@@ -122,7 +121,6 @@ async function startServer() {
 
   /* ── Public routes ───────────────────────────────────── */
   app.use('/auth',       authLimiter, authRoutes)
-  app.use('/auth/phone', authLimiter, phoneAuthRoutes)
   app.get('/billing/plans', (_req, res) => {
     const { listPlans } = require('./lib/plans')
     const { isRazorpayConfigured } = require('./services/razorpay')
@@ -197,7 +195,7 @@ async function startServer() {
     res.status(err.status ?? 500).json({ success: false, error: err.message ?? 'Internal server error' })
   })
 
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log('')
     console.log('  🚀  Survexa API v2.0.0')
     console.log(`  ➜   http://localhost:${PORT}`)

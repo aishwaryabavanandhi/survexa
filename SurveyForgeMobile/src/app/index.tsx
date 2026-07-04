@@ -5,6 +5,9 @@ import {
   Platform, ScrollView
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SymbolView } from 'expo-symbols';
 import api from '../services/api';
 
 export default function LoginScreen() {
@@ -39,102 +42,193 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        {/* Top Logo Section */}
         <View style={styles.header}>
-          <Text style={styles.logo}>SF</Text>
-          <Text style={styles.title}>SurveyForge</Text>
-          <Text style={styles.subtitle}>Sign in to your account</Text>
+          <Image 
+            source={require('@/assets/images/survexa_logo.png')} 
+            style={styles.logoImage} 
+            contentFit="contain"
+          />
+          <Text style={styles.subtitle}>
+            Build powerful AI-driven surveys, gather deep insights, and make data-driven decisions.
+          </Text>
         </View>
 
+        {/* Login Card */}
         <View style={styles.card}>
-          <Text style={styles.label}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="you@example.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            placeholderTextColor="#9ca3af"
-          />
+          <Text style={styles.cardTitle}>Welcome back</Text>
+          <Text style={styles.cardSubtitle}>Sign in to your Survexa account</Text>
 
+          {/* Email Input */}
+          <Text style={styles.label}>Email address</Text>
+          <View style={styles.inputContainer}>
+            <SymbolView name="envelope" size={18} tintColor="#9ca3af" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="admin@survexa.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              placeholderTextColor="#9ca3af"
+            />
+          </View>
+
+          {/* Password Input */}
           <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholderTextColor="#9ca3af"
-          />
+          <View style={styles.inputContainer}>
+            <SymbolView name="lock" size={18} tintColor="#9ca3af" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="••••••••••••"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              placeholderTextColor="#9ca3af"
+            />
+          </View>
+
+          <TouchableOpacity style={styles.forgotPassword}>
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
             disabled={loading}
+            activeOpacity={0.8}
           >
-            {loading
-              ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.buttonText}>Sign In →</Text>}
+            <LinearGradient
+              colors={['#DDE4FF', '#AEE4FF']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.button, loading && styles.buttonDisabled]}
+            >
+              {loading ? (
+                <ActivityIndicator color="#111827" />
+              ) : (
+                <Text style={styles.buttonText}>Sign in</Text>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
-        </View>
 
-        <TouchableOpacity onPress={() => router.push('/signup')} style={styles.link}>
-          <Text style={styles.linkText}>
-            Don't have an account? <Text style={styles.linkBold}>Sign up</Text>
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.linkContainer}>
+            <Text style={styles.linkText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={() => router.push('/signup')}>
+              <Text style={styles.linkBold}>Sign up</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
+  flex: { flex: 1, backgroundColor: '#0f172a' },
   container: {
     flexGrow: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#0f172a',
     justifyContent: 'center',
     padding: 24,
+    paddingTop: 60,
   },
-  header: { alignItems: 'center', marginBottom: 32 },
-  logo: {
-    width: 64, height: 64, borderRadius: 16,
-    backgroundColor: '#4f46e5',
-    textAlign: 'center', lineHeight: 64,
-    fontSize: 28, fontWeight: 'bold', color: '#fff',
-    marginBottom: 12,
+  header: { 
+    alignItems: 'center', 
+    marginBottom: 40 
   },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#111827' },
-  subtitle: { fontSize: 15, color: '#6b7280', marginTop: 4 },
+  logoImage: {
+    width: 280,
+    height: 280,
+    marginBottom: -20, // Negative margin to bring the subtitle closer
+  },
+  subtitle: { 
+    fontSize: 15, 
+    color: '#9ca3af', 
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 16,
+  },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1f2937',
     borderRadius: 16,
     padding: 24,
+    borderWidth: 1,
+    borderColor: '#374151',
     shadowColor: '#000',
-    shadowOpacity: 0.07,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  cardTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 6,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#9ca3af',
     marginBottom: 24,
   },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
+  label: { 
+    fontSize: 13, 
+    fontWeight: '600', 
+    color: '#fff', 
+    marginBottom: 8 
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#374151',
+    borderRadius: 10,
+    marginBottom: 16,
+    paddingHorizontal: 14,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
   input: {
-    backgroundColor: '#f9fafb',
-    borderWidth: 1, borderColor: '#e5e7eb',
-    borderRadius: 10, padding: 14,
-    fontSize: 15, color: '#111827', marginBottom: 16,
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 15, 
+    color: '#fff',
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    color: '#AEE4FF',
+    fontSize: 13,
+    fontWeight: '600',
   },
   button: {
-    backgroundColor: '#4f46e5',
-    paddingVertical: 15,
-    borderRadius: 10,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 4,
   },
-  buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  link: { alignItems: 'center' },
-  linkText: { fontSize: 14, color: '#6b7280' },
-  linkBold: { color: '#4f46e5', fontWeight: 'bold' },
+  buttonDisabled: { 
+    opacity: 0.6 
+  },
+  buttonText: { 
+    color: '#111827', 
+    fontSize: 16, 
+    fontWeight: 'bold' 
+  },
+  linkContainer: { 
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+  },
+  linkText: { 
+    fontSize: 14, 
+    color: '#9ca3af' 
+  },
+  linkBold: { 
+    fontSize: 14,
+    color: '#AEE4FF', 
+    fontWeight: 'bold' 
+  },
 });

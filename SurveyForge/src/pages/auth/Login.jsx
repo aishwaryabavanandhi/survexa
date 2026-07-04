@@ -20,7 +20,6 @@ const features = [
 export default function Login() {
   const { login }    = useApp()
   const navigate     = useNavigate()
-  const [mode, setMode] = useState('email')
   const [form, setForm] = useState({ identifier: '', password: '' })
   const [errors, setErrors]   = useState({})
   const [loading, setLoading] = useState(false)
@@ -53,11 +52,6 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (mode === 'phone') {
-      navigate('/phone/enter')
-      return
-    }
-
     const errs = {}
     if (!form.identifier?.trim()) errs.identifier = 'Email is required'
     if (!form.password) errs.password = 'Password is required'
@@ -72,15 +66,9 @@ export default function Login() {
       toast.success('Welcome back!', { id })
       navigate('/dashboard')
     } else if (result.needsVerification) {
-      if (result.needsPhone && result.phone) {
-        toast('Verify your mobile number', { id, icon: '📱' })
-        localStorage.setItem('sf_pending_phone', result.phone)
-        navigate('/verify-phone', { state: { phone: result.phone } })
-      } else {
-        toast('Check your inbox for the OTP code', { id, icon: '📧' })
-        localStorage.setItem('sf_pending_email', result.email || form.identifier)
-        navigate('/otp', { state: { email: result.email || form.identifier } })
-      }
+      toast('Check your inbox for the OTP code', { id, icon: '📧' })
+      localStorage.setItem('sf_pending_email', result.email || form.identifier)
+      navigate('/otp', { state: { email: result.email || form.identifier } })
     } else {
       toast.error(result.error, { id })
       setAuthError(result.error)
@@ -126,32 +114,6 @@ export default function Login() {
             <h2 className="text-2xl font-bold text-[var(--sf-text)] mb-1 font-display">Welcome back</h2>
             <p className="text-sm text-[var(--sf-text-muted)] mb-5 font-medium">Sign in to your Survexa account</p>
 
-            {/* Mode toggle */}
-            <div className="flex bg-[var(--sf-bg-subtle)] rounded-xl p-1 mb-5 border border-[var(--sf-border)]">
-              {['email', 'phone'].map(m => (
-                <button data-testid="button-elt-64" key={m} onClick={() => { setMode(m); setForm({ identifier: '', password: form.password }); setErrors({}); setAuthError('') }}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-                    mode === m ? 'bg-white text-[var(--sf-text)] shadow-sm' : 'text-[var(--sf-text-muted)]'
-                  }`}>
-                  {m === 'email' ? (
-                    <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                      </svg>
-                      Email
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                      </svg>
-                      Phone
-                    </>
-                  )}
-                </button>
-              ))}
-            </div>
-
             {authError && (
               <div className="mb-5 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-2">
                 <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
@@ -161,7 +123,6 @@ export default function Login() {
 
             <form data-testid="form-elt-65" onSubmit={handleSubmit} className="space-y-5">
               <AnimatePresence mode="wait">
-                {mode === 'email' ? (
                   <motion.div key="email" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }}>
                     <Input data-testid="Input-elt-66" id="identifier" name="identifier" type="email" label="Email address"
                       placeholder="jane@company.com" value={form.identifier} onChange={handleChange}
@@ -169,16 +130,9 @@ export default function Login() {
                       icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>}
                     />
                   </motion.div>
-                ) : (
-                  <motion.div key="phone" initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-10 }}
-                    className="rounded-xl border border-[var(--sf-border)] bg-[var(--sf-primary-soft)]/40 p-4 text-sm text-[var(--sf-text-muted)]">
-                    <p className="font-medium text-[var(--sf-text)] mb-1">Phone sign-in</p>
-                    <p>We&apos;ll send a one-time code to your mobile — no password needed.</p>
-                  </motion.div>
-                )}
               </AnimatePresence>
 
-              {mode === 'email' && (
+
                 <div>
                   <Input data-testid="Input-elt-67" id="password" name="password" type="password" label="Password"
                     placeholder="••••••••" value={form.password} onChange={handleChange}
@@ -191,10 +145,9 @@ export default function Login() {
                     </Link>
                   </div>
                 </div>
-              )}
 
               <Button data-testid="Button-elt-68" type="submit" fullWidth loading={loading} size="lg">
-                {mode === 'phone' ? 'Continue with OTP' : 'Sign in'}
+                Sign in
               </Button>
             </form>
 

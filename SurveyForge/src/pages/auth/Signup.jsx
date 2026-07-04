@@ -9,8 +9,6 @@ import { useApp } from '../../context/AppContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import survexaLogo from '../../assets/survexa_logo.png'
-import CountryCodeSelector, { formatPhoneWithDial } from '../../components/auth/CountryCodeSelector'
-
 const features = [
   '🤖 AI-powered question generation',
   '🔗 Shareable survey links',
@@ -21,11 +19,9 @@ const features = [
 export default function Signup() {
   const { register } = useApp()
   const navigate = useNavigate()
-  const [dialCode, setDialCode] = useState('+91')
   const [form, setForm] = useState({
     name: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
   })
@@ -44,9 +40,6 @@ export default function Signup() {
     if (!form.name?.trim()) errs.name = 'Full name is required'
     if (!form.email?.trim()) errs.email = 'Email is required'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Enter a valid email'
-    const fullPhone = formatPhoneWithDial(dialCode, form.phone)
-    if (!form.phone?.trim()) errs.phone = 'Mobile number is required'
-    else if (!/^\+[\d]{10,15}$/.test(fullPhone.replace(/\s/g, ''))) errs.phone = 'Enter a valid mobile number'
     if (!form.password) errs.password = 'Password is required'
     else if (form.password.length < 8) errs.password = 'Min. 8 characters'
     if (form.password !== form.confirmPassword) errs.confirmPassword = 'Passwords do not match'
@@ -64,11 +57,9 @@ export default function Signup() {
     setLoading(true)
     const id = toast.loading('Creating your account…')
 
-    const fullPhone = formatPhoneWithDial(dialCode, form.phone)
     const result = await register({
       name: form.name.trim(),
       email: form.email.trim(),
-      phone: fullPhone,
       password: form.password,
     })
     setLoading(false)
@@ -81,10 +72,8 @@ export default function Signup() {
       navigate('/otp', {
         state: {
           email: result.email,
-          phone: result.phone,
           name: form.name,
           devOtp: result.emailOtp,
-          phoneOtp: result.phoneOtp,
         },
       })
     } else {
@@ -102,7 +91,7 @@ export default function Signup() {
             <img src={survexaLogo} alt="Survexa" className="w-full h-full object-contain filter invert brightness-200" />
           </div>
           <h1 className="text-4xl font-extrabold text-white mb-3 font-display">Join Survexa</h1>
-          <p className="text-primary-100 text-lg mb-10">Secure signup with email and mobile verification.</p>
+          <p className="text-primary-100 text-lg mb-10">Secure signup with email verification.</p>
           <div className="space-y-3">
             {features.map((f, i) => (
               <motion.div
@@ -124,7 +113,7 @@ export default function Signup() {
           <div className="card card-gradient-border p-8">
             <h2 className="text-2xl font-bold text-[var(--sf-text)] mb-1">Create account</h2>
             <p className="text-sm text-[var(--sf-text-muted)] mb-5">
-              Full name, email, mobile, and password — then verify both OTPs.
+              Full name, email, and password — then verify your email.
             </p>
 
             {apiError && (
@@ -155,26 +144,7 @@ export default function Signup() {
                 error={errors.email}
                 autoComplete="email"
               />
-              <div>
-                <label className="block text-sm font-semibold text-[var(--sf-text-secondary)] mb-1.5">
-                  Mobile number <span className="text-red-400">*</span>
-                </label>
-                <div className="flex gap-2">
-                  <CountryCodeSelector value={dialCode} onChange={setDialCode} className="shrink-0 w-[140px]" />
-                  <input data-testid="input-elt-83"
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="98765 43210"
-                    value={form.phone}
-                    onChange={handleChange}
-                    autoComplete="tel"
-                    className="flex-1 rounded-xl border border-[var(--sf-border)] bg-white dark:bg-[#1a1f2e] px-4 py-2.5 text-sm text-[var(--sf-text)] focus:outline-none focus:ring-2 focus:ring-[var(--sf-primary)]/40"
-                  />
-                </div>
-                {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
-                <p className="mt-1 text-xs text-[var(--sf-text-muted)]">Select country code, then enter your number</p>
-              </div>
+
               <Input data-testid="Input-elt-84"
                 id="password"
                 name="password"

@@ -4,7 +4,26 @@
 const { query, run, queryOne } = require('../database')
 const { getPlan, isUnlimited } = require('./plans')
 
+/** Supabase users have UUID (text) IDs. SQLite tables use INTEGER PKs.
+ *  Detect UUID strings to avoid a "datatype mismatch" crash. */
+function isUUID(id) {
+  return typeof id === 'string' && /^[0-9a-f-]{36}$/i.test(id)
+}
+
+/** Default unlimited snapshot returned for Supabase (UUID) users */
+function supabaseSnapshot() {
+  const plan = getPlan('free')
+  return {
+    plan: { id: plan.id, name: plan.name, price_inr: plan.price_inr, features: plan.features, ai_insights: plan.ai_insights },
+    subscription: { status: 'active', plan_id: 'free', current_period_start: null, current_period_end: null, cancel_at_period_end: false },
+    usage: { surveys_created: 0, responses_collected: 0, ai_requests_used: 0 },
+    limits: { surveys: null, responses: null, ai: null },
+    remaining: { surveys: null, responses: null, ai: null },
+  }
+}
+
 function getActiveSubscription(userId) {
+  if (isUUID(userId)) return { plan_id: 'free', status: 'active', plan: getPlan('free'), current_period_end: null }
   const sub = queryOne(
     `SELECT * FROM subscriptions
      WHERE user_id = ? AND status = 'active'
@@ -21,6 +40,7 @@ function getActiveSubscription(userId) {
 }
 
 function ensureUsageRow(userId) {
+  if (isUUID(userId)) return { user_id: userId, surveys_created: 0, responses_collected: 0, ai_requests_used: 0 }
   let row = queryOne('SELECT * FROM usage_tracking WHERE user_id = ?', [userId])
   if (!row) {
     run(
@@ -52,6 +72,7 @@ function countUserResponses(userId) {
 }
 
 function getUsageSnapshot(userId) {
+  if (isUUID(userId)) return supabaseSnapshot()
   ensureUsageRow(userId)
   const sub = getActiveSubscription(userId)
   const plan = sub.plan
@@ -94,6 +115,7 @@ function getUsageSnapshot(userId) {
 }
 
 function checkLimit(userId, metric) {
+  if (isUUID(userId)) return { ok: true, snapshot: supabaseSnapshot() }
   const snap = getUsageSnapshot(userId)
   const plan = snap.plan.id === 'free' ? getPlan('free') : getActiveSubscription(userId).plan
 
@@ -140,6 +162,7 @@ function checkLimit(userId, metric) {
 }
 
 function incrementAiUsage(userId) {
+  if (isUUID(userId)) return // Supabase users: skip SQLite write
   ensureUsageRow(userId)
   run(
     'UPDATE usage_tracking SET ai_requests_used = ai_requests_used + 1, updated_at = datetime(\'now\') WHERE user_id = ?',
@@ -148,6 +171,7 @@ function incrementAiUsage(userId) {
 }
 
 function syncSurveyCount(userId) {
+  if (isUUID(userId)) return
   ensureUsageRow(userId)
   const c = countUserSurveys(userId)
   run(
@@ -157,6 +181,7 @@ function syncSurveyCount(userId) {
 }
 
 function syncResponseCount(userId) {
+  if (isUUID(userId)) return
   ensureUsageRow(userId)
   const c = countUserResponses(userId)
   run(

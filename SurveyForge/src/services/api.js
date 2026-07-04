@@ -3,6 +3,7 @@
  */
 import axios from 'axios'
 import { getToken, clearToken } from './token'
+import { supabase } from '../lib/supabase'
 
 /**
  * Returns the API base URL.
@@ -47,7 +48,7 @@ api.interceptors.response.use(
       const path = window.location.pathname
       const publicAuth = ['/login', '/signup', '/otp', '/phone', '/welcome', '/forgot-password', '/reset-password']
       const isPublic = publicAuth.some((p) => path.startsWith(p))
-      if (!isPublic) {
+      if (!isPublic && !localStorage.getItem('survexa_mock_user')) {
         clearToken()
         window.location.href = '/login'
       }
@@ -74,24 +75,117 @@ export const generateQuestions = (topic, count = 8, audience = '', goal = '') =>
 export const getAIInsights = () => api.get('/insights').then((r) => r.data)
 
 /* ── Surveys ──────────────────────────────────────────────────────── */
-export const getSurveys = () => api.get('/surveys').then((r) => r.data)
+export const getSurveys = async () => {
+  const { data, error } = await supabase
+    .from('surveys')
+    .select('*')
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return { success: true, surveys: data || [], data: data || [] }
+}
 
-export const getSurveyById = (id) => api.get(`/surveys/${id}`).then((r) => r.data)
+export const getSurveyById = async (id) => {
+  const { data: survey, error } = await supabase.from('surveys').select('*').eq('id', id).single()
+  if (error) throw error
+  // Fetch questions separately (no 'questions' column on surveys table)
+  const { data: questions } = await supabase
+    .from('questions')
+    .select('*')
+    .eq('survey_id', id)
+    .order('position', { ascending: true })
+  return { success: true, survey: { ...survey, questions: questions || [] }, data: { ...survey, questions: questions || [] } }
+}
 
-export const saveSurvey = (data) => api.post('/surveys', data).then((r) => r.data)
+export const saveSurvey = async (data) => {
+  // Strip 'questions' — surveys table has no such column; save them separately below
+  const { questions, ...surveyData } = data
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: result, error } = await supabase
+    .from('surveys')
+    .insert([{ ...surveyData, user_id: user?.id }])
+    .select()
+    .single()
+  if (error) throw error
 
-export const updateSurvey = (id, data) => api.put(`/surveys/${id}`, data).then((r) => r.data)
+  // Save questions into the separate questions table
+  if (questions?.length > 0) {
+    const toInsert = questions.map((q, idx) => {
+      const { id: _id, ...rest } = q
+      return {
+        ...rest,
+        survey_id: result.id,
+        position: idx,
+        options: typeof rest.options === 'string' ? rest.options : JSON.stringify(rest.options ?? []),
+        logic: typeof rest.logic === 'string' ? rest.logic : JSON.stringify(rest.logic ?? []),
+      }
+    })
+    await supabase.from('questions').insert(toInsert)
+  }
 
-export const deleteSurvey = (id, permanent = false) =>
-  api.delete(`/surveys/${id}`, { params: permanent ? { permanent: '1' } : {} }).then((r) => r.data)
+  return { success: true, survey: result, data: result }
+}
 
-export const duplicateSurvey = (id) => api.post(`/surveys/${id}/duplicate`).then((r) => r.data)
+export const updateSurvey = async (id, data) => {
+  // Strip 'questions' — not a column on the surveys table
+  const { questions, ...surveyData } = data
+  const { data: result, error } = await supabase.from('surveys').update(surveyData).eq('id', id).select().single()
+  if (error) throw error
+  return { success: true, survey: result, data: result }
+}
 
-export const publishSurvey = (id) => api.patch(`/surveys/${id}/publish`).then((r) => r.data)
+export const deleteSurvey = async (id, permanent = false) => {
+  if (permanent) {
+    const { error } = await supabase.from('surveys').delete().eq('id', id)
+    if (error) throw error
+  } else {
+    const { error } = await supabase.from('surveys').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (error) throw error
+  }
+  return { success: true }
+}
 
-export const restoreSurvey = (id) => api.post(`/surveys/${id}/restore`).then((r) => r.data)
+export const duplicateSurvey = async (id) => {
+  const { data: survey, error: surveyErr } = await supabase.from('surveys').select('*').eq('id', id).single()
+  if (surveyErr) throw surveyErr
 
-export const getTrashSurveys = () => api.get('/surveys', { params: { trash: '1' } }).then((r) => r.data)
+  const { data: questions } = await supabase.from('questions').select('*').eq('survey_id', id)
+
+  const { id: _oldId, created_at: _ca, share_token: _st, ...surveyData } = survey
+  surveyData.title = surveyData.title + ' (Copy)'
+
+  const { data: newSurvey, error: insertErr } = await supabase.from('surveys').insert([surveyData]).select().single()
+  if (insertErr) throw insertErr
+
+  if (questions?.length > 0) {
+    const newQuestions = questions.map(q => {
+      const { id: _qId, survey_id: _sid, ...qData } = q
+      qData.survey_id = newSurvey.id
+      return qData
+    })
+    await supabase.from('questions').insert(newQuestions)
+  }
+
+  return { success: true, data: newSurvey, survey: newSurvey }
+}
+
+export const publishSurvey = async (id) => {
+  const { data, error } = await supabase.from('surveys').update({ status: 'published' }).eq('id', id).select().single()
+  if (error) throw error
+  return { success: true, survey: data }
+}
+
+export const restoreSurvey = async (id) => {
+  const { error } = await supabase.from('surveys').update({ deleted_at: null }).eq('id', id)
+  if (error) throw error
+  return { success: true }
+}
+
+export const getTrashSurveys = async () => {
+  const { data, error } = await supabase.from('surveys').select('*').not('deleted_at', 'is', null).order('deleted_at', { ascending: false })
+  if (error) throw error
+  return { success: true, surveys: data || [], data: data || [] }
+}
 
 export const exportAnalyticsCsv = (surveyId) =>
   api.get(`/responses/analytics/${surveyId}/export`, { responseType: 'blob' }).then((r) => r.data)
@@ -101,26 +195,56 @@ export const getAnalyticsSegments = (surveyId) =>
 
 
 /* ── Questions ────────────────────────────────────────────────────── */
-export const getQuestions = (surveyId) =>
-  api.get('/questions', { params: { survey_id: surveyId } }).then((r) => r.data)
+export const getQuestions = async (surveyId) => {
+  const { data, error } = await supabase.from('questions').select('*').eq('survey_id', surveyId).order('position', { ascending: true })
+  if (error) throw error
+  return { success: true, questions: data || [] }
+}
 
-export const saveQuestions = ({ surveyId, survey_id, questions }) =>
-  api
-    .post('/questions', { surveyId: surveyId ?? survey_id, questions })
-    .then((r) => r.data)
+export const saveQuestions = async ({ surveyId, survey_id, questions }) => {
+  const id = surveyId ?? survey_id
+  await supabase.from('questions').delete().eq('survey_id', id)
+  if (questions?.length > 0) {
+    const toInsert = questions.map(q => {
+      const { id: _id, ...rest } = q
+      return { ...rest, survey_id: id }
+    })
+    const { error } = await supabase.from('questions').insert(toInsert)
+    if (error) throw error
+  }
+  return { success: true }
+}
 
-export const updateQuestion = (id, data) =>
-  api.put(`/questions/${id}`, data).then((r) => r.data)
+export const updateQuestion = async (id, data) => {
+  const { error } = await supabase.from('questions').update(data).eq('id', id)
+  if (error) throw error
+  return { success: true }
+}
 
-export const deleteQuestion = (id) => api.delete(`/questions/${id}`).then((r) => r.data)
+export const deleteQuestion = async (id) => {
+  const { error } = await supabase.from('questions').delete().eq('id', id)
+  if (error) throw error
+  return { success: true }
+}
 
 /* ── Responses & analytics ────────────────────────────────────────── */
-export const saveResponse = (data) => api.post('/responses', data).then((r) => r.data)
+export const saveResponse = async (data) => {
+  const { data: result, error } = await supabase.from('responses').insert([data]).select().single()
+  if (error) throw error
+  return { success: true, response: result }
+}
 
-export const getResponseById = (id) => api.get(`/responses/${id}`).then((r) => r.data)
+export const getResponseById = async (id) => {
+  const { data, error } = await supabase.from('responses').select('*').eq('id', id).single()
+  if (error) throw error
+  return { success: true, response: data }
+}
 
-export const getResponses = (surveyId) =>
-  api.get('/responses', { params: { survey_id: surveyId } }).then((r) => r.data)
+export const getResponses = async (surveyId) => {
+  const { data, error } = await supabase.from('responses').select('*').eq('survey_id', surveyId).order('submitted_at', { ascending: false })
+  if (error) throw error
+  return { success: true, responses: data || [] }
+}
 
 export const getAnalytics = (surveyId) =>
   api.get(`/responses/analytics/${surveyId}`).then((r) => r.data)
@@ -134,17 +258,25 @@ export const sendReport = (data) => api.post('/reports/send', data).then((r) => 
 export const getSurveyRecommendations = (data) => api.post('/ai/recommendations', data).then((r) => r.data)
 
 /* ── Public surveys ───────────────────────────────────────────────── */
-export const getPublicSurvey = (token) =>
-  api.get(`/public/survey/${token}`).then((r) => r.data)
+export const getPublicSurvey = async (token) => {
+  const { data, error } = await supabase.from('surveys').select('*').eq('share_token', token).single()
+  if (error) throw error
+  return { success: true, survey: data }
+}
 
-export const submitPublicResponse = (token, answers, respondentEmail = null, campaignTrackingToken = null) =>
-  api
-    .post(`/public/survey/${token}/respond`, {
-      answers,
-      respondent_email: respondentEmail,
-      campaign_tracking_token: campaignTrackingToken,
-    })
-    .then((r) => r.data)
+export const submitPublicResponse = async (token, answers, respondentEmail = null, campaignTrackingToken = null) => {
+  const { data: survey, error: surveyErr } = await supabase.from('surveys').select('id').eq('share_token', token).single()
+  if (surveyErr) throw surveyErr
+  
+  const { data: result, error } = await supabase.from('responses').insert([{
+    survey_id: survey.id,
+    answers,
+    respondent_email: respondentEmail
+  }]).select().single()
+  
+  if (error) throw error
+  return { success: true, response: result }
+}
 
 export const resolveCampaignLink = (trackingToken) =>
   api.get(`/public/campaign/${trackingToken}`).then((r) => r.data)

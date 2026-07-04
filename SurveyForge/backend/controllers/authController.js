@@ -9,8 +9,6 @@ const jwt        = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
 const { query, run, queryOne } = require('../database/database')
 const { normalizePhone } = require('../utils/phone')
-const { sendPhoneOtp } = require('../services/smsProvider')
-const { savePhoneOtp, generateOTP: generatePhoneOTP } = require('../lib/phoneOtpStore')
 const {
   saveEmailOtp,
   checkEmailResendCooldown,
@@ -241,7 +239,7 @@ const FORGOT_ACK = 'If an account exists with this email, you will receive reset
 
 // ── POST /auth/signup ──────────────────────────────────────
 const signup = async (req, res) => {
-  const { name, email, phone, password } = req.body
+  const { name, email, password } = req.body
 
   if (!name?.trim()) {
     return res.status(400).json({ success: false, error: 'name is required' })
@@ -250,68 +248,53 @@ const signup = async (req, res) => {
   if (!emailNorm || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNorm)) {
     return res.status(400).json({ success: false, error: 'Invalid email address' })
   }
-  const { valid, e164, error: phoneError } = normalizePhone(phone)
-  if (!valid) {
-    return res.status(400).json({ success: false, error: phoneError })
-  }
   if (!password || password.length < 8) {
     return res.status(400).json({ success: false, error: 'Password must be at least 8 characters' })
   }
 
   try {
     const byEmail = queryOne('SELECT id, verified, email_verified FROM users WHERE email = ?', [emailNorm])
-    const byPhone = queryOne('SELECT id, verified, phone_verified FROM users WHERE phone = ?', [e164])
 
-    if (byEmail?.verified || byPhone?.verified) {
+    if (byEmail?.verified) {
       return res.status(409).json({ success: false, error: 'Account already exists. Please log in.' })
-    }
-    if (byEmail && byPhone && byEmail.id !== byPhone.id) {
-      return res.status(409).json({ success: false, error: 'Email and phone belong to different accounts.' })
     }
 
     const hashed = await bcrypt.hash(password, 12)
     let userId
 
-    const existing = byEmail || byPhone
+    const existing = byEmail
     if (existing) {
       userId = existing.id
       run(
-        'UPDATE users SET name = ?, email = ?, phone = ?, password = ?, verified = 0, email_verified = 0, phone_verified = 0 WHERE id = ?',
-        [name.trim(), emailNorm, e164, hashed, userId],
+        'UPDATE users SET name = ?, email = ?, password = ?, verified = 0, email_verified = 0, phone_verified = 0 WHERE id = ?',
+        [name.trim(), emailNorm, hashed, userId],
       )
     } else {
       const { lastInsertRowid } = run(
-        'INSERT INTO users (email, phone, password, name, verified, email_verified, phone_verified) VALUES (?, ?, ?, ?, 0, 0, 0)',
-        [emailNorm, e164, hashed, name.trim()],
+        'INSERT INTO users (email, password, name, verified, email_verified, phone_verified) VALUES (?, ?, ?, 0, 0, 0)',
+        [emailNorm, hashed, name.trim()],
       )
       userId = lastInsertRowid
       ensureFreeSubscription(userId)
       ensureUsageRow(userId)
     }
 
-    logActivity(userId, emailNorm, 'registration_requested', 'email/phone signup', userId, 'auth')
+    logActivity(userId, emailNorm, 'registration_requested', 'email signup', userId, 'auth')
 
     const emailCode = generateOTP()
     saveEmailOtp(emailNorm, emailCode)
     const emailResult = await sendOTPEmail(emailNorm, emailCode, name.trim())
 
-    const phoneCode = generatePhoneOTP()
-    savePhoneOtp(e164, phoneCode, 'signup')
-    const phoneResult = await sendPhoneOtp(e164, phoneCode)
-
     const isDev = process.env.NODE_ENV !== 'production'
     const exposeEmailOtp = emailResult.devMode || isDev
-    const exposePhoneOtp = phoneResult.devMode || isDev
 
-    console.log(`[Auth] Signup: ${emailNorm} / ${e164}`)
+    console.log(`[Auth] Signup: ${emailNorm}`)
     res.status(201).json({
       success: true,
-      message: 'Account created. Verify your email and mobile number with the OTP codes sent.',
+      message: 'Account created. Verify your email with the OTP code sent.',
       email: emailNorm,
-      phone: e164,
-      devMode: emailResult.devMode || phoneResult.devMode,
+      devMode: emailResult.devMode,
       emailOtp: exposeEmailOtp ? emailCode : undefined,
-      phoneOtp: exposePhoneOtp ? phoneCode : undefined,
       nextStep: 'email',
     })
   } catch (err) {
@@ -368,10 +351,8 @@ const verifyOtp = async (req, res) => {
         ? { id: updated.id, email: updated.email, phone: updated.phone, name: updated.name, role: updated.role }
         : undefined,
       phone: updated.phone,
-      message: updated.verified
-        ? 'Account verified! Welcome to Survexa 🎉'
-        : 'Email verified. Please verify your mobile number next.',
-      nextStep: updated.verified ? null : 'phone',
+      message: 'Account verified! Welcome to Survexa 🎉',
+      nextStep: null,
     })
   } catch (err) {
     console.error('[Auth] Verify OTP error:', err)
@@ -453,19 +434,14 @@ const login = async (req, res) => {
     }
     if (!user.verified) {
       const needsEmail = !user.email_verified
-      const needsPhone = user.phone && !user.phone_verified
       return res.status(403).json({
         success: false,
         error: needsEmail
           ? 'Please verify your email with the OTP we sent.'
-          : needsPhone
-            ? 'Please verify your mobile number to activate your account.'
-            : 'Account not verified.',
+          : 'Account not verified.',
         needsVerification: true,
         needsEmail,
-        needsPhone,
         email: user.email,
-        phone: user.phone,
       })
     }
 

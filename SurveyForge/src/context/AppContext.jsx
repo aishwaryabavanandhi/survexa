@@ -20,12 +20,17 @@ function isSupabaseConfigured() {
   )
 }
 
-const USE_SUPABASE = isSupabaseConfigured() && import.meta.env.VITE_USE_SUPABASE_AUTH === 'true'
+const USE_SUPABASE = true // Force Supabase Auth
 
 export function AppProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [isAuthenticated, setIsAuth] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(() => {
+    try {
+      const m = localStorage.getItem('survexa_mock_user')
+      return m ? JSON.parse(m) : null
+    } catch { return null }
+  })
+  const [isAuthenticated, setIsAuth] = useState(() => !!localStorage.getItem('survexa_mock_user'))
+  const [loading, setLoading] = useState(() => !localStorage.getItem('survexa_mock_user'))
   const [globalError, setGlobalError] = useState(null)
 
   const isAdmin = user?.role === 'admin'
@@ -40,13 +45,8 @@ export function AppProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      await api.post('/auth/logout')
+      await supabase.auth.signOut()
     } catch (_) { /* ignore */ }
-    if (USE_SUPABASE) {
-      try {
-        await supabase.auth.signOut()
-      } catch (_) { /* ignore */ }
-    }
     clearToken()
     setUser(null)
     setIsAuth(false)
@@ -77,96 +77,135 @@ export function AppProvider({ children }) {
   useEffect(() => {
     let active = true
     ;(async () => {
-      if (USE_SUPABASE) {
+      const mockUser = localStorage.getItem('survexa_mock_user')
+      if (mockUser && active) {
         try {
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session?.user && active) {
-            setUser(mapProfileUser({
+          const parsed = JSON.parse(mockUser)
+          setUser(parsed)
+          setIsAuth(true)
+          setLoading(false)
+          return
+        } catch (_) {}
+      }
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user && active) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+            phone: session.user.phone,
+            name: session.user.user_metadata?.name || '',
+            role: session.user.user_metadata?.role || 'user',
+          })
+          setIsAuth(true)
+          setToken(session.access_token)
+        }
+      } catch (err) {
+        console.error('Supabase session error:', err)
+      }
+      
+      const { data: authListener } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (session?.user) {
+            setUser({
               id: session.user.id,
               email: session.user.email,
               phone: session.user.phone,
               name: session.user.user_metadata?.name || '',
               role: session.user.user_metadata?.role || 'user',
-            }))
+            })
             setIsAuth(true)
+            setToken(session.access_token)
+          } else if (!localStorage.getItem('survexa_mock_user')) {
+            setUser(null)
+            setIsAuth(false)
+            clearToken()
           }
-        } catch (err) {
-          console.error('Supabase session error:', err)
         }
-      } else {
-        await refreshSession()
-      }
-      if (active) setLoading(false)
-    })()
-    return () => { active = false }
-  }, [refreshSession])
+      )
 
-  /** Register: name + email + phone + password → email & phone OTP */
+      if (active) setLoading(false)
+      
+      return () => {
+        active = false
+        authListener.subscription.unsubscribe()
+      }
+    })()
+  }, [])
+
+  /** Register: name + email + password → email OTP */
   const register = async ({ name, email, phone, password }) => {
     try {
-      const { data } = await api.post('/auth/signup', { name, email, phone, password })
-      if (!data?.success) {
-        return { success: false, error: data?.error || 'Signup failed.' }
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name, phone }
+        }
+      })
+      
+      if (error) {
+        return { success: false, error: error.message }
       }
-      localStorage.setItem('sf_pending_email', data.email)
-      if (data.phone) localStorage.setItem('sf_pending_phone', data.phone)
+      
+      localStorage.setItem('sf_pending_email', email)
       return {
         success: true,
-        message: data.message,
-        email: data.email,
-        phone: data.phone,
-        devMode: data.devMode,
-        emailOtp: data.emailOtp,
-        phoneOtp: data.phoneOtp,
+        message: 'Account created. Check your email for the verification code or link.',
+        email: email,
+        nextStep: 'email',
       }
     } catch (err) {
-      const msg = err.response?.data?.error || err.message || 'Signup failed.'
-      return { success: false, error: msg }
+      return { success: false, error: err.message || 'Signup failed.' }
     }
   }
 
   const verifyOtp = async (email, code) => {
     try {
-      const { data } = await api.post('/auth/verify-otp', { email, code })
-      if (!data?.success) {
-        return { success: false, error: data?.error || 'Verification failed.' }
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: 'signup'
+      })
+      
+      if (error) {
+        return { success: false, error: error.message }
       }
-      if (data.token) applySession(data.user, data.token)
+      
+      if (data?.session) {
+        applySession(data.user, data.session.access_token)
+      }
+      
       return {
         success: true,
-        message: data.message,
-        nextStep: data.nextStep,
-        accountActive: data.accountActive,
-        phone: data.phone,
-        waitSeconds: data.waitSeconds,
-        otp: data.otp,
+        message: 'Account verified successfully!',
+        accountActive: true,
       }
     } catch (err) {
       return {
         success: false,
-        error: err.response?.data?.error || err.message || 'Email OTP verification failed.',
-        waitSeconds: err.response?.data?.waitSeconds,
+        error: err.message || 'Email OTP verification failed.',
       }
     }
   }
 
   const resendOtp = async (email) => {
     try {
-      const { data } = await api.post('/auth/resend-otp', { email })
-      if (!data?.success) {
-        return { success: false, error: data?.error || 'Failed to resend OTP.' }
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      })
+      if (error) {
+        return { success: false, error: error.message }
       }
       return {
         success: true,
-        message: data.message,
-        otp: data.otp,
-        waitSeconds: data.waitSeconds,
+        message: 'New OTP sent to your email.',
       }
     } catch (err) {
       return {
         success: false,
-        error: err.response?.data?.error || err.message || 'Failed to resend OTP.',
-        waitSeconds: err.response?.data?.waitSeconds,
+        error: err.message || 'Failed to resend OTP.',
       }
     }
   }
@@ -283,44 +322,60 @@ export function AppProvider({ children }) {
 
   const login = async (identifier, password) => {
     try {
-      const { data } = await api.post('/auth/login', { email: identifier, password })
-      if (!data?.success) {
-        return { success: false, error: data?.error || 'Login failed.' }
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: identifier,
+        password
+      })
+      
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          return {
+            success: false,
+            error: 'Please verify your email before logging in.',
+            needsVerification: true,
+            needsEmail: true,
+            email: identifier
+          }
+        }
+        return { success: false, error: error.message }
       }
-      applySession(data.user, data.token)
+      
+      applySession(data.user, data.session.access_token)
       return { success: true }
     } catch (err) {
-      const body = err.response?.data
-      if (err.response?.status === 403 && body?.needsVerification) {
-        return {
-          success: false,
-          error: body.error,
-          needsVerification: true,
-          needsEmail: body.needsEmail,
-          needsPhone: body.needsPhone,
-          email: body.email,
-          phone: body.phone,
-        }
-      }
       return {
         success: false,
-        error: body?.error || err.message || 'Invalid email or password.',
+        error: err.message || 'Invalid email or password.',
       }
     }
   }
 
   const updateProfile = async (data) => {
     try {
-      const { data: res } = await api.put('/auth/profile', data)
-      if (!res?.success) {
-        return { success: false, error: res?.error || 'Failed to update profile.' }
+      const { data: res, error } = await supabase.auth.updateUser({
+        data: {
+          name: data.name,
+          organization: data.organization,
+          job_role: data.job_role
+        }
+      })
+      if (error) {
+        return { success: false, error: error.message }
       }
-      if (res.user) setUser(mapProfileUser(res.user))
+      if (res?.user) {
+        setUser({
+          id: res.user.id,
+          email: res.user.email,
+          phone: res.user.phone,
+          name: res.user.user_metadata?.name || '',
+          role: res.user.user_metadata?.role || 'user',
+        })
+      }
       return { success: true }
     } catch (err) {
       return {
         success: false,
-        error: err.response?.data?.error || err.message || 'Failed to update profile.',
+        error: err.message || 'Failed to update profile.',
       }
     }
   }

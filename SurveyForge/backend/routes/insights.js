@@ -27,7 +27,9 @@ function formatAiError(err, defaultMsg = 'AI request failed') {
 
 // Aggregate user statistics helper
 function buildAggregateStats(userId) {
-  if (!userId) {
+  // Supabase users have UUID IDs — SQLite tables use INTEGER PKs, skip to avoid crash
+  const isUUID = typeof userId === 'string' && /^[0-9a-f-]{36}$/i.test(userId)
+  if (!userId || isUUID) {
     return {
       totalSurveys: 0,
       totalResponses: 0,

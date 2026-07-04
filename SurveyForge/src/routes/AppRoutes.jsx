@@ -11,11 +11,6 @@ import Signup         from '../pages/auth/Signup'
 import ForgotPassword from '../pages/auth/ForgotPassword'
 import ResetPassword  from '../pages/auth/ResetPassword'
 import OTP            from '../pages/auth/OTP'
-import VerifyPhone    from '../pages/auth/VerifyPhone'
-import EnterMobile    from '../pages/auth/EnterMobile'
-import PhoneOtpVerify from '../pages/auth/PhoneOtpVerify'
-import ResendPhoneOtp from '../pages/auth/ResendPhoneOtp'
-
 /* Onboarding */
 import Onboarding from '../pages/onboarding/Onboarding'
 
@@ -84,10 +79,6 @@ export default function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password"  element={<ResetPassword />} />
       <Route path="/otp"             element={<OTP />} />
-      <Route path="/verify-phone"    element={<VerifyPhone />} />
-      <Route path="/phone/enter"     element={<EnterMobile />} />
-      <Route path="/phone/otp"       element={<PhoneOtpVerify />} />
-      <Route path="/phone/resend"    element={<ResendPhoneOtp />} />
       <Route path="/onboarding"      element={<Onboarding />} />
 
       {/* ── Public survey taking (share link) ─────────── */}
