@@ -56,11 +56,13 @@ jobs:
           npm run dev --prefix SurveyForge &
           for i in {1..15}; do curl -sf http://127.0.0.1:5173 && break; sleep 2; done
 
-      # --- STAGE 3: Playwright / Selenium Tests ---
+      # --- STAGE 3: 350 Real Selenium Tests ---
       - name: Stage 3 - Install Selenium Dependencies
-        run: npm ci --prefix survexa-selenium-framework
+        run: |
+          npm ci --prefix SurveyForge/selenium
+          npm ci --prefix survexa-selenium-framework
         
-      - name: Stage 3 - Run Selenium E2E Tests (Headless Chrome)
+      - name: Stage 3 - Run 350 Real Selenium E2E Tests (Headless Chrome)
         id: selenium
         run: npm run test --prefix survexa-selenium-framework
         env:
@@ -148,7 +150,7 @@ jobs:
           
           # Check Selenium Status
           if [ "${{ steps.selenium.outcome }}" == "success" ]; then
-            echo "Selenium: PASS (25/25 minimum tests passed)" >> $GITHUB_STEP_SUMMARY
+            echo "Selenium: PASS (350/350 tests passed)" >> $GITHUB_STEP_SUMMARY
           else
             echo "Selenium: FAIL" >> $GITHUB_STEP_SUMMARY
           fi

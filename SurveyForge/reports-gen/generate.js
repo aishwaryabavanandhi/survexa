@@ -12,93 +12,6 @@ if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
 }
 
-async function createSeleniumReport() {
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'QA Automation';
-    workbook.created = new Date();
-
-    // --- Sheet 1: Summary ---
-    const summarySheet = workbook.addWorksheet('Summary');
-    summarySheet.columns = [
-        { header: 'Execution Date', key: 'date', width: 20 },
-        { header: 'Tester', key: 'tester', width: 20 },
-        { header: 'Environment', key: 'env', width: 15 },
-        { header: 'Total Test Cases', key: 'total', width: 15 },
-        { header: 'Passed', key: 'passed', width: 10 },
-        { header: 'Failed', key: 'failed', width: 10 },
-        { header: 'Skipped', key: 'skipped', width: 10 },
-        { header: 'Pass Percentage', key: 'percent', width: 15 }
-    ];
-    summarySheet.addRow({
-        date: new Date().toLocaleDateString(),
-        tester: 'Automation Bot',
-        env: 'Staging / QA',
-        total: 25,
-        passed: 25,
-        failed: 0,
-        skipped: 0,
-        percent: '100%'
-    });
-
-    // --- Sheet 2: Test Cases ---
-    const tcSheet = workbook.addWorksheet('Test Cases');
-    tcSheet.columns = [
-        { header: 'Test ID', key: 'id', width: 15 },
-        { header: 'Module', key: 'module', width: 20 },
-        { header: 'Scenario', key: 'scenario', width: 40 },
-        { header: 'Expected Result', key: 'expected', width: 40 },
-        { header: 'Actual Result', key: 'actual', width: 40 },
-        { header: 'Status', key: 'status', width: 15 },
-        { header: 'Execution Time', key: 'time', width: 15 }
-    ];
-
-    const modules = ['Authentication', 'Dashboard', 'Survey Builder', 'Analytics', 'Settings'];
-    for (let i = 1; i <= 25; i++) {
-        const mod = modules[i % modules.length];
-        const status = 'Pass';
-        tcSheet.addRow({
-            id: `TC_SEL_${String(i).padStart(3, '0')}`,
-            module: mod,
-            scenario: `Verify core functionality ${i} in ${mod}`,
-            expected: `User should successfully perform action in ${mod}`,
-            actual: status === 'Pass' ? 'Action completed as expected' : 'Element not found or timed out',
-            status: status,
-            time: `${Math.floor(Math.random() * 500) + 100}ms`
-        });
-    }
-
-    // --- Sheet 3: Failed Cases ---
-    const failedSheet = workbook.addWorksheet('Failed Cases');
-    failedSheet.columns = [
-        { header: 'Test ID', key: 'id', width: 15 },
-        { header: 'Failure Reason', key: 'reason', width: 50 },
-        { header: 'Screenshot Path', key: 'screenshot', width: 40 },
-        { header: 'Severity', key: 'severity', width: 15 }
-    ];
-    // No failed cases
-
-    // --- Sheet 4: Execution Logs ---
-    const logsSheet = workbook.addWorksheet('Execution Logs');
-    logsSheet.columns = [
-        { header: 'Timestamp', key: 'time', width: 25 },
-        { header: 'Test Name', key: 'name', width: 20 },
-        { header: 'Step', key: 'step', width: 40 },
-        { header: 'Result', key: 'result', width: 15 },
-        { header: 'Remarks', key: 'remarks', width: 30 }
-    ];
-    for (let i = 1; i <= 25; i++) {
-        logsSheet.addRow({
-            time: new Date().toISOString(),
-            name: `TC_SEL_${String(i).padStart(3, '0')}`,
-            step: 'Navigate to target page and perform interaction',
-            result: 'SUCCESS',
-            remarks: 'Step executed'
-        });
-    }
-
-    styleWorkbook(workbook);
-    await workbook.xlsx.writeFile(path.join(outDir, 'Selenium_Test_Report.xlsx'));
-}
 
 async function createAppiumReport() {
     const workbook = new ExcelJS.Workbook();
@@ -264,10 +177,9 @@ function styleWorkbook(workbook) {
 
 (async () => {
     try {
-        await createSeleniumReport();
         await createAppiumReport();
         await createVulnerabilityReport();
-        console.log('Successfully generated all reports.');
+        console.log('Successfully generated mobile and vulnerability reports.');
     } catch (error) {
         console.error('Error generating reports:', error);
     }
