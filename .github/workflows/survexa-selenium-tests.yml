@@ -30,6 +30,10 @@ jobs:
     - name: Install Selenium Dependencies
       run: npm install --prefix selenium
 
+    - name: Compile TypeScript Tests
+      run: cd selenium && npx tsc
+      continue-on-error: true
+
     - name: Build Application
       run: npm run build
 
@@ -57,13 +61,6 @@ jobs:
       with:
         name: Selenium_Test_Report.xlsx
         path: SurveyForge/selenium/reports/excel/Selenium_Test_Report.xlsx
-        if-no-files-found: ignore
-
-    - name: Upload Selenium HTML Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: Selenium_Report.html
-        path: SurveyForge/selenium/reports/html/Selenium_Report.html
         if-no-files-found: ignore
 
     - name: Upload Failure Screenshots

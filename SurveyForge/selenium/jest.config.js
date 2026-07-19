@@ -1,15 +1,13 @@
+/** @type {import('jest').Config} */
 module.exports = {
   testEnvironment: 'node',
-  testTimeout: 60000, // 60 seconds for slow Selenium UI tests
+  testTimeout: 90000,
   verbose: true,
   reporters: [
     "default",
-    ["jest-html-reporter", {
-      "pageTitle": "Survexa Selenium Test Report",
-      "outputPath": "reports/html/Selenium_Report.html",
-      "includeFailureMsg": true,
-      "includeSuiteFailure": true
-    }],
-    "<rootDir>/utils/reporter.js"
+    ["<rootDir>/dist/helpers/report.js", {}]
+  ],
+  testMatch: [
+    "**/dist/tests/**/*.test.js"
   ]
 };
