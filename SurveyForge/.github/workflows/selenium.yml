@@ -39,12 +39,12 @@ jobs:
         PORT: 3000
 
     - name: Start Frontend
-      run: npm run preview -- --port 5173 &
+      run: npm run preview -- --host 127.0.0.1 --port 5173 &
 
     - name: Wait for services
       run: |
-        npx wait-on http://localhost:3000/api/health -t 30000
-        npx wait-on http://localhost:5173 -t 30000
+        npx wait-on http://127.0.0.1:3000/api/health -t 30000
+        npx wait-on http://127.0.0.1:5173 -t 30000
 
     - name: Run Selenium Tests (350 Test Cases)
       run: npm test --prefix selenium
