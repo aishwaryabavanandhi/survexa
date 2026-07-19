@@ -22,13 +22,13 @@ jobs:
         node-version: '20'
 
     - name: Install Frontend Dependencies
-      run: npm install
+      run: npm install --legacy-peer-deps
 
     - name: Install Backend Dependencies
-      run: npm install --prefix backend
+      run: npm install --prefix backend --legacy-peer-deps
 
     - name: Install Selenium Dependencies
-      run: npm install --prefix selenium
+      run: npm install --prefix selenium --legacy-peer-deps
 
     - name: Compile TypeScript Tests
       run: cd selenium && npx tsc
