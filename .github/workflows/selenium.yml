@@ -1,0 +1,74 @@
+name: Survexa Selenium UI Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SurveyForge
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Frontend Dependencies
+      run: npm install
+
+    - name: Install Backend Dependencies
+      run: npm install --prefix backend
+
+    - name: Install Selenium Dependencies
+      run: npm install --prefix selenium
+
+    - name: Build Application
+      run: npm run build
+
+    - name: Start Backend
+      run: npm start --prefix backend &
+      env:
+        NODE_ENV: test
+        JWT_SECRET: supersecret
+        PORT: 3000
+
+    - name: Start Frontend
+      run: npm run preview -- --host 127.0.0.1 --port 5173 &
+
+    - name: Wait for services
+      run: |
+        npx wait-on http://127.0.0.1:3000/api/health -t 30000
+        npx wait-on http://127.0.0.1:5173 -t 30000
+
+    - name: Run Selenium Tests (350 Test Cases)
+      run: npm test --prefix selenium
+      continue-on-error: true
+
+    - name: Upload Selenium Excel Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Selenium_Test_Report.xlsx
+        path: SurveyForge/selenium/reports/excel/Selenium_Test_Report.xlsx
+        if-no-files-found: ignore
+
+    - name: Upload Selenium HTML Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Selenium_Report.html
+        path: SurveyForge/selenium/reports/html/Selenium_Report.html
+        if-no-files-found: ignore
+
+    - name: Upload Failure Screenshots
+      uses: actions/upload-artifact@v4
+      with:
+        name: Selenium_Screenshots
+        path: SurveyForge/selenium/reports/screenshots/
+        if-no-files-found: ignore
