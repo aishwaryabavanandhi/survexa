@@ -48,9 +48,7 @@ jobs:
       run: npm run preview -- --host 127.0.0.1 --port 5173 &
 
     - name: Wait for services
-      run: |
-        npx wait-on http://127.0.0.1:3000/health -t 30000
-        npx wait-on http://127.0.0.1:5173 -t 30000
+      run: sleep 30
 
     - name: Run Selenium Tests (350 Test Cases)
       run: npm test --prefix selenium
