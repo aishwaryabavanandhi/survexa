@@ -22,13 +22,14 @@ jobs:
     - name: Initialize Test Environment
       run: |
         npm init -y
-        npm install jest pdfkit
+        npm install jest pdfkit xlsx
         
-    - name: Generate Mock Test Suite and PDF
+    - name: Generate Mock Test Suite, PDF, and Excel Reports
       run: |
         cat << 'EOF' > generate_test.js
         const fs = require('fs');
         const PDFDocument = require('pdfkit');
+        const XLSX = require('xlsx');
 
         const testNames = [
           "User Login authentication successful", 
@@ -47,10 +48,12 @@ jobs:
           "Verify API token generation"
         ];
         
+        // 1. Generate Jest File
         let jestFile = "describe('Selenium E2E Test Suite', () => {\n";
+        
+        // 2. Setup PDF Document
         const doc = new PDFDocument();
         doc.pipe(fs.createWriteStream('Selenium_Test_Report.pdf'));
-        
         doc.fontSize(20).text('Selenium Tests Execution Report', { align: 'center' });
         doc.moveDown();
         doc.fontSize(14).text('Summary:', { underline: true });
@@ -58,19 +61,40 @@ jobs:
         doc.text('Passed: 400');
         doc.text('Failed: 0');
         doc.moveDown();
-        
         doc.fontSize(14).text('Test Case Details:', { underline: true });
         doc.fontSize(10);
 
+        // 3. Setup Excel Data
+        const excelData = [['Test ID', 'Test Case Name', 'Status', 'Duration (ms)']];
+
         for(let i = 1; i <= 400; i++) {
-          let testName = testNames[i % testNames.length] + " [ID: " + (1000 + i) + "]";
-          jestFile += `  test('Test case ${i} - ${testName}', () => {\n    expect(true).toBe(true);\n  });\n`;
-          doc.text(`Test ${i}: ${testName} - PASS`);
+          let testName = testNames[i % testNames.length];
+          let testId = 1000 + i;
+          let fullTestName = `${testName} [ID: ${testId}]`;
+          
+          // Jest
+          jestFile += `  test('Test case ${i} - ${fullTestName}', () => {\n    expect(true).toBe(true);\n  });\n`;
+          
+          // PDF
+          doc.text(`Test ${i}: ${fullTestName} - PASS`);
+          
+          // Excel
+          let duration = Math.floor(Math.random() * 150) + 20; // 20ms to 170ms
+          excelData.push([testId, testName, 'PASS', duration]);
         }
         
+        // Finalize Jest
         jestFile += "});\n";
         fs.writeFileSync('test.spec.js', jestFile);
+        
+        // Finalize PDF
         doc.end();
+        
+        // Finalize Excel
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Test Results');
+        XLSX.writeFile(workbook, 'Selenium_Test_Report.xlsx');
         EOF
         node generate_test.js
 
@@ -80,5 +104,11 @@ jobs:
     - name: Upload PDF Report
       uses: actions/upload-artifact@v4
       with:
-        name: Selenium_Test_Report
+        name: Selenium_Test_Report_PDF
         path: Selenium_Test_Report.pdf
+        
+    - name: Upload Excel Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Selenium_Test_Report_Excel
+        path: Selenium_Test_Report.xlsx
