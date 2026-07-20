@@ -59,7 +59,6 @@ jobs:
       # --- STAGE 3: 350 Real Selenium Tests ---
       - name: Stage 3 - Install Selenium Dependencies
         run: |
-          npm ci --prefix SurveyForge/selenium
           npm ci --prefix survexa-selenium-framework
         
       - name: Stage 3 - Run 350 Real Selenium E2E Tests (Headless Chrome)
