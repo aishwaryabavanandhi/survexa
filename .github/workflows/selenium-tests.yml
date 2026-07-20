@@ -1,0 +1,74 @@
+name: Survexa Selenium Tests
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install SurveyForge Backend Dependencies
+      run: |
+        cd SurveyForge/backend
+        npm install
+
+    - name: Install SurveyForge Frontend Dependencies
+      run: |
+        cd SurveyForge
+        npm install
+
+    - name: Install Selenium Framework Dependencies
+      run: |
+        cd survexa-selenium-framework
+        npm install
+
+    - name: Start SurveyForge Backend
+      run: |
+        cd SurveyForge/backend
+        # Note: Supplying mock env variables if required to start the server
+        npm run dev &
+      env:
+        PORT: 5000
+
+    - name: Start SurveyForge Frontend
+      run: |
+        cd SurveyForge
+        npm run dev &
+      env:
+        PORT: 5173
+
+    - name: Wait for servers to be ready
+      run: |
+        npx wait-on http://localhost:5000/api/health-check -t 30000 || true
+        npx wait-on http://localhost:5173 -t 30000 || true
+
+    - name: Run Selenium Tests
+      run: |
+        cd survexa-selenium-framework
+        npm test
+      env:
+        CI: true
+
+    - name: Upload Selenium Excel Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: Selenium_Test_Report
+        path: survexa-selenium-framework/reports/Selenium_Test_Report.xlsx
+
+    - name: Upload Selenium HTML Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: Selenium_HTML_Report
+        path: survexa-selenium-framework/reports/Selenium_Report.html

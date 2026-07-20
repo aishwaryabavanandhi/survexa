@@ -1,31 +1,21 @@
 {
   "name": "survexa-selenium-framework",
-  "version": "1.0.0",
-  "description": "Production-ready E2E Selenium WebDriver automation framework for the Survexa React application.",
+  "version": "2.0.0",
+  "description": "Selenium Testing framework for Survexa",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "test": "node ../SurveyForge/selenium/run_and_report.js && exit 0",
-    "test:chrome": "cross-env BROWSER=chrome mocha",
-    "test:firefox": "cross-env BROWSER=firefox mocha",
-    "test:edge": "cross-env BROWSER=msedge mocha",
-    "test:e2e": "mocha tests/e2e.test.js",
-    "test:dynamic": "mocha tests/dynamic.test.js"
+    "test": "npm run clean && mocha",
+    "clean": "node utilities/cleanReports.js"
   },
   "dependencies": {
-    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "exceljs": "^4.4.0",
-    "selenium-webdriver": "^4.18.0",
-    "winston": "^3.11.0"
+    "selenium-webdriver": "^4.18.0"
   },
   "devDependencies": {
     "chai": "^4.4.1",
     "mocha": "^10.3.0",
     "mochawesome": "^7.1.3"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  },
-  "license": "MIT"
+  }
 }

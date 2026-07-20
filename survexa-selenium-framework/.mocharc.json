@@ -1,12 +1,12 @@
 {
   "spec": "tests/**/*.test.js",
-  "timeout": 120000,
-  "exit": true,
+  "require": "tests/hooks.js",
   "reporter": "mochawesome",
-  "reporter-options": [
-    "reportDir=mochawesome-report",
-    "overwrite=false",
+  "reporterOptions": [
+    "reportDir=reports",
+    "reportFilename=Selenium_Report",
     "html=true",
-    "json=true"
-  ]
+    "json=false"
+  ],
+  "timeout": 60000
 }
